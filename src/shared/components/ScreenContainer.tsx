@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
-import { SafeAreaView, StatusBar, StyleSheet, View, ViewProps } from "react-native";
+import { StatusBar, StyleSheet, View, ViewProps } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, spacing } from "../theme/tokens";
 
 export interface ScreenContainerProps extends ViewProps {
