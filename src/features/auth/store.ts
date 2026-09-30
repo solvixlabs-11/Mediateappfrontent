@@ -32,17 +32,44 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: async () => {
-    await secureStorage.clearTokens();
-    set({ isAuthenticated: false, user: null, isLoading: false });
+    try {
+      const refreshToken = await secureStorage.getRefreshToken();
+      if (refreshToken) {
+        const { authApi } = await import("./api/authApi");
+        await authApi.logout(refreshToken);
+      }
+    } catch {
+      // Ignore network errors on logout to guarantee clean local state
+    } finally {
+      await secureStorage.clearTokens();
+      set({ isAuthenticated: false, user: null, isLoading: false });
+    }
   },
 
   initializeAuth: async () => {
     const accessToken = await secureStorage.getAccessToken();
-    if (accessToken) {
-      // In Phase 1, we validate via /auth/me. In Phase 0, we verify token presence.
-      set({ isAuthenticated: true, isLoading: false });
-    } else {
-      set({ isAuthenticated: false, isLoading: false });
+    if (!accessToken) {
+      set({ isAuthenticated: false, user: null, isLoading: false });
+      return;
+    }
+
+    try {
+      const { authApi } = await import("./api/authApi");
+      const me = await authApi.getMe();
+      set({
+        isAuthenticated: true,
+        user: {
+          id: me.id,
+          email: me.email,
+          fullName: me.full_name,
+          role: me.role as Role,
+          permissions: me.permissions,
+        },
+        isLoading: false,
+      });
+    } catch {
+      await secureStorage.clearTokens();
+      set({ isAuthenticated: false, user: null, isLoading: false });
     }
   },
 }));
