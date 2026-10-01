@@ -496,10 +496,968 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/masters/bulk-dropdowns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all common dropdowns for offline caching
+         * @description Fetch bundled specializations, categories, and states for client cache.
+         */
+        get: operations["get_bulk_dropdowns_api_v1_masters_bulk_dropdowns_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/masters": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List generic master items
+         * @description Fetch list of business master items.
+         */
+        get: operations["list_master_items_api_v1_masters_get"];
+        put?: never;
+        /**
+         * Create master item (Admin)
+         * @description Create a new master item.
+         */
+        post: operations["create_master_item_api_v1_masters_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/masters/{item_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update master item (Admin)
+         * @description Update existing master item.
+         */
+        put: operations["update_master_item_api_v1_masters__item_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/masters/states": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List states
+         * @description List states.
+         */
+        get: operations["list_states_api_v1_masters_states_get"];
+        put?: never;
+        /**
+         * Create state (Admin)
+         * @description Create a state.
+         */
+        post: operations["create_state_api_v1_masters_states_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/masters/cities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List cities by state
+         * @description List cities.
+         */
+        get: operations["list_cities_api_v1_masters_cities_get"];
+        put?: never;
+        /**
+         * Create city (Admin)
+         * @description Create a city.
+         */
+        post: operations["create_city_api_v1_masters_cities_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/masters/areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List areas by city
+         * @description List areas.
+         */
+        get: operations["list_areas_api_v1_masters_areas_get"];
+        put?: never;
+        /**
+         * Create area (Admin)
+         * @description Create an area.
+         */
+        post: operations["create_area_api_v1_masters_areas_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/territories/my-territories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get logged-in user's assigned territories
+         * @description Fetch active territories assigned to current MR / Manager.
+         */
+        get: operations["get_my_territories_api_v1_territories_my_territories_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/territories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all territories
+         * @description List territories with search and state filter.
+         */
+        get: operations["list_territories_api_v1_territories_get"];
+        put?: never;
+        /**
+         * Create territory (Admin)
+         * @description Create a new territory and assign areas.
+         */
+        post: operations["create_territory_api_v1_territories_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/territories/{territory_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get territory details by ID
+         * @description Get territory by ID.
+         */
+        get: operations["get_territory_api_v1_territories__territory_id__get"];
+        /**
+         * Update territory (Admin)
+         * @description Update territory metadata and areas.
+         */
+        put: operations["update_territory_api_v1_territories__territory_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/territories/{territory_id}/assign": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Assign user to territory
+         * @description Assign an MR or Manager to a territory.
+         */
+        post: operations["assign_user_to_territory_api_v1_territories__territory_id__assign_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/territories/{territory_id}/assign/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Unassign user from territory
+         * @description Remove user from territory.
+         */
+        delete: operations["unassign_user_from_territory_api_v1_territories__territory_id__assign__user_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/nearby": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get nearby customers within radius using Haversine calculation
+         * @description Calculate GPS distances and return nearby customers sorted by proximity.
+         */
+        get: operations["get_nearby_customers_api_v1_customers_nearby_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import customer entities from CSV file
+         * @description Batch upload customers from CSV with row-by-row error report.
+         */
+        post: operations["import_customers_api_v1_customers_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/doctors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List doctors with territory scoping and filters
+         * @description Fetch doctors list.
+         */
+        get: operations["list_doctors_api_v1_customers_doctors_get"];
+        put?: never;
+        /**
+         * Create a new doctor
+         * @description Create a new doctor.
+         */
+        post: operations["create_doctor_api_v1_customers_doctors_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/doctors/{doctor_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get doctor details by ID
+         * @description Get doctor details.
+         */
+        get: operations["get_doctor_api_v1_customers_doctors__doctor_id__get"];
+        /**
+         * Update doctor details
+         * @description Update doctor details.
+         */
+        put: operations["update_doctor_api_v1_customers_doctors__doctor_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/hospitals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List hospitals
+         * @description Fetch hospitals list.
+         */
+        get: operations["list_hospitals_api_v1_customers_hospitals_get"];
+        put?: never;
+        /**
+         * Create a new hospital
+         * @description Create a new hospital.
+         */
+        post: operations["create_hospital_api_v1_customers_hospitals_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/hospitals/map-doctor": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Map doctor to hospital
+         * @description Associate a doctor with a hospital.
+         */
+        post: operations["map_doctor_to_hospital_api_v1_customers_hospitals_map_doctor_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/chemists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List chemists
+         * @description Fetch chemists list.
+         */
+        get: operations["list_chemists_api_v1_customers_chemists_get"];
+        put?: never;
+        /**
+         * Create a new chemist
+         * @description Create a new chemist.
+         */
+        post: operations["create_chemist_api_v1_customers_chemists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/stockists": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List stockists
+         * @description Fetch stockists list.
+         */
+        get: operations["list_stockists_api_v1_customers_stockists_get"];
+        put?: never;
+        /**
+         * Create a new stockist
+         * @description Create a new stockist.
+         */
+        post: operations["create_stockist_api_v1_customers_stockists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/today": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get today's attendance status for logged-in user
+         * @description Check if MR has checked in or checked out today.
+         */
+        get: operations["get_today_attendance_api_v1_attendance_today_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/check-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record daily morning check-in
+         * @description Record user check-in with GPS coordinates.
+         */
+        post: operations["check_in_api_v1_attendance_check_in_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/check-out": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record daily evening check-out
+         * @description Record user check-out.
+         */
+        post: operations["check_out_api_v1_attendance_check_out_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/attendance/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user attendance history
+         * @description Fetch attendance history for date range.
+         */
+        get: operations["get_attendance_history_api_v1_attendance_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dcr/visits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List DCR visits for current user
+         * @description Fetch user's DCR calls.
+         */
+        get: operations["list_dcr_visits_api_v1_dcr_visits_get"];
+        put?: never;
+        /**
+         * Submit DCR call with geofence verification
+         * @description Submit doctor, chemist, hospital, or stockist call.
+         */
+        post: operations["submit_dcr_visit_api_v1_dcr_visits_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dcr/visits/{visit_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get DCR visit details by ID
+         * @description Fetch full DCR record with post-call analysis and products.
+         */
+        get: operations["get_dcr_visit_api_v1_dcr_visits__visit_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dcr/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get daily DCR metrics and call counts
+         * @description Get metrics for today or selected date.
+         */
+        get: operations["get_daily_summary_api_v1_dcr_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dcr/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List planned visits
+         * @description Fetch user's planned calls.
+         */
+        get: operations["list_planned_visits_api_v1_dcr_plans_get"];
+        put?: never;
+        /**
+         * Create planned customer visit
+         * @description Add a customer to today or future plan.
+         */
+        post: operations["create_planned_visit_api_v1_dcr_plans_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dcr/follow-ups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List customer follow-ups
+         * @description Fetch pending or overdue follow-ups.
+         */
+        get: operations["list_follow_ups_api_v1_dcr_follow_ups_get"];
+        put?: never;
+        /**
+         * Create customer follow-up
+         * @description Create actionable follow-up reminder.
+         */
+        post: operations["create_follow_up_api_v1_dcr_follow_ups_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dcr/follow-ups/{follow_up_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark follow-up as completed
+         * @description Close completed follow-up.
+         */
+        post: operations["complete_follow_up_api_v1_dcr_follow_ups__follow_up_id__complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/approvals/inbox": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get pending approvals inbox for manager or admin
+         * @description Fetch pending approvals scoped to the user.
+         */
+        get: operations["get_inbox_api_v1_approvals_inbox_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/approvals/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get approval request detail with audit history
+         * @description Fetch approval details by request ID.
+         */
+        get: operations["get_approval_detail_api_v1_approvals__request_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/approvals/{request_id}/decision": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit approve or reject decision (BR-08)
+         * @description Approve or reject a request with audit log and entity callback.
+         */
+        post: operations["submit_decision_api_v1_approvals__request_id__decision_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Tour Programs scoped to role
+         * @description Fetch tour programs for rep or manager's team.
+         */
+        get: operations["list_tours_api_v1_tours_get"];
+        put?: never;
+        /**
+         * Create and submit a Tour Program (BR-09)
+         * @description Submit a new monthly/weekly tour plan for manager approval.
+         */
+        post: operations["create_tour_api_v1_tours_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tours/{tour_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get single Tour Program details
+         * @description Fetch tour by ID.
+         */
+        get: operations["get_tour_api_v1_tours__tour_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List expense claims scoped to user role
+         * @description Fetch expense claims history.
+         */
+        get: operations["list_expenses_api_v1_expenses_get"];
+        put?: never;
+        /**
+         * Submit a field expense claim (DA/TA/Lodging)
+         * @description Submit a daily expense claim for manager approval.
+         */
+        post: operations["create_expense_api_v1_expenses_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/expenses/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get monthly expense claim summary
+         * @description Fetch monthly claimed vs approved totals.
+         */
+        get: operations["get_monthly_summary_api_v1_expenses_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/leaves/balances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current leave balances for rep
+         * @description Fetch remaining Casual, Sick, and Earned leave balances.
+         */
+        get: operations["get_leave_balances_api_v1_leaves_balances_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/leaves": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List leave applications scoped to role
+         * @description Fetch leave requests history.
+         */
+        get: operations["list_leaves_api_v1_leaves_get"];
+        put?: never;
+        /**
+         * Apply for leave (BR-09, BR-10)
+         * @description Submit a leave application for manager approval.
+         */
+        post: operations["apply_leave_api_v1_leaves_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/leaves/{leave_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel a leave request and restore balance (BR-10)
+         * @description Cancel leave request; restores deducted balance if it was approved.
+         */
+        post: operations["cancel_leave_api_v1_leaves__leave_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * ApprovalDecisionRequest
+         * @description Payload submitted by manager or admin to approve or reject a request.
+         */
+        ApprovalDecisionRequest: {
+            /**
+             * Decision
+             * @description 'APPROVED' or 'REJECTED'
+             */
+            decision: string;
+            /**
+             * Comments
+             * @description Mandatory when rejected
+             */
+            comments?: string | null;
+        };
+        /**
+         * ApprovalHistoryResponse
+         * @description Single review action record.
+         */
+        ApprovalHistoryResponse: {
+            /** Id */
+            id: number;
+            /** Request Id */
+            request_id: number;
+            /** Approver Id */
+            approver_id: number;
+            /** Approver Name */
+            approver_name?: string | null;
+            /** Decision */
+            decision: string;
+            /** Comments */
+            comments?: string | null;
+            /**
+             * Decided At
+             * Format: date-time
+             */
+            decided_at: string;
+        };
+        /**
+         * ApprovalRequestResponse
+         * @description Full approval request detail including requester information and review history.
+         */
+        ApprovalRequestResponse: {
+            /** Id */
+            id: number;
+            /** Entity Type */
+            entity_type: string;
+            /** Entity Id */
+            entity_id: number;
+            /** Requester Id */
+            requester_id: number;
+            /** Requester Name */
+            requester_name?: string | null;
+            /** Requester Email */
+            requester_email?: string | null;
+            /** Status */
+            status: string;
+            /** Current Step */
+            current_step: number;
+            /** Total Steps */
+            total_steps: number;
+            /** Title */
+            title: string;
+            /** Details */
+            details?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * History
+             * @default []
+             */
+            history: components["schemas"]["ApprovalHistoryResponse"][];
+        };
+        /**
+         * AreaCreate
+         * @description Payload to create an Area.
+         */
+        AreaCreate: {
+            /** City Id */
+            city_id: number;
+            /** Name */
+            name: string;
+            /** Pincode */
+            pincode?: string | null;
+        };
+        /**
+         * AreaResponse
+         * @description Area / Locality response.
+         */
+        AreaResponse: {
+            /** Id */
+            id: number;
+            /** City Id */
+            city_id: number;
+            /** Name */
+            name: string;
+            /** Pincode */
+            pincode?: string | null;
+            /** Is Active */
+            is_active: boolean;
+        };
         /**
          * AssignManagerRequest
          * @description Request to assign or reassign an MR to a Manager.
@@ -507,6 +1465,136 @@ export interface components {
         AssignManagerRequest: {
             /** Manager Id */
             manager_id: number;
+        };
+        /**
+         * AssignTerritoryRequest
+         * @description Request to assign an MR or Manager to a Territory.
+         */
+        AssignTerritoryRequest: {
+            /** User Id */
+            user_id: number;
+        };
+        /**
+         * AttendanceCheckInRequest
+         * @description Payload to record daily morning check-in.
+         */
+        AttendanceCheckInRequest: {
+            /** Date */
+            date?: string | null;
+            /**
+             * Latitude
+             * @description Current device latitude
+             */
+            latitude: number;
+            /**
+             * Longitude
+             * @description Current device longitude
+             */
+            longitude: number;
+            /**
+             * Accuracy
+             * @description GPS accuracy in meters
+             */
+            accuracy?: number | null;
+            /** Address */
+            address?: string | null;
+            /**
+             * Mock Location Flag
+             * @default false
+             */
+            mock_location_flag: boolean;
+            /** Remarks */
+            remarks?: string | null;
+            /** Client Uuid */
+            client_uuid?: string | null;
+        };
+        /**
+         * AttendanceCheckOutRequest
+         * @description Payload to record end-of-day check-out.
+         */
+        AttendanceCheckOutRequest: {
+            /**
+             * Latitude
+             * @description Current device latitude
+             */
+            latitude: number;
+            /**
+             * Longitude
+             * @description Current device longitude
+             */
+            longitude: number;
+            /**
+             * Accuracy
+             * @description GPS accuracy in meters
+             */
+            accuracy?: number | null;
+            /** Address */
+            address?: string | null;
+            /**
+             * Mock Location Flag
+             * @default false
+             */
+            mock_location_flag: boolean;
+            /** Remarks */
+            remarks?: string | null;
+        };
+        /**
+         * AttendanceResponse
+         * @description Daily attendance details response.
+         */
+        AttendanceResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Status */
+            status: string;
+            /** Check In Time */
+            check_in_time?: string | null;
+            /** Check In Latitude */
+            check_in_latitude?: number | null;
+            /** Check In Longitude */
+            check_in_longitude?: number | null;
+            /** Check In Address */
+            check_in_address?: string | null;
+            /** Check In Accuracy */
+            check_in_accuracy?: number | null;
+            /**
+             * Check In Mock Flag
+             * @default false
+             */
+            check_in_mock_flag: boolean;
+            /** Check Out Time */
+            check_out_time?: string | null;
+            /** Check Out Latitude */
+            check_out_latitude?: number | null;
+            /** Check Out Longitude */
+            check_out_longitude?: number | null;
+            /** Check Out Address */
+            check_out_address?: string | null;
+            /** Check Out Accuracy */
+            check_out_accuracy?: number | null;
+            /**
+             * Check Out Mock Flag
+             * @default false
+             */
+            check_out_mock_flag: boolean;
+            /** Total Work Minutes */
+            total_work_minutes?: number | null;
+            /** Remarks */
+            remarks?: string | null;
+            /** Client Uuid */
+            client_uuid?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * AuthConfigResponse
@@ -527,6 +1615,11 @@ export interface components {
              */
             demo_accounts: components["schemas"]["DemoAccount"][];
         };
+        /** Body_import_customers_api_v1_customers_import_post */
+        Body_import_customers_api_v1_customers_import_post: {
+            /** File */
+            file: string;
+        };
         /** Body_upload_file_api_v1_files_upload_post */
         Body_upload_file_api_v1_files_upload_post: {
             /** File */
@@ -546,6 +1639,362 @@ export interface components {
             new_password: string;
         };
         /**
+         * ChemistCreate
+         * @description Payload to create a Chemist.
+         */
+        ChemistCreate: {
+            /** Shop Name */
+            shop_name: string;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Dl Number */
+            dl_number?: string | null;
+            /** Gstin */
+            gstin?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+        };
+        /**
+         * ChemistResponse
+         * @description Chemist response.
+         */
+        ChemistResponse: {
+            /** Id */
+            id: number;
+            /** Code */
+            code: string;
+            /** Shop Name */
+            shop_name: string;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Dl Number */
+            dl_number?: string | null;
+            /** Gstin */
+            gstin?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * CityCreate
+         * @description Payload to create a City.
+         */
+        CityCreate: {
+            /** State Id */
+            state_id: number;
+            /** Name */
+            name: string;
+            /** Code */
+            code?: string | null;
+        };
+        /**
+         * CityResponse
+         * @description City / District response.
+         */
+        CityResponse: {
+            /** Id */
+            id: number;
+            /** State Id */
+            state_id: number;
+            /** Name */
+            name: string;
+            /** Code */
+            code?: string | null;
+            /** Is Active */
+            is_active: boolean;
+        };
+        /**
+         * DcrDailySummary
+         * @description Daily summary metrics for MR.
+         */
+        DcrDailySummary: {
+            /**
+             * Dcr Date
+             * Format: date
+             */
+            dcr_date: string;
+            /** Total Calls */
+            total_calls: number;
+            /** Doctor Calls */
+            doctor_calls: number;
+            /** Chemist Calls */
+            chemist_calls: number;
+            /** Hospital Calls */
+            hospital_calls: number;
+            /** Stockist Calls */
+            stockist_calls: number;
+            /** Geofence Verified Count */
+            geofence_verified_count: number;
+            /** Total Pob Amount */
+            total_pob_amount: number;
+            /** Planned Calls Count */
+            planned_calls_count: number;
+            /** Missed Calls Count */
+            missed_calls_count: number;
+        };
+        /**
+         * DcrPostCallAnalysisCreate
+         * @description Customer reaction and feedback.
+         */
+        DcrPostCallAnalysisCreate: {
+            /**
+             * Call Outcome
+             * @description HIGHLY_INTERESTED, MODERATE, NOT_INTERESTED, BUSY_RESCHEDULED
+             * @default HIGHLY_INTERESTED
+             */
+            call_outcome: string;
+            /** Doctor Feedback */
+            doctor_feedback?: string | null;
+            /**
+             * Prescription Commitment
+             * @description HIGH, MEDIUM, LOW, NIL
+             * @default HIGH
+             */
+            prescription_commitment: string;
+            /** Next Visit Date */
+            next_visit_date?: string | null;
+            /**
+             * Follow Up Required
+             * @default false
+             */
+            follow_up_required: boolean;
+            /** Follow Up Notes */
+            follow_up_notes?: string | null;
+        };
+        /**
+         * DcrPostCallAnalysisResponse
+         * @description Post-call analysis response.
+         */
+        DcrPostCallAnalysisResponse: {
+            /** Id */
+            id: number;
+            /** Call Outcome */
+            call_outcome: string;
+            /** Doctor Feedback */
+            doctor_feedback?: string | null;
+            /** Prescription Commitment */
+            prescription_commitment: string;
+            /** Next Visit Date */
+            next_visit_date?: string | null;
+            /** Follow Up Required */
+            follow_up_required: boolean;
+            /** Follow Up Notes */
+            follow_up_notes?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * DcrProductDetailCreate
+         * @description Products discussed and samples given.
+         */
+        DcrProductDetailCreate: {
+            /** Product Name */
+            product_name: string;
+            /**
+             * Sample Quantity
+             * @default 0
+             */
+            sample_quantity: number;
+            /**
+             * Gift Quantity
+             * @default 0
+             */
+            gift_quantity: number;
+            /** Remarks */
+            remarks?: string | null;
+        };
+        /**
+         * DcrProductDetailResponse
+         * @description Product discussion line item.
+         */
+        DcrProductDetailResponse: {
+            /** Id */
+            id: number;
+            /** Product Name */
+            product_name: string;
+            /** Sample Quantity */
+            sample_quantity: number;
+            /** Gift Quantity */
+            gift_quantity: number;
+            /** Remarks */
+            remarks?: string | null;
+        };
+        /**
+         * DcrVisitCreate
+         * @description Complete DCR submission payload with GPS and post-call feedback.
+         */
+        DcrVisitCreate: {
+            /**
+             * Dcr Date
+             * Format: date
+             * @description Date of the visit
+             */
+            dcr_date: string;
+            /**
+             * Customer Type
+             * @description DOCTOR, CHEMIST, HOSPITAL, STOCKIST
+             */
+            customer_type: string;
+            /** Doctor Id */
+            doctor_id?: number | null;
+            /** Chemist Id */
+            chemist_id?: number | null;
+            /** Hospital Id */
+            hospital_id?: number | null;
+            /** Stockist Id */
+            stockist_id?: number | null;
+            /** Planned Visit Id */
+            planned_visit_id?: number | null;
+            /**
+             * Visit Type
+             * @description INDEPENDENT, JOINT_WITH_MANAGER, HOSPITAL_OPD
+             * @default INDEPENDENT
+             */
+            visit_type: string;
+            /** Joint Manager Id */
+            joint_manager_id?: number | null;
+            /** Call Time */
+            call_time?: string | null;
+            /**
+             * Call Duration Minutes
+             * @default 15
+             */
+            call_duration_minutes: number;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Location Accuracy */
+            location_accuracy?: number | null;
+            /**
+             * Is Mock Location
+             * @default false
+             */
+            is_mock_location: boolean;
+            /** Remarks */
+            remarks?: string | null;
+            /**
+             * Pob Amount
+             * @default 0
+             */
+            pob_amount: number;
+            post_call_analysis?: components["schemas"]["DcrPostCallAnalysisCreate"] | null;
+            /** Product Details */
+            product_details?: components["schemas"]["DcrProductDetailCreate"][];
+            /** Client Uuid */
+            client_uuid?: string | null;
+        };
+        /**
+         * DcrVisitResponse
+         * @description DCR visit response with calculated geofence status.
+         */
+        DcrVisitResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /**
+             * Dcr Date
+             * Format: date
+             */
+            dcr_date: string;
+            /** Customer Type */
+            customer_type: string;
+            /** Doctor Id */
+            doctor_id?: number | null;
+            /** Chemist Id */
+            chemist_id?: number | null;
+            /** Hospital Id */
+            hospital_id?: number | null;
+            /** Stockist Id */
+            stockist_id?: number | null;
+            /** Customer Name */
+            customer_name?: string | null;
+            /** Planned Visit Id */
+            planned_visit_id?: number | null;
+            /** Visit Type */
+            visit_type: string;
+            /** Joint Manager Id */
+            joint_manager_id?: number | null;
+            /**
+             * Call Time
+             * Format: date-time
+             */
+            call_time: string;
+            /** Call Duration Minutes */
+            call_duration_minutes: number;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Location Accuracy */
+            location_accuracy?: number | null;
+            /** Distance To Customer Meters */
+            distance_to_customer_meters?: number | null;
+            /** Is Geofence Verified */
+            is_geofence_verified: boolean;
+            /** Geofence Radius Meters */
+            geofence_radius_meters: number;
+            /** Is Mock Location */
+            is_mock_location: boolean;
+            /** Remarks */
+            remarks?: string | null;
+            /** Pob Amount */
+            pob_amount: number;
+            /** Status */
+            status: string;
+            /** Client Uuid */
+            client_uuid?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            post_call_analysis?: components["schemas"]["DcrPostCallAnalysisResponse"] | null;
+            /**
+             * Product Details
+             * @default []
+             */
+            product_details: components["schemas"]["DcrProductDetailResponse"][];
+        };
+        /**
          * DemoAccount
          * @description Development/preview demo credentials.
          */
@@ -560,6 +2009,207 @@ export interface components {
             label: string;
             /** Description */
             description?: string | null;
+        };
+        /**
+         * DoctorCreate
+         * @description Payload to create a Doctor.
+         */
+        DoctorCreate: {
+            /** Full Name */
+            full_name: string;
+            /** Qualification */
+            qualification?: string | null;
+            /** Specialization */
+            specialization?: string | null;
+            /**
+             * Category
+             * @default A
+             */
+            category: string;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Clinic Name */
+            clinic_name?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Date Of Birth */
+            date_of_birth?: string | null;
+            /** Anniversary Date */
+            anniversary_date?: string | null;
+        };
+        /**
+         * DoctorResponse
+         * @description Doctor details response.
+         */
+        DoctorResponse: {
+            /** Id */
+            id: number;
+            /** Code */
+            code: string;
+            /** Full Name */
+            full_name: string;
+            /** Qualification */
+            qualification?: string | null;
+            /** Specialization */
+            specialization?: string | null;
+            /** Category */
+            category: string;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Clinic Name */
+            clinic_name?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Date Of Birth */
+            date_of_birth?: string | null;
+            /** Anniversary Date */
+            anniversary_date?: string | null;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Hospitals
+             * @default []
+             */
+            hospitals: components["schemas"]["HospitalSummary"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * DoctorUpdate
+         * @description Payload to update a Doctor.
+         */
+        DoctorUpdate: {
+            /** Full Name */
+            full_name?: string | null;
+            /** Qualification */
+            qualification?: string | null;
+            /** Specialization */
+            specialization?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Clinic Name */
+            clinic_name?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Date Of Birth */
+            date_of_birth?: string | null;
+            /** Anniversary Date */
+            anniversary_date?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
+         * ExpenseCreateRequest
+         * @description Payload to log a daily field expense claim.
+         */
+        ExpenseCreateRequest: {
+            /**
+             * Expense Date
+             * Format: date
+             * @description Date expense occurred
+             */
+            expense_date: string;
+            /**
+             * Expense Type
+             * @description 'DAILY_ALLOWANCE', 'TRAVEL_FARE', 'LODGING', or 'MISCELLANEOUS'
+             */
+            expense_type: string;
+            /**
+             * Amount
+             * @description Amount claimed in INR
+             */
+            amount: number;
+            /** Description */
+            description?: string | null;
+            /**
+             * Receipt File Id
+             * @description Optional uploaded receipt file ID
+             */
+            receipt_file_id?: number | null;
+            /** Client Uuid */
+            client_uuid?: string | null;
+        };
+        /**
+         * ExpenseResponse
+         * @description Expense record response.
+         */
+        ExpenseResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name?: string | null;
+            /**
+             * Expense Date
+             * Format: date
+             */
+            expense_date: string;
+            /** Expense Type */
+            expense_type: string;
+            /** Amount */
+            amount: number;
+            /** Description */
+            description?: string | null;
+            /** Receipt File Id */
+            receipt_file_id?: number | null;
+            /** Status */
+            status: string;
+            /** Approval Request Id */
+            approval_request_id?: number | null;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * FileResponse
@@ -582,6 +2232,90 @@ export interface components {
             file_url: string;
             /** Uploaded By */
             uploaded_by?: number | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * FollowUpCreate
+         * @description Payload to create customer follow-up.
+         */
+        FollowUpCreate: {
+            /**
+             * Customer Type
+             * @description DOCTOR, CHEMIST, HOSPITAL, STOCKIST
+             */
+            customer_type: string;
+            /** Doctor Id */
+            doctor_id?: number | null;
+            /** Chemist Id */
+            chemist_id?: number | null;
+            /** Hospital Id */
+            hospital_id?: number | null;
+            /** Stockist Id */
+            stockist_id?: number | null;
+            /** Dcr Visit Id */
+            dcr_visit_id?: number | null;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Title */
+            title: string;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Priority
+             * @description HIGH, MEDIUM, LOW
+             * @default MEDIUM
+             */
+            priority: string;
+            /** Client Uuid */
+            client_uuid?: string | null;
+        };
+        /**
+         * FollowUpResponse
+         * @description Follow-up response.
+         */
+        FollowUpResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** Customer Type */
+            customer_type: string;
+            /** Doctor Id */
+            doctor_id?: number | null;
+            /** Chemist Id */
+            chemist_id?: number | null;
+            /** Hospital Id */
+            hospital_id?: number | null;
+            /** Stockist Id */
+            stockist_id?: number | null;
+            /** Customer Name */
+            customer_name?: string | null;
+            /** Dcr Visit Id */
+            dcr_visit_id?: number | null;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Title */
+            title: string;
+            /** Notes */
+            notes?: string | null;
+            /** Priority */
+            priority: string;
+            /** Status */
+            status: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Client Uuid */
+            client_uuid?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -618,6 +2352,240 @@ export interface components {
              * @example development
              */
             environment: string;
+        };
+        /**
+         * HospitalCreate
+         * @description Payload to create a Hospital.
+         */
+        HospitalCreate: {
+            /** Name */
+            name: string;
+            /**
+             * Type
+             * @default General
+             */
+            type: string;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Bed Count */
+            bed_count?: number | null;
+        };
+        /**
+         * HospitalDoctorMapRequest
+         * @description Map a Doctor to a Hospital.
+         */
+        HospitalDoctorMapRequest: {
+            /** Hospital Id */
+            hospital_id: number;
+            /** Doctor Id */
+            doctor_id: number;
+            /** Department */
+            department?: string | null;
+            /** Visiting Hours */
+            visiting_hours?: string | null;
+            /**
+             * Is Primary
+             * @default false
+             */
+            is_primary: boolean;
+        };
+        /**
+         * HospitalResponse
+         * @description Hospital response.
+         */
+        HospitalResponse: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /** Type */
+            type: string;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Bed Count */
+            bed_count?: number | null;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * HospitalSummary
+         * @description Summary of hospital mapping for doctor.
+         */
+        HospitalSummary: {
+            /** Hospital Id */
+            hospital_id: number;
+            /** Hospital Name */
+            hospital_name: string;
+            /** Department */
+            department?: string | null;
+            /** Visiting Hours */
+            visiting_hours?: string | null;
+            /** Is Primary */
+            is_primary: boolean;
+        };
+        /**
+         * ImportReportResponse
+         * @description Summary report of Excel/CSV batch import.
+         */
+        ImportReportResponse: {
+            /** Total Rows */
+            total_rows: number;
+            /** Imported Count */
+            imported_count: number;
+            /** Failed Count */
+            failed_count: number;
+            /**
+             * Errors
+             * @default []
+             */
+            errors: components["schemas"]["ImportRowError"][];
+        };
+        /**
+         * ImportRowError
+         * @description Error encountered during customer batch import.
+         */
+        ImportRowError: {
+            /** Row Number */
+            row_number: number;
+            /** Entity */
+            entity: string;
+            /** Error Message */
+            error_message: string;
+        };
+        /**
+         * LeaveApplyRequest
+         * @description Payload to apply for employee leave.
+         */
+        LeaveApplyRequest: {
+            /**
+             * Leave Type
+             * @description 'CASUAL', 'SICK', or 'EARNED'
+             */
+            leave_type: string;
+            /**
+             * Start Date
+             * Format: date
+             * @description Leave start date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             * @description Leave end date
+             */
+            end_date: string;
+            /**
+             * Days Count
+             * @description Total days (supports half-day e.g. 0.5)
+             * @default 1
+             */
+            days_count: number;
+            /**
+             * Reason
+             * @description Reason for leave
+             */
+            reason: string;
+            /** Client Uuid */
+            client_uuid?: string | null;
+        };
+        /**
+         * LeaveBalanceResponse
+         * @description Leave balances overview for user.
+         */
+        LeaveBalanceResponse: {
+            /** Year */
+            year: number;
+            /** Casual Leave Balance */
+            casual_leave_balance: number;
+            /** Sick Leave Balance */
+            sick_leave_balance: number;
+            /** Earned Leave Balance */
+            earned_leave_balance: number;
+            /** Total Balance */
+            total_balance: number;
+        };
+        /**
+         * LeaveResponse
+         * @description Leave request response.
+         */
+        LeaveResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name?: string | null;
+            /** Leave Type */
+            leave_type: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Days Count */
+            days_count: number;
+            /** Reason */
+            reason: string;
+            /** Status */
+            status: string;
+            /** Approval Request Id */
+            approval_request_id?: number | null;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * LoginRequest
@@ -683,6 +2651,84 @@ export interface components {
             phone?: string | null;
         };
         /**
+         * MasterBulkDropdownsResponse
+         * @description Combined masters response for offline cache & dropdowns.
+         */
+        MasterBulkDropdownsResponse: {
+            /** Specializations */
+            specializations: components["schemas"]["MasterItemResponse"][];
+            /** Categories */
+            categories: components["schemas"]["MasterItemResponse"][];
+            /** Priorities */
+            priorities: components["schemas"]["MasterItemResponse"][];
+            /** States */
+            states: components["schemas"]["StateResponse"][];
+        };
+        /**
+         * MasterItemCreate
+         * @description Payload to create a generic master item.
+         */
+        MasterItemCreate: {
+            /**
+             * Type
+             * @description e.g. SPECIALIZATION, CUSTOMER_CATEGORY
+             */
+            type: string;
+            /**
+             * Code
+             * @description Unique code within type
+             */
+            code: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Sort Order
+             * @default 0
+             */
+            sort_order: number;
+        };
+        /**
+         * MasterItemResponse
+         * @description Generic business master item response.
+         */
+        MasterItemResponse: {
+            /** Id */
+            id: number;
+            /** Type */
+            type: string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Description */
+            description?: string | null;
+            /** Sort Order */
+            sort_order: number;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * MasterItemUpdate
+         * @description Payload to update a generic master item.
+         */
+        MasterItemUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Sort Order */
+            sort_order?: number | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
          * MessageResponse
          * @description Generic status response.
          */
@@ -694,6 +2740,134 @@ export interface components {
              * @default true
              */
             success: boolean;
+        };
+        /**
+         * MonthlyExpenseSummaryResponse
+         * @description Summary of monthly expenses for reporting and claim tracking.
+         */
+        MonthlyExpenseSummaryResponse: {
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /** Total Claimed */
+            total_claimed: number;
+            /** Total Approved */
+            total_approved: number;
+            /** Total Rejected */
+            total_rejected: number;
+            /** Total Pending */
+            total_pending: number;
+            /** Claim Count */
+            claim_count: number;
+        };
+        /**
+         * NearbyCustomerItem
+         * @description Customer found nearby using Haversine calculation.
+         */
+        NearbyCustomerItem: {
+            /** Id */
+            id: number;
+            /**
+             * Customer Type
+             * @description DOCTOR, CHEMIST, STOCKIST, HOSPITAL
+             */
+            customer_type: string;
+            /** Name */
+            name: string;
+            /** Category Or Type */
+            category_or_type?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+            /** Distance Meters */
+            distance_meters: number;
+            /** In Geofence */
+            in_geofence: boolean;
+        };
+        /**
+         * PlannedVisitCreate
+         * @description Payload to create a planned visit.
+         */
+        PlannedVisitCreate: {
+            /**
+             * Plan Date
+             * Format: date
+             * @description Target visit date
+             */
+            plan_date: string;
+            /**
+             * Customer Type
+             * @description DOCTOR, CHEMIST, HOSPITAL, STOCKIST
+             */
+            customer_type: string;
+            /** Doctor Id */
+            doctor_id?: number | null;
+            /** Chemist Id */
+            chemist_id?: number | null;
+            /** Hospital Id */
+            hospital_id?: number | null;
+            /** Stockist Id */
+            stockist_id?: number | null;
+            /**
+             * Priority
+             * @description HIGH, MEDIUM, LOW
+             * @default MEDIUM
+             */
+            priority: string;
+            /** Visit Purpose */
+            visit_purpose?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Client Uuid */
+            client_uuid?: string | null;
+        };
+        /**
+         * PlannedVisitResponse
+         * @description Planned visit details response.
+         */
+        PlannedVisitResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /**
+             * Plan Date
+             * Format: date
+             */
+            plan_date: string;
+            /** Customer Type */
+            customer_type: string;
+            /** Doctor Id */
+            doctor_id?: number | null;
+            /** Chemist Id */
+            chemist_id?: number | null;
+            /** Hospital Id */
+            hospital_id?: number | null;
+            /** Stockist Id */
+            stockist_id?: number | null;
+            /** Customer Name */
+            customer_name?: string | null;
+            /** Priority */
+            priority: string;
+            /** Visit Purpose */
+            visit_purpose?: string | null;
+            /** Status */
+            status: string;
+            /** Notes */
+            notes?: string | null;
+            /** Client Uuid */
+            client_uuid?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * ProfileUpdateRequest
@@ -783,6 +2957,199 @@ export interface components {
             description?: string | null;
         };
         /**
+         * StateCreate
+         * @description Payload to create a State.
+         */
+        StateCreate: {
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+        };
+        /**
+         * StateResponse
+         * @description State / Province response.
+         */
+        StateResponse: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /** Is Active */
+            is_active: boolean;
+        };
+        /**
+         * StockistCreate
+         * @description Payload to create a Stockist.
+         */
+        StockistCreate: {
+            /** Agency Name */
+            agency_name: string;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Dl Number */
+            dl_number?: string | null;
+            /** Gstin */
+            gstin?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /**
+             * Credit Days
+             * @default 30
+             */
+            credit_days: number;
+        };
+        /**
+         * StockistResponse
+         * @description Stockist response.
+         */
+        StockistResponse: {
+            /** Id */
+            id: number;
+            /** Code */
+            code: string;
+            /** Agency Name */
+            agency_name: string;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Dl Number */
+            dl_number?: string | null;
+            /** Gstin */
+            gstin?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Credit Days */
+            credit_days: number;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * TerritoryAssignmentResponse
+         * @description Record of user territory allocation.
+         */
+        TerritoryAssignmentResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name: string;
+            /** Territory Id */
+            territory_id: number;
+            /** Territory Name */
+            territory_name: string;
+            /**
+             * Assigned At
+             * Format: date-time
+             */
+            assigned_at: string;
+            /** Unassigned At */
+            unassigned_at?: string | null;
+            /** Is Active */
+            is_active: boolean;
+        };
+        /**
+         * TerritoryCreate
+         * @description Payload to create a Territory.
+         */
+        TerritoryCreate: {
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /** Headquarters */
+            headquarters: string;
+            /** State Id */
+            state_id?: number | null;
+            /** Description */
+            description?: string | null;
+            /** Area Ids */
+            area_ids?: number[];
+        };
+        /**
+         * TerritoryResponse
+         * @description Territory response with mapped areas.
+         */
+        TerritoryResponse: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /** Headquarters */
+            headquarters: string;
+            /** State Id */
+            state_id?: number | null;
+            /** Description */
+            description?: string | null;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Areas
+             * @default []
+             */
+            areas: components["schemas"]["AreaResponse"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * TerritoryUpdate
+         * @description Payload to update a Territory.
+         */
+        TerritoryUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Headquarters */
+            headquarters?: string | null;
+            /** State Id */
+            state_id?: number | null;
+            /** Description */
+            description?: string | null;
+            /** Area Ids */
+            area_ids?: number[] | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
          * TokenResponse
          * @description JWT access token and rotating refresh token response.
          */
@@ -802,6 +3169,85 @@ export interface components {
              */
             expires_in: number;
             user: components["schemas"]["UserSummary"];
+        };
+        /**
+         * TourProgramCreateRequest
+         * @description Payload to submit a new tour program.
+         */
+        TourProgramCreateRequest: {
+            /**
+             * Title
+             * @description Tour program title
+             */
+            title: string;
+            /**
+             * Start Date
+             * Format: date
+             * @description Tour start date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             * @description Tour end date
+             */
+            end_date: string;
+            /**
+             * Route Details
+             * @description Target cities or territories
+             */
+            route_details?: string | null;
+            /**
+             * Objectives
+             * @description Key tour targets and customer visits
+             */
+            objectives?: string | null;
+        };
+        /**
+         * TourProgramResponse
+         * @description Tour Program details response.
+         */
+        TourProgramResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name?: string | null;
+            /** Title */
+            title: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Total Days */
+            total_days: number;
+            /** Route Details */
+            route_details?: string | null;
+            /** Objectives */
+            objectives?: string | null;
+            /** Status */
+            status: string;
+            /** Approval Request Id */
+            approval_request_id?: number | null;
+            /** Rejection Reason */
+            rejection_reason?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * UserCreate
@@ -1710,6 +4156,1785 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_bulk_dropdowns_api_v1_masters_bulk_dropdowns_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MasterBulkDropdownsResponse"];
+                };
+            };
+        };
+    };
+    list_master_items_api_v1_masters_get: {
+        parameters: {
+            query?: {
+                /** @description Item type: SPECIALIZATION, CUSTOMER_CATEGORY, VISIT_PRIORITY */
+                type?: string | null;
+                /** @description Filter only active items */
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MasterItemResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_master_item_api_v1_masters_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MasterItemCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MasterItemResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_master_item_api_v1_masters__item_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MasterItemUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MasterItemResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_states_api_v1_masters_states_get: {
+        parameters: {
+            query?: {
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_state_api_v1_masters_states_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StateCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_cities_api_v1_masters_cities_get: {
+        parameters: {
+            query?: {
+                state_id?: number | null;
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CityResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_city_api_v1_masters_cities_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CityCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CityResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_areas_api_v1_masters_areas_get: {
+        parameters: {
+            query?: {
+                city_id?: number | null;
+                active_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AreaResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_area_api_v1_masters_areas_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AreaCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AreaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_territories_api_v1_territories_my_territories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerritoryResponse"][];
+                };
+            };
+        };
+    };
+    list_territories_api_v1_territories_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                state_id?: number | null;
+                active_only?: boolean;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerritoryResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_territory_api_v1_territories_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TerritoryCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerritoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_territory_api_v1_territories__territory_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                territory_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerritoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_territory_api_v1_territories__territory_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                territory_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TerritoryUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerritoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    assign_user_to_territory_api_v1_territories__territory_id__assign_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                territory_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AssignTerritoryRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerritoryAssignmentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unassign_user_from_territory_api_v1_territories__territory_id__assign__user_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                territory_id: number;
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_nearby_customers_api_v1_customers_nearby_get: {
+        parameters: {
+            query: {
+                /** @description Current device latitude */
+                latitude: number;
+                /** @description Current device longitude */
+                longitude: number;
+                /** @description Search radius in meters */
+                radius_meters?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NearbyCustomerItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_customers_api_v1_customers_import_post: {
+        parameters: {
+            query: {
+                /** @description DOCTOR or CHEMIST */
+                entity_type: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["Body_import_customers_api_v1_customers_import_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_doctors_api_v1_customers_doctors_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                specialization?: string | null;
+                category?: string | null;
+                active_only?: boolean;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoctorResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_doctor_api_v1_customers_doctors_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoctorCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoctorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_doctor_api_v1_customers_doctors__doctor_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                doctor_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoctorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_doctor_api_v1_customers_doctors__doctor_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                doctor_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DoctorUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DoctorResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_hospitals_api_v1_customers_hospitals_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                type?: string | null;
+                active_only?: boolean;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HospitalResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_hospital_api_v1_customers_hospitals_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HospitalCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HospitalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    map_doctor_to_hospital_api_v1_customers_hospitals_map_doctor_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HospitalDoctorMapRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_chemists_api_v1_customers_chemists_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                active_only?: boolean;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChemistResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_chemist_api_v1_customers_chemists_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChemistCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChemistResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_stockists_api_v1_customers_stockists_get: {
+        parameters: {
+            query?: {
+                search?: string | null;
+                active_only?: boolean;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockistResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_stockist_api_v1_customers_stockists_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StockistCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockistResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_today_attendance_api_v1_attendance_today_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceResponse"] | null;
+                };
+            };
+        };
+    };
+    check_in_api_v1_attendance_check_in_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttendanceCheckInRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_out_api_v1_attendance_check_out_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttendanceCheckOutRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_attendance_history_api_v1_attendance_history_get: {
+        parameters: {
+            query?: {
+                start_date?: string | null;
+                end_date?: string | null;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttendanceResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_dcr_visits_api_v1_dcr_visits_get: {
+        parameters: {
+            query?: {
+                dcr_date?: string | null;
+                customer_type?: string | null;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DcrVisitResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_dcr_visit_api_v1_dcr_visits_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DcrVisitCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DcrVisitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_dcr_visit_api_v1_dcr_visits__visit_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                visit_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DcrVisitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_daily_summary_api_v1_dcr_summary_get: {
+        parameters: {
+            query?: {
+                dcr_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DcrDailySummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_planned_visits_api_v1_dcr_plans_get: {
+        parameters: {
+            query?: {
+                plan_date?: string | null;
+                status?: string | null;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlannedVisitResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_planned_visit_api_v1_dcr_plans_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlannedVisitCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlannedVisitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_follow_ups_api_v1_dcr_follow_ups_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                overdue_only?: boolean;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowUpResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_follow_up_api_v1_dcr_follow_ups_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FollowUpCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowUpResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    complete_follow_up_api_v1_dcr_follow_ups__follow_up_id__complete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                follow_up_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FollowUpResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_inbox_api_v1_approvals_inbox_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalRequestResponse"][];
+                };
+            };
+        };
+    };
+    get_approval_detail_api_v1_approvals__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_decision_api_v1_approvals__request_id__decision_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApprovalDecisionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalRequestResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_tours_api_v1_tours_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TourProgramResponse"][];
+                };
+            };
+        };
+    };
+    create_tour_api_v1_tours_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TourProgramCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TourProgramResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tour_api_v1_tours__tour_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                tour_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TourProgramResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_expenses_api_v1_expenses_get: {
+        parameters: {
+            query?: {
+                start_date?: string | null;
+                end_date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_expense_api_v1_expenses_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_monthly_summary_api_v1_expenses_summary_get: {
+        parameters: {
+            query?: {
+                year?: number | null;
+                month?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MonthlyExpenseSummaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_leave_balances_api_v1_leaves_balances_get: {
+        parameters: {
+            query?: {
+                year?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveBalanceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_leaves_api_v1_leaves_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveResponse"][];
+                };
+            };
+        };
+    };
+    apply_leave_api_v1_leaves_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeaveApplyRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_leave_api_v1_leaves__leave_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                leave_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveResponse"];
                 };
             };
             /** @description Validation Error */

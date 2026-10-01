@@ -17,6 +17,10 @@ export const colors = {
   info: "#1E6FD9",
   grey: "#8B95A0",
   greyLight: "#E8EEF3",
+  lightPrimary: "#E0F2F1",
+  secondary: "#2E7D32",
+  error: "#B3261E",
+  text: "#1F2933",
 } as const;
 
 export const spacing = {
@@ -32,6 +36,7 @@ export const radii = {
   sm: 8,
   md: 12,
   lg: 16,
+  xl: 24,
   full: 9999,
 } as const;
 
@@ -59,6 +64,11 @@ export const typography = {
   bodyMedium: {
     fontSize: 14,
     fontWeight: "500" as const,
+    lineHeight: 20,
+  },
+  button: {
+    fontSize: 14,
+    fontWeight: "600" as const,
     lineHeight: 20,
   },
   caption: {

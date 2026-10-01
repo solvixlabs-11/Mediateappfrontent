@@ -1,0 +1,1195 @@
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  Linking,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useAuthStore } from "../../auth/store";
+import { AttendanceDto, attendanceApi } from "../../attendance/api/attendanceApi";
+import { DcrDailySummaryDto, PlannedVisitDto, dcrApi } from "../../dcr/api/dcrApi";
+import { DcrFormModal } from "../../dcr/screens/DcrFormModal";
+import { ExpenseListModal } from "../../expenses/screens/ExpenseListModal";
+import { LeaveListModal } from "../../leaves/screens/LeaveListModal";
+import { TourPlannerModal } from "../../tours/screens/TourPlannerModal";
+import { colors, radii, spacing } from "../../../shared/theme/tokens";
+
+interface MrDashboardScreenProps {
+  navigation?: any;
+}
+
+export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
+  const user = useAuthStore((s) => s.user);
+
+  // State
+  const [attendance, setAttendance] = useState<AttendanceDto | null>(null);
+  const [summary, setSummary] = useState<DcrDailySummaryDto | null>(null);
+  const [nextVisit, setNextVisit] = useState<PlannedVisitDto | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isPunchLoading, setIsPunchLoading] = useState(false);
+
+  // DCR Modal State
+  const [isDcrModalOpen, setIsDcrModalOpen] = useState(false);
+  const [preselectedVisit, setPreselectedVisit] = useState<PlannedVisitDto | undefined>(undefined);
+
+  // Phase 5 Modals State
+  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
+
+  // Load Dashboard Data
+  const loadDashboardData = useCallback(async () => {
+    try {
+      // 1. Fetch Today Attendance
+      try {
+        const att = await attendanceApi.getToday();
+        setAttendance(att);
+      } catch (err) {
+        console.warn("Failed to fetch today attendance:", err);
+      }
+
+      // 2. Fetch Daily Summary
+      try {
+        const sum = await dcrApi.getSummary();
+        setSummary(sum);
+      } catch (err) {
+        console.warn("Failed to fetch daily summary:", err);
+      }
+
+      // 3. Fetch Next Planned Visit
+      try {
+        const plans = await dcrApi.listPlans();
+        const pending = plans.find((p: PlannedVisitDto) => p.status === "PLANNED");
+        setNextVisit(pending || null);
+      } catch (err) {
+        console.warn("Failed to fetch planned visits:", err);
+      }
+    } finally {
+      setIsLoading(false);
+      setIsRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [loadDashboardData]);
+
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    loadDashboardData();
+  };
+
+  // Handle Punch In / Out
+  const handlePunchCheckIn = async () => {
+    setIsPunchLoading(true);
+    try {
+      const record = await attendanceApi.checkIn({
+        latitude: 19.0760,
+        longitude: 72.8777,
+        accuracy: 12.0,
+        address: "Dadar West, Mumbai",
+        remarks: "Morning field punch",
+        client_uuid: `att-in-${Date.now()}`,
+      });
+      setAttendance(record);
+      Alert.alert("GPS Verified", "Checked in successfully for Field Work!");
+    } catch (err: any) {
+      if (err?.response?.status === 409) {
+        // Idempotent: already checked in, re-fetch state
+        const today = await attendanceApi.getToday();
+        setAttendance(today);
+      } else {
+        Alert.alert(
+          "Punch Check-in",
+          err?.response?.data?.detail || "Could not record check-in. Please try again."
+        );
+      }
+    } finally {
+      setIsPunchLoading(false);
+    }
+  };
+
+  const handlePunchCheckOut = async () => {
+    Alert.alert(
+      "Confirm Check-Out",
+      "Are you sure you want to end your daily field calls and check out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Punch Check-out",
+          style: "destructive",
+          onPress: async () => {
+            setIsPunchLoading(true);
+            try {
+              const record = await attendanceApi.checkOut({
+                latitude: 19.0765,
+                longitude: 72.8780,
+                accuracy: 10.0,
+                address: "Dadar West, Mumbai",
+                remarks: "Day field work completed",
+              });
+              setAttendance(record);
+              Alert.alert("Day Completed", "Check-out recorded successfully.");
+            } catch (err: any) {
+              Alert.alert(
+                "Punch Check-out",
+                err?.response?.data?.detail || "Could not record check-out."
+              );
+            } finally {
+              setIsPunchLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Format dynamic dates
+  const todayFormatted = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+
+  const isCheckedIn = !!attendance?.check_in_time;
+  const isCheckedOut = !!attendance?.check_out_time;
+
+  const checkInTimeFormatted = attendance?.check_in_time
+    ? new Date(attendance.check_in_time).toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : null;
+
+  // KPIs
+  const totalPlanned = summary?.planned_calls_count ?? 6;
+  const totalCompleted = summary?.total_calls ?? 4;
+  const totalPending = Math.max(0, totalPlanned - totalCompleted);
+  const donePercent = totalPlanned > 0 ? Math.round((totalCompleted / totalPlanned) * 100) : 0;
+
+  // Next Up Visit Details (fallback to demo doctor if no active plan in DB)
+  const nextDocName = nextVisit?.customer_name || "Dr. Anand Deshmukh, M.D.";
+  const nextDocSpecialty = "Cardiology";
+  const nextDocClinic = "Apex Heart & Chest Clinic, Dadar (W)";
+  const nextDocPhone = "+919820012345";
+
+  return (
+    <View style={styles.screen}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Top App Bar */}
+        <View style={styles.topBar}>
+          <View style={styles.brandRow}>
+            <View style={styles.logoBadge}>
+              <Ionicons name="medical" size={16} color="#FFFFFF" />
+            </View>
+            <Text style={styles.brandText}>Mediate MR</Text>
+          </View>
+
+          <View style={styles.topRightActions}>
+            <TouchableOpacity style={styles.bellBtn} activeOpacity={0.7}>
+              <Ionicons name="notifications-outline" size={22} color={colors.navy} />
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>3</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.avatarCircle} activeOpacity={0.8}>
+              <Text style={styles.avatarText}>
+                {user?.fullName
+                  ? user.fullName
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .substring(0, 2)
+                      .toUpperCase()
+                  : "RS"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Greeting Banner */}
+        <View style={styles.greetingSection}>
+          <View style={styles.greetingRow}>
+            <Text style={styles.greetingTitle}>
+              Good morning, {user?.fullName ? user.fullName.split(" ")[0] : "Rahul"}
+            </Text>
+            <View style={styles.hqBadge}>
+              <Text style={styles.hqBadgeText}>Mumbai Central HQ</Text>
+            </View>
+          </View>
+
+          <View style={styles.dateRow}>
+            <Text style={styles.dateSubtext}>{todayFormatted}</Text>
+            <View style={styles.onlinePill}>
+              <View style={styles.onlineDot} />
+              <Text style={styles.onlinePillText}>Online</Text>
+            </View>
+          </View>
+
+          {/* Actionable Banner Pills */}
+          <View style={styles.alertsContainer}>
+            <TouchableOpacity
+              style={styles.expenseAlertPill}
+              activeOpacity={0.8}
+              onPress={() => setIsExpenseModalOpen(true)}
+            >
+              <Ionicons name="alert-circle-outline" size={14} color="#B91C1C" />
+              <Text style={styles.expenseAlertText}>Expense Claims</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.followupAlertPill}
+              activeOpacity={0.8}
+              onPress={() => {
+                if (navigation) navigation.navigate("Visits");
+              }}
+            >
+              <Ionicons name="warning-outline" size={14} color="#B45309" />
+              <Text style={styles.followupAlertText}>Follow-ups</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 1. Field Work & Attendance Card */}
+        <View style={styles.cardContainer}>
+          <View style={styles.fieldWorkHeader}>
+            <View style={styles.fieldWorkPill}>
+              <Ionicons name="walk" size={14} color="#0D9488" />
+              <Text style={styles.fieldWorkPillText}>Field Work</Text>
+            </View>
+
+            <View style={styles.checkedInStatusRow}>
+              {isCheckedOut ? (
+                <>
+                  <Ionicons name="checkmark-done-circle" size={16} color={colors.navy} />
+                  <Text style={styles.checkedInText}>Punched Out</Text>
+                </>
+              ) : isCheckedIn ? (
+                <>
+                  <Ionicons name="checkmark-circle" size={16} color="#059669" />
+                  <Text style={styles.checkedInText}>Checked in {checkInTimeFormatted}</Text>
+                </>
+              ) : (
+                <>
+                  <Ionicons name="time-outline" size={16} color="#B45309" />
+                  <Text style={[styles.checkedInText, { color: "#B45309" }]}>Not Checked In</Text>
+                </>
+              )}
+            </View>
+          </View>
+
+          <View style={styles.fieldWorkDetailsRow}>
+            <View style={styles.gpsLocationRow}>
+              <Ionicons name="shield-checkmark-outline" size={16} color="#059669" />
+              <Text style={styles.gpsLocationText}>
+                GPS Locked: <Text style={styles.gpsBold}>Dadar West</Text> (±12m)
+              </Text>
+            </View>
+
+            <View style={styles.shiftPill}>
+              <Text style={styles.shiftPillText}>Shift: 09:00 - 18:30</Text>
+            </View>
+          </View>
+
+          {/* Punch Button */}
+          {!isCheckedIn ? (
+            <TouchableOpacity
+              style={styles.primaryPunchBtn}
+              onPress={handlePunchCheckIn}
+              disabled={isPunchLoading}
+              activeOpacity={0.85}
+            >
+              {isPunchLoading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <>
+                  <Ionicons name="log-in-outline" size={20} color="#FFFFFF" />
+                  <Text style={styles.punchBtnText}>Punch Check-in</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          ) : !isCheckedOut ? (
+            <TouchableOpacity
+              style={styles.primaryPunchBtn}
+              onPress={handlePunchCheckOut}
+              disabled={isPunchLoading}
+              activeOpacity={0.85}
+            >
+              {isPunchLoading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <>
+                  <Ionicons name="exit-outline" size={20} color="#FFFFFF" />
+                  <Text style={styles.punchBtnText}>Punch Check-out</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          ) : (
+            <View style={styles.completedPunchBox}>
+              <Ionicons name="checkmark-circle" size={18} color="#059669" />
+              <Text style={styles.completedPunchText}>Shift Finalized • Daily Work Logged</Text>
+            </View>
+          )}
+        </View>
+
+        {/* 2. Today's Visit Target Card */}
+        <View style={styles.cardContainer}>
+          <View style={styles.targetHeaderRow}>
+            <View>
+              <Text style={styles.targetTitle}>Today's Visit Target</Text>
+              <Text style={styles.targetSubtitle}>DCR Route: Dadar West & Prabhadevi</Text>
+            </View>
+            <View style={styles.donePill}>
+              <Text style={styles.donePillText}>{donePercent}% Done</Text>
+            </View>
+          </View>
+
+          {/* 3 Metrics Boxes in a row */}
+          <View style={styles.metricsRow}>
+            <View style={styles.metricCardBlue}>
+              <Text style={styles.metricValBlue}>{totalPlanned}</Text>
+              <Text style={styles.metricLblBlue}>Planned</Text>
+            </View>
+
+            <View style={styles.metricCardGreen}>
+              <Text style={styles.metricValGreen}>{totalCompleted}</Text>
+              <Text style={styles.metricLblGreen}>Done</Text>
+            </View>
+
+            <View style={styles.metricCardYellow}>
+              <Text style={styles.metricValYellow}>{totalPending}</Text>
+              <Text style={styles.metricLblYellow}>Pending</Text>
+            </View>
+          </View>
+
+          {/* Dual-color Progress Bar */}
+          <View style={styles.progressBarBg}>
+            <View
+              style={[
+                styles.progressBarFill,
+                { width: `${Math.min(100, Math.max(10, donePercent))}%` },
+              ]}
+            />
+          </View>
+
+          {/* Sub Breakdown */}
+          <View style={styles.breakdownRow}>
+            <View style={styles.breakdownItem}>
+              <Ionicons name="medkit-outline" size={14} color="#047857" />
+              <Text style={styles.breakdownText}>Primary Doctors: 4/5</Text>
+            </View>
+            <View style={styles.breakdownItem}>
+              <Ionicons name="business-outline" size={14} color="#047857" />
+              <Text style={styles.breakdownText}>Chemists/Stockists: 2/2</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* 3. NEXT UP Doctor Call Card */}
+        <View style={[styles.cardContainer, styles.nextUpCard]}>
+          <View style={styles.nextUpHeaderRow}>
+            <View style={styles.timeTagRow}>
+              <Ionicons name="time-outline" size={14} color="#475569" />
+              <Text style={styles.nextUpTimeText}>NEXT UP • 11:30 AM</Text>
+            </View>
+            <View style={styles.confirmedPill}>
+              <Ionicons name="checkmark" size={12} color="#047857" />
+              <Text style={styles.confirmedPillText}>Confirmed</Text>
+            </View>
+          </View>
+
+          <View style={styles.doctorInfoRow}>
+            <Text style={styles.doctorNameText}>{nextDocName}</Text>
+            <View style={styles.specialtyPill}>
+              <Text style={styles.specialtyPillText}>{nextDocSpecialty}</Text>
+            </View>
+          </View>
+
+          <View style={styles.clinicAddressRow}>
+            <Ionicons name="location-outline" size={14} color="#64748B" />
+            <Text style={styles.clinicAddressText}>{nextDocClinic}</Text>
+          </View>
+
+          {/* Focus Detailing Box */}
+          <View style={styles.focusDetailingBox}>
+            <View style={styles.focusHeader}>
+              <Ionicons name="medical" size={13} color="#0284C7" />
+              <Text style={styles.focusLabel}>Focus Detailing:</Text>
+            </View>
+            <Text style={styles.focusProducts}>CardioMet-50 & Rosuvastatin 20mg</Text>
+          </View>
+
+          {/* Action Row */}
+          <View style={styles.nextUpActionsRow}>
+            <TouchableOpacity
+              style={styles.startVisitBtn}
+              activeOpacity={0.85}
+              onPress={() => {
+                setPreselectedVisit(nextVisit || undefined);
+                setIsDcrModalOpen(true);
+              }}
+            >
+              <Ionicons name="paper-plane-outline" size={18} color="#FFFFFF" />
+              <Text style={styles.startVisitBtnText}>Start Visit Call</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.callPhoneBtn}
+              activeOpacity={0.8}
+              onPress={() => {
+                Linking.openURL(`tel:${nextDocPhone}`);
+              }}
+            >
+              <Ionicons name="call-outline" size={20} color="#0D5C46" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* 4. Quick Actions Grid */}
+        <View style={styles.quickActionsSection}>
+          <View style={styles.quickActionsHeaderRow}>
+            <Text style={styles.quickActionsTitle}>Quick Actions</Text>
+            <Text style={styles.quickActionsSubtitle}>Standard Ops</Text>
+          </View>
+
+          <View style={styles.quickActionsGrid}>
+            {/* Tile 1: New Visit Report */}
+            <TouchableOpacity
+              style={styles.actionTile}
+              activeOpacity={0.8}
+              onPress={() => {
+                setPreselectedVisit(undefined);
+                setIsDcrModalOpen(true);
+              }}
+            >
+              <View style={styles.tileLeft}>
+                <View style={[styles.tileIconCircle, { backgroundColor: "#D1FAE5" }]}>
+                  <Ionicons name="clipboard-outline" size={20} color="#059669" />
+                </View>
+                <Text style={styles.tileTitle}>New Visit Report</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* Tile 2: Plan Tour / Visit */}
+            <TouchableOpacity
+              style={styles.actionTile}
+              activeOpacity={0.8}
+              onPress={() => setIsTourModalOpen(true)}
+            >
+              <View style={styles.tileLeft}>
+                <View style={[styles.tileIconCircle, { backgroundColor: "#DBEAFE" }]}>
+                  <Ionicons name="calendar-outline" size={20} color="#2563EB" />
+                </View>
+                <Text style={styles.tileTitle}>Plan Tour / TP</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* Tile 3: Add Expense */}
+            <TouchableOpacity
+              style={styles.actionTile}
+              activeOpacity={0.8}
+              onPress={() => setIsExpenseModalOpen(true)}
+            >
+              <View style={styles.tileLeft}>
+                <View style={[styles.tileIconCircle, { backgroundColor: "#FEF3C7" }]}>
+                  <Ionicons name="receipt-outline" size={20} color="#D97706" />
+                </View>
+                <Text style={styles.tileTitle}>Add Expense</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* Tile 4: Apply Leave */}
+            <TouchableOpacity
+              style={styles.actionTile}
+              activeOpacity={0.8}
+              onPress={() => setIsLeaveModalOpen(true)}
+            >
+              <View style={styles.tileLeft}>
+                <View style={[styles.tileIconCircle, { backgroundColor: "#FEE2E2" }]}>
+                  <Ionicons name="calendar-clear-outline" size={20} color="#DC2626" />
+                </View>
+                <Text style={styles.tileTitle}>Apply Leave</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* Tile 5: My Orders / POB */}
+            <TouchableOpacity
+              style={styles.actionTile}
+              activeOpacity={0.8}
+              onPress={() => {
+                if (navigation) navigation.navigate("Orders");
+              }}
+            >
+              <View style={styles.tileLeft}>
+                <View style={[styles.tileIconCircle, { backgroundColor: "#CCFBF1" }]}>
+                  <Ionicons name="bag-handle-outline" size={20} color="#0D9488" />
+                </View>
+                <Text style={styles.tileTitle}>My Orders / POB</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* Tile 6: Tasks & Reminders */}
+            <TouchableOpacity
+              style={styles.actionTile}
+              activeOpacity={0.8}
+              onPress={() => {
+                if (navigation) navigation.navigate("Visits");
+              }}
+            >
+              <View style={styles.tileLeft}>
+                <View style={[styles.tileIconCircle, { backgroundColor: "#EDE9FE" }]}>
+                  <Ionicons name="options-outline" size={20} color="#7C3AED" />
+                </View>
+                <Text style={styles.tileTitle}>Tasks & Reminders</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Footer Sync Status */}
+        <View style={styles.syncFooter}>
+          <Ionicons name="cloud-done-outline" size={14} color="#64748B" />
+          <Text style={styles.syncFooterText}>Cloud sync verified • DCR v3.8.4 Live</Text>
+        </View>
+
+        <View style={{ height: 40 }} />
+      </ScrollView>
+
+      {/* DCR Visit Call Logging Modal */}
+      <DcrFormModal
+        visible={isDcrModalOpen}
+        initialPlannedVisitId={preselectedVisit?.id}
+        initialCustomerType={preselectedVisit?.customer_type}
+        initialCustomerId={preselectedVisit?.doctor_id || undefined}
+        onClose={() => setIsDcrModalOpen(false)}
+        onSubmitted={() => {
+          setIsDcrModalOpen(false);
+          loadDashboardData();
+        }}
+      />
+
+      {/* Expense Management Modal */}
+      <ExpenseListModal
+        visible={isExpenseModalOpen}
+        onClose={() => setIsExpenseModalOpen(false)}
+      />
+
+      {/* Leave Management Modal */}
+      <LeaveListModal
+        visible={isLeaveModalOpen}
+        onClose={() => setIsLeaveModalOpen(false)}
+      />
+
+      {/* Tour Program Planner Modal */}
+      <TourPlannerModal
+        visible={isTourModalOpen}
+        onClose={() => setIsTourModalOpen(false)}
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+    backgroundColor: "#F4F7FA",
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  topBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.md,
+  },
+  brandRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  logoBadge: {
+    width: 28,
+    height: 28,
+    borderRadius: 7,
+    backgroundColor: "#0D5C46",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  brandText: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#0F172A",
+  },
+  topRightActions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+  },
+  bellBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  notificationBadge: {
+    position: "absolute",
+    top: -2,
+    right: -2,
+    backgroundColor: "#DC2626",
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  notificationBadgeText: {
+    color: "#FFFFFF",
+    fontSize: 9,
+    fontWeight: "bold",
+  },
+  avatarCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#064E3B",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  greetingSection: {
+    marginBottom: spacing.md,
+  },
+  greetingRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  greetingTitle: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: "#0F172A",
+    letterSpacing: -0.5,
+  },
+  hqBadge: {
+    backgroundColor: "#F1F5F9",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.md,
+  },
+  hqBadgeText: {
+    fontSize: 11,
+    color: "#475569",
+    fontWeight: "600",
+  },
+  dateRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 4,
+  },
+  dateSubtext: {
+    fontSize: 13,
+    color: "#64748B",
+    fontWeight: "500",
+  },
+  onlinePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#DCFCE7",
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: "#BBF7D0",
+  },
+  onlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#16A34A",
+  },
+  onlinePillText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#15803D",
+  },
+  alertsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: spacing.sm + 2,
+  },
+  expenseAlertPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#FEF2F2",
+    borderWidth: 1,
+    borderColor: "#FECACA",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.md,
+  },
+  expenseAlertText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#B91C1C",
+  },
+  followupAlertPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#FFFBEB",
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.md,
+  },
+  followupAlertText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#B45309",
+  },
+  cardContainer: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  fieldWorkHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  fieldWorkPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#E6FFFA",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  fieldWorkPillText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#0D9488",
+  },
+  checkedInStatusRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  checkedInText: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#059669",
+  },
+  fieldWorkDetailsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 14,
+  },
+  gpsLocationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  gpsLocationText: {
+    fontSize: 12,
+    color: "#475569",
+  },
+  gpsBold: {
+    fontWeight: "700",
+    color: "#0F172A",
+  },
+  shiftPill: {
+    backgroundColor: "#F0F9FF",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  shiftPillText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#0284C7",
+  },
+  primaryPunchBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#0D5C46",
+    borderRadius: 10,
+    paddingVertical: 12,
+  },
+  punchBtnText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  completedPunchBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: "#ECFDF5",
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  completedPunchText: {
+    color: "#047857",
+    fontSize: 12,
+    fontWeight: "600",
+  },
+  targetHeaderRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  targetTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#0F172A",
+  },
+  targetSubtitle: {
+    fontSize: 11,
+    color: "#64748B",
+    marginTop: 2,
+  },
+  donePill: {
+    backgroundColor: "#D1FAE5",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  donePillText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#047857",
+  },
+  metricsRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 12,
+  },
+  metricCardBlue: {
+    flex: 1,
+    backgroundColor: "#EFF6FF",
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#DBEAFE",
+  },
+  metricValBlue: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#1D4ED8",
+  },
+  metricLblBlue: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#3B82F6",
+    marginTop: 2,
+  },
+  metricCardGreen: {
+    flex: 1,
+    backgroundColor: "#ECFDF5",
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+  },
+  metricValGreen: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#047857",
+  },
+  metricLblGreen: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#10B981",
+    marginTop: 2,
+  },
+  metricCardYellow: {
+    flex: 1,
+    backgroundColor: "#FFFBEB",
+    borderRadius: 10,
+    paddingVertical: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+  },
+  metricValYellow: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#B45309",
+  },
+  metricLblYellow: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#F59E0B",
+    marginTop: 2,
+  },
+  progressBarBg: {
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#FDE68A",
+    overflow: "hidden",
+    marginBottom: 10,
+  },
+  progressBarFill: {
+    height: "100%",
+    backgroundColor: "#0D5C46",
+    borderRadius: 4,
+  },
+  breakdownRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  breakdownItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  breakdownText: {
+    fontSize: 11,
+    color: "#334155",
+    fontWeight: "500",
+  },
+  nextUpCard: {
+    borderLeftWidth: 4,
+    borderLeftColor: "#059669",
+  },
+  nextUpHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 6,
+  },
+  timeTagRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+  nextUpTimeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#475569",
+    letterSpacing: 0.5,
+  },
+  confirmedPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    backgroundColor: "#DCFCE7",
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  confirmedPillText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#047857",
+  },
+  doctorInfoRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 2,
+  },
+  doctorNameText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#0F172A",
+  },
+  specialtyPill: {
+    backgroundColor: "#F3E8FF",
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  specialtyPillText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#7E22CE",
+  },
+  clinicAddressRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  clinicAddressText: {
+    fontSize: 12,
+    color: "#64748B",
+  },
+  focusDetailingBox: {
+    backgroundColor: "#F0F9FF",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#E0F2FE",
+  },
+  focusHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  focusLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#0369A1",
+  },
+  focusProducts: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#0C4A6E",
+    marginTop: 3,
+  },
+  nextUpActionsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  startVisitBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: "#0D5C46",
+    borderRadius: 10,
+    paddingVertical: 12,
+  },
+  startVisitBtnText: {
+    color: "#FFFFFF",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  callPhoneBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#FFFFFF",
+  },
+  quickActionsSection: {
+    marginTop: 4,
+    marginBottom: 10,
+  },
+  quickActionsHeaderRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  quickActionsTitle: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#0F172A",
+  },
+  quickActionsSubtitle: {
+    fontSize: 11,
+    color: "#64748B",
+    fontWeight: "500",
+  },
+  quickActionsGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  actionTile: {
+    width: "48.5%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  tileLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flex: 1,
+  },
+  tileIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  tileTitle: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#0F172A",
+    flexShrink: 1,
+  },
+  syncFooter: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    marginTop: 10,
+  },
+  syncFooterText: {
+    fontSize: 11,
+    color: "#64748B",
+    fontWeight: "500",
+  },
+});

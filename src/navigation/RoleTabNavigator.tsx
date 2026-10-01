@@ -7,6 +7,12 @@ import { ComingSoonScreen } from "../features/coming_soon/screens/ComingSoonScre
 import { ProfileScreen } from "../features/profile/screens/ProfileScreen";
 import { MyTeamScreen } from "../features/users/screens/MyTeamScreen";
 import { UsersListScreen } from "../features/users/screens/UsersListScreen";
+import { CustomersHomeScreen } from "../features/customers/screens/CustomersHomeScreen";
+import { AdminMastersScreen } from "../features/masters/screens/AdminMastersScreen";
+import { ApprovalsInboxScreen } from "../features/approvals/screens/ApprovalsInboxScreen";
+import { MrDashboardScreen } from "../features/dashboard/screens/MrDashboardScreen";
+import { PlanVisitsScreen } from "../features/dcr/screens/PlanVisitsScreen";
+import { AttendanceCard } from "../features/attendance/components/AttendanceCard";
 import { Card } from "../shared/components/Card";
 import { Header } from "../shared/components/Header";
 import { ScreenContainer } from "../shared/components/ScreenContainer";
@@ -25,6 +31,11 @@ function HomeScreen() {
         subtitle={`Role: ${user?.role || "MR"} | Mediate Healthcare`}
       />
       <View style={styles.homeContent}>
+        {(user?.role === "MR" || user?.role === "MANAGER") && (
+          <View style={{ marginBottom: spacing.md }}>
+            <AttendanceCard />
+          </View>
+        )}
         <Card style={styles.welcomeCard}>
           <View style={styles.badgeRow}>
             <StatusChip
@@ -62,24 +73,34 @@ export function RoleTabNavigator() {
 
   const screenOptions = ({ route }: { route: { name: string } }) => ({
     headerShown: false,
-    tabBarActiveTintColor: colors.primary,
-    tabBarInactiveTintColor: colors.grey,
+    tabBarActiveTintColor: "#0D5C46",
+    tabBarInactiveTintColor: "#64748B",
     tabBarStyle: {
-      backgroundColor: colors.surface,
-      borderTopColor: colors.border,
+      backgroundColor: "#FFFFFF",
+      borderTopColor: "#E2E8F0",
       borderTopWidth: 1,
-      height: 60,
+      height: 62,
       paddingBottom: 8,
       paddingTop: 6,
     },
     tabBarLabelStyle: {
       fontSize: 11,
-      fontWeight: "600" as const,
+      fontWeight: "700" as const,
     },
     tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => {
       let iconName: keyof typeof Ionicons.glyphMap = "ellipse";
 
-      if (route.name === "Home") {
+      if (route.name === "Planner") {
+        iconName = focused ? "calendar" : "calendar-outline";
+      } else if (route.name === "Visits") {
+        iconName = focused ? "medkit" : "medkit-outline";
+      } else if (route.name === "DCR") {
+        iconName = focused ? "document-text" : "document-text-outline";
+      } else if (route.name === "Orders") {
+        iconName = focused ? "cube" : "cube-outline";
+      } else if (route.name === "Profile") {
+        iconName = focused ? "person" : "person-outline";
+      } else if (route.name === "Home") {
         iconName = focused ? "home" : "home-outline";
       } else if (route.name === "Plan") {
         iconName = focused ? "calendar" : "calendar-outline";
@@ -97,31 +118,20 @@ export function RoleTabNavigator() {
         iconName = focused ? "business" : "business-outline";
       } else if (route.name === "Reports") {
         iconName = focused ? "bar-chart" : "bar-chart-outline";
-      } else if (route.name === "Profile") {
-        iconName = focused ? "person-circle" : "person-circle-outline";
       }
 
       return <Ionicons name={iconName} size={size || 22} color={color} />;
     },
   });
 
-  // MR: Home | Plan | Customers | Tasks | Profile
+  // MR: Planner | Visits | DCR | Orders | Profile
   if (role === "MR") {
     return (
       <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen
-          name="Plan"
-          children={() => <ComingSoonScreen featureName="Plan Visits" phase="Phase 4" />}
-        />
-        <Tab.Screen
-          name="Customers"
-          children={() => <ComingSoonScreen featureName="Customers & Doctors" phase="Phase 2" />}
-        />
-        <Tab.Screen
-          name="Tasks"
-          children={() => <ComingSoonScreen featureName="Tasks & Chat" phase="Phase 6" />}
-        />
+        <Tab.Screen name="Planner" component={MrDashboardScreen} />
+        <Tab.Screen name="Visits" component={PlanVisitsScreen} />
+        <Tab.Screen name="DCR" component={CustomersHomeScreen} />
+        <Tab.Screen name="Orders" component={CustomersHomeScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
       </Tab.Navigator>
     );
@@ -133,10 +143,7 @@ export function RoleTabNavigator() {
       <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Team" component={MyTeamScreen} />
-        <Tab.Screen
-          name="Approvals"
-          children={() => <ComingSoonScreen featureName="Approvals Inbox" phase="Phase 5" />}
-        />
+        <Tab.Screen name="Approvals" component={ApprovalsInboxScreen} />
         <Tab.Screen
           name="Tasks"
           children={() => <ComingSoonScreen featureName="Team Tasks" phase="Phase 6" />}
@@ -151,10 +158,7 @@ export function RoleTabNavigator() {
     <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Users" component={UsersListScreen} />
-      <Tab.Screen
-        name="Masters"
-        children={() => <ComingSoonScreen featureName="Masters & Territories" phase="Phase 2" />}
-      />
+      <Tab.Screen name="Masters" component={AdminMastersScreen} />
       <Tab.Screen
         name="Reports"
         children={() => <ComingSoonScreen featureName="Reports & Export" phase="Phase 7" />}
