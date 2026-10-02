@@ -1,23 +1,8 @@
 import { apiClient } from "../../../api/client";
+import { components } from "../../../api/schema";
 
-export interface ApprovalRequestDto {
-  id: number;
-  entity_type: string;
-  entity_id: number;
-  requester_id: number;
-  requester_name: string | null;
-  status: "PENDING" | "APPROVED" | "REJECTED";
-  current_step: number;
-  total_steps: number;
-  title: string;
-  details: string | null;
-  created_at: string;
-}
-
-export interface ApprovalDecisionPayload {
-  decision: "APPROVED" | "REJECTED";
-  comments?: string | null;
-}
+export type ApprovalRequestDto = components["schemas"]["ApprovalRequestResponse"];
+export type ApprovalDecisionPayload = components["schemas"]["ApprovalDecisionRequest"];
 
 export const approvalsApi = {
   getPendingCount: async (): Promise<number> => {
@@ -46,3 +31,4 @@ export const approvalsApi = {
     return res.data;
   },
 };
+

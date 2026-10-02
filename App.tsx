@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuthStore } from "./src/features/auth/store";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { ErrorBoundary } from "./src/shared/components/ErrorBoundary";
@@ -32,12 +33,14 @@ export default function App() {
   }, [initializeAuth]);
 
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <StatusBar style="dark" />
-        <RootNavigator />
-        <Toast />
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <SafeAreaProvider>
+      <ErrorBoundary>
+        <QueryClientProvider client={queryClient}>
+          <StatusBar style="dark" />
+          <RootNavigator />
+          <Toast />
+        </QueryClientProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }

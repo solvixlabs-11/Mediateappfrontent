@@ -10,8 +10,10 @@ import { UsersListScreen } from "../features/users/screens/UsersListScreen";
 import { CustomersHomeScreen } from "../features/customers/screens/CustomersHomeScreen";
 import { AdminMastersScreen } from "../features/masters/screens/AdminMastersScreen";
 import { ApprovalsInboxScreen } from "../features/approvals/screens/ApprovalsInboxScreen";
+import { AdminHomeScreen } from "../features/dashboard/screens/AdminHomeScreen";
 import { MrDashboardScreen } from "../features/dashboard/screens/MrDashboardScreen";
 import { PlanVisitsScreen } from "../features/dcr/screens/PlanVisitsScreen";
+import { TasksListScreen } from "../features/tasks/screens/TasksListScreen";
 import { AttendanceCard } from "../features/attendance/components/AttendanceCard";
 import { Card } from "../shared/components/Card";
 import { Header } from "../shared/components/Header";
@@ -73,11 +75,11 @@ export function RoleTabNavigator() {
 
   const screenOptions = ({ route }: { route: { name: string } }) => ({
     headerShown: false,
-    tabBarActiveTintColor: "#0D5C46",
-    tabBarInactiveTintColor: "#64748B",
+    tabBarActiveTintColor: colors.primary,
+    tabBarInactiveTintColor: colors.textSecondary,
     tabBarStyle: {
-      backgroundColor: "#FFFFFF",
-      borderTopColor: "#E2E8F0",
+      backgroundColor: colors.surface,
+      borderTopColor: colors.border,
       borderTopWidth: 1,
       height: 62,
       paddingBottom: 8,
@@ -90,80 +92,71 @@ export function RoleTabNavigator() {
     tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => {
       let iconName: keyof typeof Ionicons.glyphMap = "ellipse";
 
-      if (route.name === "Planner") {
-        iconName = focused ? "calendar" : "calendar-outline";
-      } else if (route.name === "Visits") {
-        iconName = focused ? "medkit" : "medkit-outline";
-      } else if (route.name === "DCR") {
-        iconName = focused ? "document-text" : "document-text-outline";
-      } else if (route.name === "Orders") {
-        iconName = focused ? "cube" : "cube-outline";
-      } else if (route.name === "Profile") {
-        iconName = focused ? "person" : "person-outline";
-      } else if (route.name === "Home") {
+      if (route.name === "Home") {
         iconName = focused ? "home" : "home-outline";
       } else if (route.name === "Plan") {
         iconName = focused ? "calendar" : "calendar-outline";
       } else if (route.name === "Customers") {
-        iconName = focused ? "medkit" : "medkit-outline";
-      } else if (route.name === "Tasks") {
-        iconName = focused ? "checkbox" : "checkbox-outline";
+        iconName = focused ? "people" : "people-outline";
       } else if (route.name === "Team") {
         iconName = focused ? "people" : "people-outline";
       } else if (route.name === "Approvals") {
-        iconName = focused ? "document-text" : "document-text-outline";
+        iconName = focused ? "checkmark-done-circle" : "checkmark-done-circle-outline";
       } else if (route.name === "Users") {
-        iconName = focused ? "people" : "people-outline";
+        iconName = focused ? "people-circle" : "people-circle-outline";
       } else if (route.name === "Masters") {
         iconName = focused ? "business" : "business-outline";
+      } else if (route.name === "Tasks") {
+        iconName = focused ? "checkbox" : "checkbox-outline";
       } else if (route.name === "Reports") {
         iconName = focused ? "bar-chart" : "bar-chart-outline";
+      } else if (route.name === "More") {
+        iconName = focused ? "person" : "person-outline";
       }
 
       return <Ionicons name={iconName} size={size || 22} color={color} />;
     },
   });
 
-  // MR: Planner | Visits | DCR | Orders | Profile
+  // MR: Home (S06) | Plan (S10) | Customers (S13) | Tasks (S23) | More (S59)
   if (role === "MR") {
     return (
       <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="Planner" component={MrDashboardScreen} />
-        <Tab.Screen name="Visits" component={PlanVisitsScreen} />
-        <Tab.Screen name="DCR" component={CustomersHomeScreen} />
-        <Tab.Screen name="Orders" component={CustomersHomeScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Screen name="Home" component={MrDashboardScreen} />
+        <Tab.Screen name="Plan" component={PlanVisitsScreen} />
+        <Tab.Screen name="Customers" component={CustomersHomeScreen} />
+        <Tab.Screen name="Tasks" component={TasksListScreen} />
+        <Tab.Screen name="More" component={ProfileScreen} />
       </Tab.Navigator>
     );
   }
 
-  // MANAGER: Home | Team | Approvals | Tasks | Profile
+  // MANAGER: Home (S38) | Team (S39) | Approvals (S44) | Tasks (S23) | More (S59)
   if (role === "MANAGER") {
     return (
       <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="Home" component={HomeScreen} />
+        <Tab.Screen name="Home" component={AdminHomeScreen} />
         <Tab.Screen name="Team" component={MyTeamScreen} />
         <Tab.Screen name="Approvals" component={ApprovalsInboxScreen} />
-        <Tab.Screen
-          name="Tasks"
-          children={() => <ComingSoonScreen featureName="Team Tasks" phase="Phase 6" />}
-        />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Screen name="Tasks" component={TasksListScreen} />
+        <Tab.Screen name="More" component={ProfileScreen} />
       </Tab.Navigator>
     );
   }
 
-  // ADMIN: Home | Users | Masters | Reports | Profile
+  // ADMIN: Home (S48) | Users (S50) | Masters (S54) | Reports (S53, ComingSoon) | More (S59)
   return (
     <Tab.Navigator screenOptions={screenOptions}>
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={AdminHomeScreen} />
       <Tab.Screen name="Users" component={UsersListScreen} />
       <Tab.Screen name="Masters" component={AdminMastersScreen} />
       <Tab.Screen
         name="Reports"
-        children={() => <ComingSoonScreen featureName="Reports & Export" phase="Phase 7" />}
+        children={() => (
+          <ComingSoonScreen featureName="Reports & Export" phase="Phase 7" />
+        )}
       />
-      <Tab.Screen name="Profile" component={ProfileScreen} />
+      <Tab.Screen name="More" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

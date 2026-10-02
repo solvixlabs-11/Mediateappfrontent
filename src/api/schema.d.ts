@@ -852,6 +852,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/customers/hospitals/{hospital_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get hospital details by ID
+         * @description Get hospital details.
+         */
+        get: operations["get_hospital_api_v1_customers_hospitals__hospital_id__get"];
+        /**
+         * Update hospital details
+         * @description Update hospital details.
+         */
+        put: operations["update_hospital_api_v1_customers_hospitals__hospital_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customers/hospitals/map-doctor": {
         parameters: {
             query?: never;
@@ -896,6 +920,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/customers/chemists/{chemist_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get chemist details by ID
+         * @description Get chemist details.
+         */
+        get: operations["get_chemist_api_v1_customers_chemists__chemist_id__get"];
+        /**
+         * Update chemist details
+         * @description Update chemist details.
+         */
+        put: operations["update_chemist_api_v1_customers_chemists__chemist_id__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/customers/stockists": {
         parameters: {
             query?: never;
@@ -914,6 +962,30 @@ export interface paths {
          * @description Create a new stockist.
          */
         post: operations["create_stockist_api_v1_customers_stockists_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/customers/stockists/{stockist_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get stockist details by ID
+         * @description Get stockist details.
+         */
+        get: operations["get_stockist_api_v1_customers_stockists__stockist_id__get"];
+        /**
+         * Update stockist details
+         * @description Update stockist details.
+         */
+        put: operations["update_stockist_api_v1_customers_stockists__stockist_id__put"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -992,6 +1064,68 @@ export interface paths {
          * @description Fetch attendance history for date range.
          */
         get: operations["get_attendance_history_api_v1_attendance_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/admin/live-activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get real-time live field activity and MR status (Section 8.2)
+         * @description Fetch live field activity rollup for Admin and Managers.
+         *
+         *     Returns summary strip, per-MR activity card items, and pending approval totals.
+         */
+        get: operations["get_admin_live_activity_api_v1_dashboard_admin_live_activity_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/mr": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current MR's personal performance KPIs
+         * @description Fetch personal visits, POB, attendance state, and follow-ups for the authenticated MR.
+         */
+        get: operations["get_mr_dashboard_api_v1_dashboard_mr_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/manager": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Manager's team overview and pending approvals
+         * @description Fetch team call count, team attendance, and pending approval items for Manager.
+         */
+        get: operations["get_manager_dashboard_api_v1_dashboard_manager_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1344,10 +1478,256 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tasks/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get task counters for badges and cards
+         * @description Return task summary counts.
+         */
+        get: operations["get_task_summary_api_v1_tasks_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List tasks with filters and scoping
+         * @description List operational tasks.
+         */
+        get: operations["list_tasks_api_v1_tasks_get"];
+        put?: never;
+        /**
+         * Create a new task
+         * @description Create task.
+         */
+        post: operations["create_task_api_v1_tasks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get task details and comments
+         * @description Get single task.
+         */
+        get: operations["get_task_api_v1_tasks__task_id__get"];
+        /**
+         * Update task details
+         * @description Update task.
+         */
+        put: operations["update_task_api_v1_tasks__task_id__put"];
+        post?: never;
+        /**
+         * Delete task
+         * @description Delete task.
+         */
+        delete: operations["delete_task_api_v1_tasks__task_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Toggle task completion status
+         * @description Toggle completed state.
+         */
+        post: operations["toggle_complete_api_v1_tasks__task_id__complete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tasks/{task_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Post comment or chat reply to task
+         * @description Add a comment/message to a task.
+         */
+        post: operations["add_task_comment_api_v1_tasks__task_id__comments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get unread badge counters
+         * @description Return count of unread and total notifications.
+         */
+        get: operations["get_notification_summary_api_v1_notifications_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List notifications for current user
+         * @description Get list of user notifications.
+         */
+        get: operations["list_notifications_api_v1_notifications_get"];
+        put?: never;
+        /**
+         * Create or trigger a notification
+         * @description Create a notification.
+         */
+        post: operations["create_notification_api_v1_notifications_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/{notification_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark single notification as read
+         * @description Mark a notification as read.
+         */
+        post: operations["mark_read_api_v1_notifications__notification_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Mark all notifications as read
+         * @description Mark all unread notifications read.
+         */
+        post: operations["mark_all_read_api_v1_notifications_read_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/{notification_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a notification
+         * @description Delete single notification.
+         */
+        delete: operations["delete_notification_api_v1_notifications__notification_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/notifications/device-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register push notification device token
+         * @description Register device token for push notifications.
+         */
+        post: operations["register_device_token_api_v1_notifications_device_token_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * AdminLiveActivityResponse
+         * @description Full Admin Home Live Field Activity response (Section 8.2).
+         */
+        AdminLiveActivityResponse: {
+            summary: components["schemas"]["LiveActivitySummary"];
+            /** Mr Activities */
+            mr_activities: components["schemas"]["MrLiveActivityItem"][];
+            pending_approvals: components["schemas"]["PendingApprovalsSummary"];
+        };
         /**
          * ApprovalDecisionRequest
          * @description Payload submitted by manager or admin to approve or reject a request.
@@ -1710,6 +2090,38 @@ export interface components {
             created_at: string;
         };
         /**
+         * ChemistUpdate
+         * @description Payload to update a Chemist.
+         */
+        ChemistUpdate: {
+            /** Shop Name */
+            shop_name?: string | null;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Dl Number */
+            dl_number?: string | null;
+            /** Gstin */
+            gstin?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
          * CityCreate
          * @description Payload to create a City.
          */
@@ -2009,6 +2421,41 @@ export interface components {
             label: string;
             /** Description */
             description?: string | null;
+        };
+        /**
+         * DeviceTokenRegisterRequest
+         * @description Payload to register an FCM/APNS/Expo push notification token.
+         */
+        DeviceTokenRegisterRequest: {
+            /** Token */
+            token: string;
+            /**
+             * Platform
+             * @description ANDROID, IOS, WEB
+             * @default ANDROID
+             */
+            platform: string;
+        };
+        /**
+         * DeviceTokenResponse
+         * @description Device token representation.
+         */
+        DeviceTokenResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** Token */
+            token: string;
+            /** Platform */
+            platform: string;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * DoctorCreate
@@ -2463,6 +2910,38 @@ export interface components {
             is_primary: boolean;
         };
         /**
+         * HospitalUpdate
+         * @description Payload to update a Hospital.
+         */
+        HospitalUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Type */
+            type?: string | null;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Bed Count */
+            bed_count?: number | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
          * ImportReportResponse
          * @description Summary report of Excel/CSV batch import.
          */
@@ -2588,6 +3067,28 @@ export interface components {
             updated_at: string;
         };
         /**
+         * LiveActivitySummary
+         * @description Summary strip metrics for Admin Home.
+         */
+        LiveActivitySummary: {
+            /** Checked In Count */
+            checked_in_count: number;
+            /** Total Mrs */
+            total_mrs: number;
+            /** Total Calls Today */
+            total_calls_today: number;
+            /** Doctors Visited */
+            doctors_visited: number;
+            /** Chemists Visited */
+            chemists_visited: number;
+            /** Total Pob Today */
+            total_pob_today: number;
+            /** Attendance Pct */
+            attendance_pct: number;
+            /** Not Checked In Count */
+            not_checked_in_count: number;
+        };
+        /**
          * LoginRequest
          * @description User credentials for standard email/password authentication.
          */
@@ -2610,6 +3111,42 @@ export interface components {
         LogoutRequest: {
             /** Refresh Token */
             refresh_token?: string | null;
+        };
+        /**
+         * ManagerDashboardResponse
+         * @description Manager team oversight & KPI metrics.
+         */
+        ManagerDashboardResponse: {
+            /**
+             * Team Size
+             * @default 0
+             */
+            team_size: number;
+            /**
+             * Checked In Today
+             * @default 0
+             */
+            checked_in_today: number;
+            /**
+             * Calls Today
+             * @default 0
+             */
+            calls_today: number;
+            /**
+             * Total Pob Today
+             * @default 0
+             */
+            total_pob_today: number;
+            /**
+             * Pending Approvals Count
+             * @default 0
+             */
+            pending_approvals_count: number;
+            /**
+             * Team Coverage Pct
+             * @default 0
+             */
+            team_coverage_pct: number;
         };
         /**
          * ManagerMRAssignmentResponse
@@ -2762,6 +3299,130 @@ export interface components {
             claim_count: number;
         };
         /**
+         * MrDashboardResponse
+         * @description MR daily KPI & performance metrics.
+         */
+        MrDashboardResponse: {
+            /** User Id */
+            user_id: number;
+            /**
+             * Today Date
+             * Format: date
+             */
+            today_date: string;
+            /** Attendance Status */
+            attendance_status: string;
+            /** Check In Time */
+            check_in_time?: string | null;
+            /** Check Out Time */
+            check_out_time?: string | null;
+            /**
+             * Visits Today
+             * @default 0
+             */
+            visits_today: number;
+            /**
+             * Visits Target
+             * @default 12
+             */
+            visits_target: number;
+            /**
+             * Doctors Visited
+             * @default 0
+             */
+            doctors_visited: number;
+            /**
+             * Chemists Visited
+             * @default 0
+             */
+            chemists_visited: number;
+            /**
+             * Pob Today
+             * @default 0
+             */
+            pob_today: number;
+            /**
+             * Monthly Visits
+             * @default 0
+             */
+            monthly_visits: number;
+            /**
+             * Monthly Target
+             * @default 240
+             */
+            monthly_target: number;
+            /**
+             * Monthly Pob
+             * @default 0
+             */
+            monthly_pob: number;
+            /**
+             * Pending Followups Count
+             * @default 0
+             */
+            pending_followups_count: number;
+        };
+        /**
+         * MrLiveActivityItem
+         * @description Individual MR live field activity card item (Section 8.2).
+         */
+        MrLiveActivityItem: {
+            /** User Id */
+            user_id: number;
+            /** Mr Name */
+            mr_name: string;
+            /** Employee Code */
+            employee_code: string;
+            /** Profile Photo */
+            profile_photo?: string | null;
+            /** Territory Name */
+            territory_name?: string | null;
+            /** Status */
+            status: string;
+            /** Check In Time */
+            check_in_time?: string | null;
+            /**
+             * Calls Count
+             * @default 0
+             */
+            calls_count: number;
+            /**
+             * Doctors Count
+             * @default 0
+             */
+            doctors_count: number;
+            /**
+             * Chemists Count
+             * @default 0
+             */
+            chemists_count: number;
+            /**
+             * Samples Count
+             * @default 0
+             */
+            samples_count: number;
+            /**
+             * Calls Target
+             * @default 12
+             */
+            calls_target: number;
+            /** Last Activity Text */
+            last_activity_text?: string | null;
+            /** Last Activity Time */
+            last_activity_time?: string | null;
+            /** Last Activity Minutes Ago */
+            last_activity_minutes_ago?: number | null;
+            /**
+             * Is Verified
+             * @default true
+             */
+            is_verified: boolean;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+        };
+        /**
          * NearbyCustomerItem
          * @description Customer found nearby using Haversine calculation.
          */
@@ -2789,6 +3450,94 @@ export interface components {
             distance_meters: number;
             /** In Geofence */
             in_geofence: boolean;
+        };
+        /**
+         * NotificationCreate
+         * @description Payload to trigger a notification.
+         */
+        NotificationCreate: {
+            /** User Id */
+            user_id: number;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /**
+             * Notification Type
+             * @default SYSTEM
+             */
+            notification_type: string;
+            /** Reference Id */
+            reference_id?: string | null;
+        };
+        /**
+         * NotificationResponse
+         * @description Notification entity representation.
+         */
+        NotificationResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /** Notification Type */
+            notification_type: string;
+            /** Reference Id */
+            reference_id?: string | null;
+            /** Is Read */
+            is_read: boolean;
+            /** Read At */
+            read_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * NotificationSummaryResponse
+         * @description Unread badge counter.
+         */
+        NotificationSummaryResponse: {
+            /**
+             * Unread Count
+             * @default 0
+             */
+            unread_count: number;
+            /**
+             * Total Count
+             * @default 0
+             */
+            total_count: number;
+        };
+        /**
+         * PendingApprovalsSummary
+         * @description Summary of pending approval requests categorized by entity type.
+         */
+        PendingApprovalsSummary: {
+            /**
+             * Tours Count
+             * @default 0
+             */
+            tours_count: number;
+            /**
+             * Expenses Count
+             * @default 0
+             */
+            expenses_count: number;
+            /**
+             * Leaves Count
+             * @default 0
+             */
+            leaves_count: number;
+            /**
+             * Total Pending
+             * @default 0
+             */
+            total_pending: number;
         };
         /**
          * PlannedVisitCreate
@@ -3057,6 +3806,204 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /**
+         * StockistUpdate
+         * @description Payload to update a Stockist.
+         */
+        StockistUpdate: {
+            /** Agency Name */
+            agency_name?: string | null;
+            /** Contact Person */
+            contact_person?: string | null;
+            /** Phone */
+            phone?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Dl Number */
+            dl_number?: string | null;
+            /** Gstin */
+            gstin?: string | null;
+            /** Address */
+            address?: string | null;
+            /** Area Id */
+            area_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Credit Days */
+            credit_days?: number | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
+         * TaskCommentCreate
+         * @description Payload to post a comment or chat message on a task.
+         */
+        TaskCommentCreate: {
+            /** Message */
+            message: string;
+        };
+        /**
+         * TaskCommentResponse
+         * @description Task comment response item.
+         */
+        TaskCommentResponse: {
+            /** Id */
+            id: number;
+            /** Task Id */
+            task_id: number;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name?: string | null;
+            /** Message */
+            message: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * TaskCreate
+         * @description Payload to create a new task.
+         */
+        TaskCreate: {
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /**
+             * Priority
+             * @description LOW, MEDIUM, HIGH, URGENT
+             * @default MEDIUM
+             */
+            priority: string;
+            /** Assigned To Id */
+            assigned_to_id?: number | null;
+            /** Customer Type */
+            customer_type?: string | null;
+            /** Customer Id */
+            customer_id?: number | null;
+            /** Client Uuid */
+            client_uuid?: string | null;
+        };
+        /**
+         * TaskResponse
+         * @description Full task record response.
+         */
+        TaskResponse: {
+            /** Id */
+            id: number;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /**
+             * Due Date
+             * Format: date
+             */
+            due_date: string;
+            /** Priority */
+            priority: string;
+            /** Status */
+            status: string;
+            /** Completed At */
+            completed_at?: string | null;
+            /** Assigned To Id */
+            assigned_to_id: number;
+            /** Assigned To Name */
+            assigned_to_name?: string | null;
+            /** Created By Id */
+            created_by_id?: number | null;
+            /** Created By Name */
+            created_by_name?: string | null;
+            /** Customer Type */
+            customer_type?: string | null;
+            /** Customer Id */
+            customer_id?: number | null;
+            /** Client Uuid */
+            client_uuid?: string | null;
+            /**
+             * Comments Count
+             * @default 0
+             */
+            comments_count: number;
+            /**
+             * Comments
+             * @default []
+             */
+            comments: components["schemas"]["TaskCommentResponse"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TaskSummaryResponse
+         * @description Task counts by state for dashboard & tab badges.
+         */
+        TaskSummaryResponse: {
+            /**
+             * Today Count
+             * @default 0
+             */
+            today_count: number;
+            /**
+             * Upcoming Count
+             * @default 0
+             */
+            upcoming_count: number;
+            /**
+             * Overdue Count
+             * @default 0
+             */
+            overdue_count: number;
+            /**
+             * Completed Count
+             * @default 0
+             */
+            completed_count: number;
+            /**
+             * Total Active
+             * @default 0
+             */
+            total_active: number;
+        };
+        /**
+         * TaskUpdate
+         * @description Payload to update an existing task.
+         */
+        TaskUpdate: {
+            /** Title */
+            title?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Due Date */
+            due_date?: string | null;
+            /** Priority */
+            priority?: string | null;
+            /** Status */
+            status?: string | null;
+            /** Assigned To Id */
+            assigned_to_id?: number | null;
         };
         /**
          * TerritoryAssignmentResponse
@@ -4983,6 +5930,72 @@ export interface operations {
             };
         };
     };
+    get_hospital_api_v1_customers_hospitals__hospital_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospital_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HospitalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_hospital_api_v1_customers_hospitals__hospital_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospital_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HospitalUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HospitalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     map_doctor_to_hospital_api_v1_customers_hospitals_map_doctor_post: {
         parameters: {
             query?: never;
@@ -5085,6 +6098,72 @@ export interface operations {
             };
         };
     };
+    get_chemist_api_v1_customers_chemists__chemist_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chemist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChemistResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_chemist_api_v1_customers_chemists__chemist_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chemist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChemistUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ChemistResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_stockists_api_v1_customers_stockists_get: {
         parameters: {
             query?: {
@@ -5134,6 +6213,72 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockistResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stockist_api_v1_customers_stockists__stockist_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stockist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockistResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_stockist_api_v1_customers_stockists__stockist_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stockist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StockistUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5268,6 +6413,66 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_admin_live_activity_api_v1_dashboard_admin_live_activity_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminLiveActivityResponse"];
+                };
+            };
+        };
+    };
+    get_mr_dashboard_api_v1_dashboard_mr_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MrDashboardResponse"];
+                };
+            };
+        };
+    };
+    get_manager_dashboard_api_v1_dashboard_manager_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ManagerDashboardResponse"];
                 };
             };
         };
@@ -5935,6 +7140,470 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["LeaveResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_task_summary_api_v1_tasks_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskSummaryResponse"];
+                };
+            };
+        };
+    };
+    list_tasks_api_v1_tasks_get: {
+        parameters: {
+            query?: {
+                /** @description PENDING, IN_PROGRESS, COMPLETED, CANCELLED */
+                status?: string | null;
+                /** @description LOW, MEDIUM, HIGH, URGENT */
+                priority?: string | null;
+                /** @description Exact due date filter */
+                due_date?: string | null;
+                /** @description Filter for overdue tasks */
+                overdue_only?: boolean;
+                /** @description Filter for tasks due today */
+                today_only?: boolean;
+                /** @description Filter for tasks due in the future */
+                upcoming_only?: boolean;
+                /** @description Keyword search in title and description */
+                search?: string | null;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_task_api_v1_tasks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_task_api_v1_tasks__task_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_task_api_v1_tasks__task_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_task_api_v1_tasks__task_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    toggle_complete_api_v1_tasks__task_id__complete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_task_comment_api_v1_tasks__task_id__comments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskCommentCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskCommentResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_notification_summary_api_v1_notifications_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationSummaryResponse"];
+                };
+            };
+        };
+    };
+    list_notifications_api_v1_notifications_get: {
+        parameters: {
+            query?: {
+                /** @description Filter only unread notifications */
+                unread_only?: boolean;
+                /** @description APPROVAL, TASK, LEAVE, TOUR, EXPENSE, SYSTEM */
+                notification_type?: string | null;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_notification_api_v1_notifications_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_read_api_v1_notifications__notification_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_all_read_api_v1_notifications_read_all_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: number;
+                    };
+                };
+            };
+        };
+    };
+    delete_notification_api_v1_notifications__notification_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    register_device_token_api_v1_notifications_device_token_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceTokenRegisterRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceTokenResponse"];
                 };
             };
             /** @description Validation Error */

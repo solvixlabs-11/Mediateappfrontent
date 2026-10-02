@@ -3,21 +3,22 @@ import {
   ActivityIndicator,
   Alert,
   Linking,
+  Platform,
   RefreshControl,
   ScrollView,
+  StatusBar as RNStatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../../auth/store";
 import { AttendanceDto, attendanceApi } from "../../attendance/api/attendanceApi";
 import { DcrDailySummaryDto, PlannedVisitDto, dcrApi } from "../../dcr/api/dcrApi";
-import { DcrFormModal } from "../../dcr/screens/DcrFormModal";
-import { ExpenseListModal } from "../../expenses/screens/ExpenseListModal";
-import { LeaveListModal } from "../../leaves/screens/LeaveListModal";
-import { TourPlannerModal } from "../../tours/screens/TourPlannerModal";
+import { useFocusEffect } from "@react-navigation/native";
+import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing } from "../../../shared/theme/tokens";
 
 interface MrDashboardScreenProps {
@@ -35,14 +36,8 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isPunchLoading, setIsPunchLoading] = useState(false);
 
-  // DCR Modal State
-  const [isDcrModalOpen, setIsDcrModalOpen] = useState(false);
-  const [preselectedVisit, setPreselectedVisit] = useState<PlannedVisitDto | undefined>(undefined);
-
-  // Phase 5 Modals State
-  const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
-  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
-  const [isTourModalOpen, setIsTourModalOpen] = useState(false);
+  // Navigation & Data Reload on Focus
+  // Modal states removed per Section 3.1 & Rule M-18
 
   // Load Dashboard Data
   const loadDashboardData = useCallback(async () => {
@@ -81,6 +76,12 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
     loadDashboardData();
   }, [loadDashboardData]);
 
+  useFocusEffect(
+    useCallback(() => {
+      loadDashboardData();
+    }, [loadDashboardData])
+  );
+
   const onRefresh = () => {
     setIsRefreshing(true);
     loadDashboardData();
@@ -95,6 +96,7 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
         longitude: 72.8777,
         accuracy: 12.0,
         address: "Dadar West, Mumbai",
+        mock_location_flag: false,
         remarks: "Morning field punch",
         client_uuid: `att-in-${Date.now()}`,
       });
@@ -133,6 +135,7 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 longitude: 72.8780,
                 accuracy: 10.0,
                 address: "Dadar West, Mumbai",
+                mock_location_flag: false,
                 remarks: "Day field work completed",
               });
               setAttendance(record);
@@ -183,84 +186,114 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
   const nextDocPhone = "+919820012345";
 
   return (
-    <View style={styles.screen}>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
+      <RNStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+
+      {/* Top App Bar Header */}
+      <View style={styles.topAppBar}>
+        <View style={styles.brandRow}>
+          <View style={styles.logoBadge}>
+            <Ionicons name="medical" size={16} color="#FFFFFF" />
+          </View>
+          <View style={styles.brandCol}>
+            <Text style={styles.brandText}>Mediate MR</Text>
+            <Text style={styles.brandSubtext}>Field Operations</Text>
+          </View>
+        </View>
+
+        <View style={styles.topRightActions}>
+          <View style={styles.onlinePill}>
+            <View style={styles.onlineDot} />
+            <Text style={styles.onlinePillText}>Online</Text>
+          </View>
+
+          <TouchableOpacity
+            style={styles.bellBtn}
+            activeOpacity={0.7}
+            onPress={() => {
+              Alert.alert("Field Alerts", "You have 3 operational alerts scheduled for today.");
+            }}
+          >
+            <Ionicons name="notifications-outline" size={20} color="#1E293B" />
+            <View style={styles.notificationBadge}>
+              <Text style={styles.notificationBadgeText}>3</Text>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.avatarCircle}
+            activeOpacity={0.8}
+            onPress={() => {
+              if (navigation) navigation.navigate("More" as never);
+            }}
+          >
+            <Text style={styles.avatarText}>
+              {user?.fullName
+                ? user.fullName
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .substring(0, 2)
+                    .toUpperCase()
+                : "MR"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >
-        {/* Top App Bar */}
-        <View style={styles.topBar}>
-          <View style={styles.brandRow}>
-            <View style={styles.logoBadge}>
-              <Ionicons name="medical" size={16} color="#FFFFFF" />
-            </View>
-            <Text style={styles.brandText}>Mediate MR</Text>
-          </View>
-
-          <View style={styles.topRightActions}>
-            <TouchableOpacity style={styles.bellBtn} activeOpacity={0.7}>
-              <Ionicons name="notifications-outline" size={22} color={colors.navy} />
-              <View style={styles.notificationBadge}>
-                <Text style={styles.notificationBadgeText}>3</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.avatarCircle} activeOpacity={0.8}>
-              <Text style={styles.avatarText}>
-                {user?.fullName
-                  ? user.fullName
-                      .split(" ")
-                      .map((n) => n[0])
-                      .join("")
-                      .substring(0, 2)
-                      .toUpperCase()
-                  : "RS"}
+        {/* Welcome & Context Hero Card */}
+        <View style={styles.welcomeHeroCard}>
+          <View style={styles.welcomeHeroTop}>
+            <View style={styles.welcomeNameCol}>
+              <Text style={styles.welcomeSubTitle}>Good morning,</Text>
+              <Text style={styles.welcomeTitle} numberOfLines={1}>
+                {user?.fullName || "Field Representative"}
               </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+            </View>
 
-        {/* Greeting Banner */}
-        <View style={styles.greetingSection}>
-          <View style={styles.greetingRow}>
-            <Text style={styles.greetingTitle}>
-              Good morning, {user?.fullName ? user.fullName.split(" ")[0] : "Rahul"}
-            </Text>
             <View style={styles.hqBadge}>
+              <Ionicons name="location" size={12} color="#0D5C46" />
               <Text style={styles.hqBadgeText}>Mumbai Central HQ</Text>
             </View>
           </View>
 
-          <View style={styles.dateRow}>
-            <Text style={styles.dateSubtext}>{todayFormatted}</Text>
-            <View style={styles.onlinePill}>
-              <View style={styles.onlineDot} />
-              <Text style={styles.onlinePillText}>Online</Text>
+          <View style={styles.heroCardDivider} />
+
+          <View style={styles.welcomeHeroBottom}>
+            <View style={styles.dateRow}>
+              <Ionicons name="calendar-outline" size={13} color="#64748B" />
+              <Text style={styles.dateSubtext}>{todayFormatted}</Text>
             </View>
-          </View>
 
-          {/* Actionable Banner Pills */}
-          <View style={styles.alertsContainer}>
-            <TouchableOpacity
-              style={styles.expenseAlertPill}
-              activeOpacity={0.8}
-              onPress={() => setIsExpenseModalOpen(true)}
-            >
-              <Ionicons name="alert-circle-outline" size={14} color="#B91C1C" />
-              <Text style={styles.expenseAlertText}>Expense Claims</Text>
-            </TouchableOpacity>
+            <View style={styles.alertsContainer}>
+              <TouchableOpacity
+                style={styles.expenseAlertPill}
+                activeOpacity={0.8}
+                onPress={() => {
+                  if (navigation) navigation.navigate(ROUTES.ExpenseList);
+                }}
+              >
+                <Ionicons name="alert-circle-outline" size={12} color="#B91C1C" />
+                <Text style={styles.expenseAlertText}>Expense Claims</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.followupAlertPill}
-              activeOpacity={0.8}
-              onPress={() => {
-                if (navigation) navigation.navigate("Visits");
-              }}
-            >
-              <Ionicons name="warning-outline" size={14} color="#B45309" />
-              <Text style={styles.followupAlertText}>Follow-ups</Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.followupAlertPill}
+                activeOpacity={0.8}
+                onPress={() => {
+                  if (navigation) navigation.navigate("Visits");
+                }}
+              >
+                <Ionicons name="warning-outline" size={12} color="#B45309" />
+                <Text style={styles.followupAlertText}>2 Follow-ups</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -439,8 +472,13 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
               style={styles.startVisitBtn}
               activeOpacity={0.85}
               onPress={() => {
-                setPreselectedVisit(nextVisit || undefined);
-                setIsDcrModalOpen(true);
+                if (navigation) {
+                  navigation.navigate(ROUTES.DcrForm, {
+                    initialPlannedVisitId: nextVisit?.id,
+                    initialCustomerType: nextVisit?.customer_type,
+                    initialCustomerId: nextVisit?.doctor_id || undefined,
+                  });
+                }
               }}
             >
               <Ionicons name="paper-plane-outline" size={18} color="#FFFFFF" />
@@ -472,8 +510,7 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
               style={styles.actionTile}
               activeOpacity={0.8}
               onPress={() => {
-                setPreselectedVisit(undefined);
-                setIsDcrModalOpen(true);
+                if (navigation) navigation.navigate(ROUTES.DcrForm);
               }}
             >
               <View style={styles.tileLeft}>
@@ -489,7 +526,9 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
             <TouchableOpacity
               style={styles.actionTile}
               activeOpacity={0.8}
-              onPress={() => setIsTourModalOpen(true)}
+              onPress={() => {
+                if (navigation) navigation.navigate(ROUTES.TourPlanner);
+              }}
             >
               <View style={styles.tileLeft}>
                 <View style={[styles.tileIconCircle, { backgroundColor: "#DBEAFE" }]}>
@@ -504,7 +543,9 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
             <TouchableOpacity
               style={styles.actionTile}
               activeOpacity={0.8}
-              onPress={() => setIsExpenseModalOpen(true)}
+              onPress={() => {
+                if (navigation) navigation.navigate(ROUTES.ExpenseList);
+              }}
             >
               <View style={styles.tileLeft}>
                 <View style={[styles.tileIconCircle, { backgroundColor: "#FEF3C7" }]}>
@@ -519,7 +560,9 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
             <TouchableOpacity
               style={styles.actionTile}
               activeOpacity={0.8}
-              onPress={() => setIsLeaveModalOpen(true)}
+              onPress={() => {
+                if (navigation) navigation.navigate(ROUTES.LeaveList);
+              }}
             >
               <View style={styles.tileLeft}>
                 <View style={[styles.tileIconCircle, { backgroundColor: "#FEE2E2" }]}>
@@ -535,7 +578,12 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
               style={styles.actionTile}
               activeOpacity={0.8}
               onPress={() => {
-                if (navigation) navigation.navigate("Orders");
+                if (navigation) {
+                  navigation.navigate(ROUTES.ComingSoon, {
+                    featureName: "Orders & Secondary Booking (POB)",
+                    phase: "Phase 6",
+                  });
+                }
               }}
             >
               <View style={styles.tileLeft}>
@@ -552,7 +600,12 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
               style={styles.actionTile}
               activeOpacity={0.8}
               onPress={() => {
-                if (navigation) navigation.navigate("Visits");
+                if (navigation) {
+                  navigation.navigate(ROUTES.ComingSoon, {
+                    featureName: "Tasks & Reminders",
+                    phase: "Phase 6",
+                  });
+                }
               }}
             >
               <View style={styles.tileLeft}>
@@ -574,84 +627,84 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
 
         <View style={{ height: 40 }} />
       </ScrollView>
-
-      {/* DCR Visit Call Logging Modal */}
-      <DcrFormModal
-        visible={isDcrModalOpen}
-        initialPlannedVisitId={preselectedVisit?.id}
-        initialCustomerType={preselectedVisit?.customer_type}
-        initialCustomerId={preselectedVisit?.doctor_id || undefined}
-        onClose={() => setIsDcrModalOpen(false)}
-        onSubmitted={() => {
-          setIsDcrModalOpen(false);
-          loadDashboardData();
-        }}
-      />
-
-      {/* Expense Management Modal */}
-      <ExpenseListModal
-        visible={isExpenseModalOpen}
-        onClose={() => setIsExpenseModalOpen(false)}
-      />
-
-      {/* Leave Management Modal */}
-      <LeaveListModal
-        visible={isLeaveModalOpen}
-        onClose={() => setIsLeaveModalOpen(false)}
-      />
-
-      {/* Tour Program Planner Modal */}
-      <TourPlannerModal
-        visible={isTourModalOpen}
-        onClose={() => setIsTourModalOpen(false)}
-      />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#F4F7FA",
+    backgroundColor: "#FFFFFF",
   },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  topBar: {
+  topAppBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: spacing.md,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E2E8F0",
   },
   brandRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    gap: 10,
   },
   logoBadge: {
-    width: 28,
-    height: 28,
-    borderRadius: 7,
+    width: 32,
+    height: 32,
+    borderRadius: 8,
     backgroundColor: "#0D5C46",
     alignItems: "center",
     justifyContent: "center",
   },
+  brandCol: {
+    justifyContent: "center",
+  },
   brandText: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "800",
     color: "#0F172A",
+    letterSpacing: -0.3,
+  },
+  brandSubtext: {
+    fontSize: 11,
+    fontWeight: "500",
+    color: "#64748B",
   },
   topRightActions: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    gap: 10,
+  },
+  onlinePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    backgroundColor: "#DCFCE7",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: "#BBF7D0",
+  },
+  onlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: "#16A34A",
+  },
+  onlinePillText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#15803D",
   },
   bellBtn: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F8FAFC",
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -667,6 +720,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
   },
   notificationBadgeText: {
     color: "#FFFFFF",
@@ -680,107 +735,127 @@ const styles = StyleSheet.create({
     backgroundColor: "#064E3B",
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1.5,
+    borderColor: "#A7F3D0",
   },
   avatarText: {
     color: "#FFFFFF",
     fontSize: 13,
     fontWeight: "700",
   },
-  greetingSection: {
-    marginBottom: spacing.md,
+  scrollView: {
+    flex: 1,
+    backgroundColor: "#F4F7FA",
   },
-  greetingRow: {
+  scrollContent: {
+    backgroundColor: "#F4F7FA",
+    paddingHorizontal: 16,
+    paddingTop: 14,
+    paddingBottom: 40,
+  },
+  welcomeHeroCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: radii.lg,
+    padding: 14,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+  },
+  welcomeHeroTop: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  greetingTitle: {
-    fontSize: 22,
+  welcomeNameCol: {
+    flex: 1,
+    marginRight: 8,
+  },
+  welcomeSubTitle: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#64748B",
+    marginBottom: 2,
+  },
+  welcomeTitle: {
+    fontSize: 18,
     fontWeight: "800",
     color: "#0F172A",
-    letterSpacing: -0.5,
+    letterSpacing: -0.3,
   },
   hqBadge: {
-    backgroundColor: "#F1F5F9",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "#ECFDF5",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
     borderRadius: radii.md,
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
   },
   hqBadgeText: {
     fontSize: 11,
-    color: "#475569",
-    fontWeight: "600",
+    color: "#065F46",
+    fontWeight: "700",
+  },
+  heroCardDivider: {
+    height: 1,
+    backgroundColor: "#F1F5F9",
+    marginVertical: 10,
+  },
+  welcomeHeroBottom: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 8,
   },
   dateRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginTop: 4,
+    gap: 5,
   },
   dateSubtext: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#64748B",
     fontWeight: "500",
   },
-  onlinePill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: "#DCFCE7",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radii.sm,
-    borderWidth: 1,
-    borderColor: "#BBF7D0",
-  },
-  onlineDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: "#16A34A",
-  },
-  onlinePillText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#15803D",
-  },
   alertsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: spacing.sm + 2,
+    alignItems: "center",
+    gap: 6,
   },
   expenseAlertPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
     backgroundColor: "#FEF2F2",
     borderWidth: 1,
     borderColor: "#FECACA",
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: radii.md,
+    borderRadius: radii.sm,
   },
   expenseAlertText: {
     fontSize: 11,
-    fontWeight: "600",
     color: "#B91C1C",
+    fontWeight: "700",
   },
   followupAlertPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 4,
     backgroundColor: "#FFFBEB",
     borderWidth: 1,
     borderColor: "#FDE68A",
-    paddingHorizontal: 10,
+    paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: radii.md,
+    borderRadius: radii.sm,
   },
   followupAlertText: {
     fontSize: 11,
-    fontWeight: "600",
     color: "#B45309",
+    fontWeight: "700",
   },
   cardContainer: {
     backgroundColor: "#FFFFFF",

@@ -5,15 +5,17 @@ import { ScreenContainer } from "../../../shared/components/ScreenContainer";
 import { StatusChip } from "../../../shared/components/StatusChip";
 import { colors, spacing, typography } from "../../../shared/theme/tokens";
 
+import { useRoute } from "@react-navigation/native";
+
 export interface ComingSoonScreenProps {
-  featureName: string;
-  phase: string;
+  featureName?: string;
+  phase?: string;
 }
 
-export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = ({
-  featureName,
-  phase,
-}) => {
+export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = (props) => {
+  const route = useRoute<any>();
+  const featureName = props.featureName || route.params?.featureName || "Coming Soon";
+  const phase = props.phase || route.params?.phase || "In Progress";
   return (
     <ScreenContainer>
       <View style={styles.container}>

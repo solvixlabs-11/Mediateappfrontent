@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useMasterStore } from "../../masters/store";
 import {
@@ -21,13 +22,16 @@ import {
   customersApi,
 } from "../api/customersApi";
 import { CustomerCard, CustomerCardData } from "../components/CustomerCard";
-import { AddDoctorModal } from "./AddDoctorModal";
-import { DoctorDetailModal } from "./DoctorDetailModal";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../../navigation/types";
+import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
 
 type TabType = "DOCTORS" | "CHEMISTS" | "HOSPITALS" | "STOCKISTS" | "NEARBY";
 
 export function CustomersHomeScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { fetchMasters, territories } = useMasterStore();
 
   const [activeTab, setActiveTab] = useState<TabType>("DOCTORS");
@@ -43,10 +47,6 @@ export function CustomersHomeScreen() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // Modals
-  const [addDoctorVisible, setAddDoctorVisible] = useState(false);
-  const [selectedDoctor, setSelectedDoctor] = useState<DoctorDto | null>(null);
 
   // Load masters on mount
   useEffect(() => {
@@ -98,6 +98,12 @@ export function CustomersHomeScreen() {
     loadData();
   }, [loadData]);
 
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
+
   const handleRefresh = () => {
     setIsRefreshing(true);
     loadData();
@@ -129,7 +135,13 @@ export function CustomersHomeScreen() {
         <CustomerCard
           key={`doc-${doc.id}`}
           data={cardData}
-          onPress={() => setSelectedDoctor(doc)}
+          onPress={() =>
+            navigation.navigate(ROUTES.CustomerDetail, {
+              customerType: "DOCTOR",
+              customerId: doc.id,
+              customerName: doc.full_name,
+            })
+          }
           onCallPress={handleCall}
         />
       );
@@ -151,6 +163,13 @@ export function CustomersHomeScreen() {
         <CustomerCard
           key={`chem-${chm.id}`}
           data={cardData}
+          onPress={() =>
+            navigation.navigate(ROUTES.CustomerDetail, {
+              customerType: "CHEMIST",
+              customerId: chm.id,
+              customerName: chm.shop_name,
+            })
+          }
           onCallPress={handleCall}
         />
       );
@@ -172,6 +191,13 @@ export function CustomersHomeScreen() {
         <CustomerCard
           key={`hosp-${hosp.id}`}
           data={cardData}
+          onPress={() =>
+            navigation.navigate(ROUTES.CustomerDetail, {
+              customerType: "HOSPITAL",
+              customerId: hosp.id,
+              customerName: hosp.name,
+            })
+          }
           onCallPress={handleCall}
         />
       );
@@ -193,6 +219,13 @@ export function CustomersHomeScreen() {
         <CustomerCard
           key={`st-${st.id}`}
           data={cardData}
+          onPress={() =>
+            navigation.navigate(ROUTES.CustomerDetail, {
+              customerType: "STOCKIST",
+              customerId: st.id,
+              customerName: st.agency_name,
+            })
+          }
           onCallPress={handleCall}
         />
       );
@@ -214,6 +247,13 @@ export function CustomersHomeScreen() {
       <CustomerCard
         key={`nearby-${nb.customer_type}-${nb.id}`}
         data={cardData}
+        onPress={() =>
+          navigation.navigate(ROUTES.CustomerDetail, {
+            customerType: nb.customer_type as any,
+            customerId: nb.id,
+            customerName: nb.name,
+          })
+        }
         onCallPress={handleCall}
       />
     );
@@ -237,7 +277,7 @@ export function CustomersHomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Top App Header */}
       <View style={styles.header}>
         <View>
@@ -248,7 +288,11 @@ export function CustomersHomeScreen() {
         </View>
         <TouchableOpacity
           style={styles.addButton}
-          onPress={() => setAddDoctorVisible(true)}
+          onPress={() =>
+            navigation.navigate(ROUTES.CustomerForm, {
+              customerType: "DOCTOR",
+            })
+          }
           activeOpacity={0.8}
         >
           <Ionicons name="add" size={20} color="#fff" />
@@ -313,7 +357,7 @@ export function CustomersHomeScreen() {
               horizontal
               showsHorizontalScrollIndicator={false}
               data={[{ id: 0, name: "All Territories" }, ...territories]}
-              keyExtractor={(t) => String(t.id)}
+              keyExtractor={(t, idx) => `terr-${t.id}-${idx}`}
               style={styles.territoryList}
               contentContainerStyle={styles.territoryContent}
               renderItem={({ item }) => {
@@ -378,7 +422,11 @@ export function CustomersHomeScreen() {
               {activeTab === "DOCTORS" && (
                 <TouchableOpacity
                   style={styles.addDoctorEmptyBtn}
-                  onPress={() => setAddDoctorVisible(true)}
+                  onPress={() =>
+                    navigation.navigate(ROUTES.CustomerForm, {
+                      customerType: "DOCTOR",
+                    })
+                  }
                 >
                   <Ionicons name="person-add" size={16} color={colors.primary} />
                   <Text style={styles.addDoctorEmptyText}>Add First Doctor</Text>
@@ -388,23 +436,7 @@ export function CustomersHomeScreen() {
           }
         />
       )}
-
-      {/* Add Doctor Modal */}
-      <AddDoctorModal
-        visible={addDoctorVisible}
-        onClose={() => setAddDoctorVisible(false)}
-        onDoctorCreated={(doc) => {
-          setDoctors((prev) => [doc, ...prev]);
-        }}
-      />
-
-      {/* Doctor Detail Modal */}
-      <DoctorDetailModal
-        doctor={selectedDoctor}
-        visible={selectedDoctor !== null}
-        onClose={() => setSelectedDoctor(null)}
-      />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -418,7 +450,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.md,
     paddingBottom: spacing.sm,
     backgroundColor: colors.surface,
   },

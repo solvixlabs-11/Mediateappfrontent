@@ -44,6 +44,7 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
         longitude: 72.8777,
         accuracy: 10.0,
         address: "Bandra Kurla Complex, Mumbai",
+        mock_location_flag: false,
         remarks: "Started field work",
         client_uuid: `att-in-${Date.now()}`,
       });
@@ -77,6 +78,7 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
               const record = await attendanceApi.checkOut({
                 latitude: 19.0765,
                 longitude: 72.8780,
+                mock_location_flag: false,
                 remarks: "Day completed",
               });
               setAttendance(record);

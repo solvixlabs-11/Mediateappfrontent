@@ -1,37 +1,9 @@
 import { apiClient } from "../../../api/client";
+import { components } from "../../../api/schema";
 
-export interface LeaveBalanceDto {
-  user_id: number;
-  year: number;
-  casual_leave_balance: number;
-  sick_leave_balance: number;
-  earned_leave_balance: number;
-  total_balance: number;
-}
-
-export interface LeaveDto {
-  id: number;
-  user_id: number;
-  leave_type: "CASUAL" | "SICK" | "EARNED";
-  start_date: string;
-  end_date: string;
-  days_count: number;
-  reason: string;
-  status: "APPLIED" | "APPROVED" | "REJECTED" | "CANCELLED";
-  approval_request_id?: number | null;
-  rejection_reason?: string | null;
-  client_uuid?: string | null;
-  created_at: string;
-}
-
-export interface LeaveApplyPayload {
-  leave_type: "CASUAL" | "SICK" | "EARNED";
-  start_date: string;
-  end_date: string;
-  days_count: number;
-  reason: string;
-  client_uuid?: string | null;
-}
+export type LeaveBalanceDto = components["schemas"]["LeaveBalanceResponse"];
+export type LeaveDto = components["schemas"]["LeaveResponse"];
+export type LeaveApplyPayload = components["schemas"]["LeaveApplyRequest"];
 
 export const leavesApi = {
   getBalance: async (userId?: number, year?: number): Promise<LeaveBalanceDto> => {
@@ -56,3 +28,4 @@ export const leavesApi = {
     return res.data;
   },
 };
+

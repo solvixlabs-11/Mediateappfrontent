@@ -298,8 +298,8 @@ export const LoginScreen: React.FC = () => {
             </View>
           </View>
 
-          {/* Discreet Developer Profile Switcher (Clean & Non-Intrusive) */}
-          {demoAccounts.length > 0 ? (
+          {/* Discreet Developer Profile Switcher (Guarded by EXPO_PUBLIC_DEV_LOGIN per Rule M-19) */}
+          {process.env.EXPO_PUBLIC_DEV_LOGIN === "true" && demoAccounts.length > 0 ? (
             <View style={styles.devContainer}>
               <TouchableOpacity
                 onPress={() => setShowDevPanel((v) => !v)}

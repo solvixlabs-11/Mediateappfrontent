@@ -29,7 +29,7 @@ interface DcrFormModalProps {
   onClose: () => void;
   onSubmitted: (visit: DcrVisitDto) => void;
   initialPlannedVisitId?: number;
-  initialCustomerType?: "DOCTOR" | "CHEMIST" | "HOSPITAL" | "STOCKIST";
+  initialCustomerType?: "DOCTOR" | "CHEMIST" | "HOSPITAL" | "STOCKIST" | string;
   initialCustomerId?: number;
 }
 
@@ -42,7 +42,7 @@ export function DcrFormModal({
   initialCustomerId,
 }: DcrFormModalProps) {
   const [customerType, setCustomerType] = useState<"DOCTOR" | "CHEMIST" | "HOSPITAL" | "STOCKIST">(
-    initialCustomerType
+    (initialCustomerType as "DOCTOR" | "CHEMIST" | "HOSPITAL" | "STOCKIST") || "DOCTOR"
   );
   const [selectedCustomerId, setSelectedCustomerId] = useState<number | string>(
     initialCustomerId || ""
@@ -89,7 +89,8 @@ export function DcrFormModal({
   }, [visible]);
 
   useEffect(() => {
-    if (initialCustomerType) setCustomerType(initialCustomerType);
+    if (initialCustomerType)
+      setCustomerType(initialCustomerType as "DOCTOR" | "CHEMIST" | "HOSPITAL" | "STOCKIST");
     if (initialCustomerId) setSelectedCustomerId(initialCustomerId);
   }, [initialCustomerType, initialCustomerId]);
 

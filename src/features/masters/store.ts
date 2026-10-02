@@ -43,12 +43,16 @@ export const useMasterStore = create<MasterStoreState>((set, get) => ({
         territoriesApi.getMyTerritories().catch(() => [] as TerritoryDto[]),
       ]);
 
+      const uniqueTerritories = (territories || []).filter(
+        (t, index, self) => index === self.findIndex((item) => item.id === t.id)
+      );
+
       set({
         specializations: bulk.specializations || [],
         customerCategories: bulk.customer_categories || [],
         visitPriorities: bulk.visit_priorities || [],
         states: bulk.states || [],
-        territories: territories || [],
+        territories: uniqueTerritories,
         isLoading: false,
         lastFetchedAt: Date.now(),
       });

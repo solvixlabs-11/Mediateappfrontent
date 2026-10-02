@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { AttendanceCard } from "../../attendance/components/AttendanceCard";
 import {
@@ -17,12 +18,16 @@ import {
   PlannedVisitDto,
   dcrApi,
 } from "../api/dcrApi";
-import { DcrFormModal } from "./DcrFormModal";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../../../navigation/types";
+import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
 
 type PlanTab = "PLANS" | "CALL_LOG" | "FOLLOW_UPS";
 
 export function PlanVisitsScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [activeTab, setActiveTab] = useState<PlanTab>("PLANS");
   const [plans, setPlans] = useState<PlannedVisitDto[]>([]);
   const [visits, setVisits] = useState<DcrVisitDto[]>([]);
@@ -31,10 +36,6 @@ export function PlanVisitsScreen() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
-  // DCR Modal
-  const [dcrModalVisible, setDcrModalVisible] = useState(false);
-  const [selectedPlanForDcr, setSelectedPlanForDcr] = useState<PlannedVisitDto | null>(null);
 
   const todayStr = new Date().toISOString().split("T")[0];
 
@@ -64,14 +65,28 @@ export function PlanVisitsScreen() {
     loadData();
   }, [loadData]);
 
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
+
   const handleRefresh = () => {
     setIsRefreshing(true);
     loadData();
   };
 
   const handleLogCallFromPlan = (plan: PlannedVisitDto) => {
-    setSelectedPlanForDcr(plan);
-    setDcrModalVisible(true);
+    navigation.navigate(ROUTES.DcrForm, {
+      initialPlannedVisitId: plan.id,
+      initialCustomerType: plan.customer_type,
+      initialCustomerId:
+        plan.doctor_id ||
+        plan.chemist_id ||
+        plan.hospital_id ||
+        plan.stockist_id ||
+        undefined,
+    });
   };
 
   const handleCompleteFollowUp = async (id: number) => {
@@ -86,7 +101,7 @@ export function PlanVisitsScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Top Header */}
       <View style={styles.header}>
         <View>
@@ -97,8 +112,7 @@ export function PlanVisitsScreen() {
         <TouchableOpacity
           style={styles.newDcrBtn}
           onPress={() => {
-            setSelectedPlanForDcr(null);
-            setDcrModalVisible(true);
+            navigation.navigate(ROUTES.DcrForm);
           }}
           activeOpacity={0.8}
         >
@@ -379,25 +393,7 @@ export function PlanVisitsScreen() {
           </View>
         }
       />
-
-      {/* DCR Form Modal */}
-      <DcrFormModal
-        visible={dcrModalVisible}
-        onClose={() => setDcrModalVisible(false)}
-        initialPlannedVisitId={selectedPlanForDcr?.id}
-        initialCustomerType={selectedPlanForDcr?.customer_type}
-        initialCustomerId={
-          selectedPlanForDcr?.doctor_id ||
-          selectedPlanForDcr?.chemist_id ||
-          selectedPlanForDcr?.hospital_id ||
-          selectedPlanForDcr?.stockist_id ||
-          undefined
-        }
-        onSubmitted={() => {
-          loadData();
-        }}
-      />
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -411,7 +407,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
+    paddingTop: spacing.md,
     paddingBottom: spacing.sm,
     backgroundColor: colors.surface,
   },

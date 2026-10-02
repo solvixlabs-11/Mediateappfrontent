@@ -1,26 +1,8 @@
 import { apiClient } from "../../../api/client";
+import { components } from "../../../api/schema";
 
-export interface TourProgramDto {
-  id: number;
-  user_id: number;
-  title: string;
-  start_date: string;
-  end_date: string;
-  route_details?: string | null;
-  objectives?: string | null;
-  status: "DRAFT" | "SUBMITTED" | "APPROVED" | "REJECTED";
-  approval_request_id?: number | null;
-  rejection_reason?: string | null;
-  created_at: string;
-}
-
-export interface TourProgramCreatePayload {
-  title: string;
-  start_date: string;
-  end_date: string;
-  route_details?: string | null;
-  objectives?: string | null;
-}
+export type TourProgramDto = components["schemas"]["TourProgramResponse"];
+export type TourProgramCreatePayload = components["schemas"]["TourProgramCreateRequest"];
 
 export const toursApi = {
   create: async (payload: TourProgramCreatePayload): Promise<TourProgramDto> => {
@@ -38,3 +20,4 @@ export const toursApi = {
     return res.data;
   },
 };
+

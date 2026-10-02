@@ -1,36 +1,9 @@
 import { apiClient } from "../../../api/client";
+import { components } from "../../../api/schema";
 
-export interface ExpenseDto {
-  id: number;
-  user_id: number;
-  expense_date: string;
-  expense_type: "DAILY_ALLOWANCE" | "TRAVEL_FARE" | "LODGING" | "MISCELLANEOUS";
-  amount: number;
-  description?: string | null;
-  receipt_file_id?: number | null;
-  status: "SUBMITTED" | "APPROVED" | "REJECTED";
-  approval_request_id?: number | null;
-  rejection_reason?: string | null;
-  client_uuid?: string | null;
-  created_at: string;
-}
-
-export interface ExpenseCreatePayload {
-  expense_date: string;
-  expense_type: "DAILY_ALLOWANCE" | "TRAVEL_FARE" | "LODGING" | "MISCELLANEOUS";
-  amount: number;
-  description?: string | null;
-  receipt_file_id?: number | null;
-  client_uuid?: string | null;
-}
-
-export interface ExpenseSummaryDto {
-  total_claimed: number;
-  total_approved: number;
-  total_pending: number;
-  total_rejected: number;
-  count: number;
-}
+export type ExpenseDto = components["schemas"]["ExpenseResponse"];
+export type ExpenseCreatePayload = components["schemas"]["ExpenseCreateRequest"];
+export type ExpenseSummaryDto = components["schemas"]["MonthlyExpenseSummaryResponse"];
 
 export const expensesApi = {
   create: async (payload: ExpenseCreatePayload): Promise<ExpenseDto> => {
@@ -52,3 +25,4 @@ export const expensesApi = {
     return res.data;
   },
 };
+
