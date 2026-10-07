@@ -31,7 +31,8 @@ export function useReportsCatalog() {
   const scopeLabel = catalogQuery.data?.scope_label || "Your scope";
   const userRole = catalogQuery.data?.role || "";
 
-  // Group names ordering per specification: Activity, Customers, HR and Expense, Approvals
+  // Group names ordering per v2 specification:
+  // Master Lists, Attendance and Daily Work, Visits, Doctor Analysis, Stock and Orders, Sales and Finance, Other
   const groupedReports = useMemo(() => {
     const filtered = reports.filter((item) => {
       if (!searchQuery.trim()) return true;
@@ -39,28 +40,26 @@ export function useReportsCatalog() {
       return (
         item.title.toLowerCase().includes(q) ||
         item.description.toLowerCase().includes(q) ||
-        item.key.toLowerCase().includes(q)
+        item.key.toLowerCase().includes(q) ||
+        item.group.toLowerCase().includes(q)
       );
     });
 
-    const standardGroups = ["Activity", "Customers", "HR and Expense", "Approvals"];
-    const groupsMap = new Map<string, ReportCatalogItem[]>();
+    const standardGroups = [
+      "Master Lists",
+      "Attendance and Daily Work",
+      "Visits",
+      "Doctor Analysis",
+      "Stock and Orders",
+      "Sales and Finance",
+      "Other",
+    ];
 
+    const groupsMap = new Map<string, ReportCatalogItem[]>();
     standardGroups.forEach((g) => groupsMap.set(g, []));
 
     filtered.forEach((report) => {
-      let g = report.group || "Activity";
-      // Normalize group names if needed
-      if (g.toLowerCase().includes("hr") || g.toLowerCase().includes("expense")) {
-        g = "HR and Expense";
-      } else if (g.toLowerCase().includes("customer")) {
-        g = "Customers";
-      } else if (g.toLowerCase().includes("approval")) {
-        g = "Approvals";
-      } else if (g.toLowerCase().includes("activity") || g.toLowerCase().includes("dcr") || g.toLowerCase().includes("visit")) {
-        g = "Activity";
-      }
-
+      const g = report.group || "Other";
       if (!groupsMap.has(g)) {
         groupsMap.set(g, []);
       }
@@ -68,7 +67,6 @@ export function useReportsCatalog() {
     });
 
     const result: GroupedReports[] = [];
-    // Push standard groups first, then any extra
     groupsMap.forEach((items, groupName) => {
       if (items.length > 0) {
         result.push({ groupName, items });

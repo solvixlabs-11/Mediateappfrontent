@@ -24,6 +24,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { Header } from "../../../shared/components/Header";
 
 type PlanTab = "PLANS" | "CALL_LOG" | "FOLLOW_UPS";
 
@@ -112,31 +113,30 @@ export function PlanVisitsScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Daily Planning & DCR</Text>
-          <Text style={styles.subtitle}>Field execution, calls & follow-ups</Text>
-        </View>
-
-        <TouchableOpacity
-          style={styles.newDcrBtn}
-          onPress={() => {
-            if (!isPunchedIn) {
-              Alert.alert(
-                "Punch-In Required 🔒",
-                "You cannot log visits before punching in. Please complete your morning attendance check-in above first."
-              );
-              return;
-            }
-            navigation.navigate(ROUTES.DcrForm);
-          }}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="add" size={18} color="#fff" />
-          <Text style={styles.newDcrBtnText}>Log Call</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Top Header with Mediate Logo & MR Role Badge */}
+      <Header
+        title="Daily Planning & DCR"
+        subtitle="Field execution, calls & follow-ups"
+        rightAction={
+          <TouchableOpacity
+            style={styles.newDcrBtn}
+            onPress={() => {
+              if (!isPunchedIn) {
+                Alert.alert(
+                  "Punch-In Required 🔒",
+                  "You cannot log visits before punching in. Please complete your morning attendance check-in above first."
+                );
+                return;
+              }
+              navigation.navigate(ROUTES.DcrForm);
+            }}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add" size={16} color="#fff" />
+            <Text style={styles.newDcrBtnText}>Log Call</Text>
+          </TouchableOpacity>
+        }
+      />
 
       <FlatList
         data={[]}

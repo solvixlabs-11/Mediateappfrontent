@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -101,7 +102,7 @@ export const LoginScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor="#12355B" />
+      <StatusBar barStyle="dark-content" backgroundColor="#EBF3FC" />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.container}
@@ -111,9 +112,9 @@ export const LoginScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
         >
-          {/* Executive Hero Banner with Depth */}
+          {/* Executive Hero Banner in Client's Halka Blue Brand Palette */}
           <View style={styles.heroBackground}>
-            {/* Ambient decorative glowing circles */}
+            {/* Ambient decorative glowing rings */}
             <View style={styles.glowCircle1} />
             <View style={styles.glowCircle2} />
 
@@ -151,18 +152,15 @@ export const LoginScreen: React.FC = () => {
               </TouchableOpacity>
             </View>
 
-            {/* Premium Brand Emblem & Titles */}
+            {/* Company Logo on High-Contrast Crisp White Plate with Halka Blue Depth */}
             <View style={styles.brandHero}>
-              <View style={styles.logoHalo}>
-                <View style={styles.logoBadge}>
-                  {/* Medical Stethoscope/Shield Cross Emblem */}
-                  <View style={styles.emblemCrossV} />
-                  <View style={styles.emblemCrossH} />
-                  <View style={styles.emblemCenterDot} />
-                </View>
+              <View style={styles.logoPlate}>
+                <Image
+                  source={require("../../../../assets/logo.png")}
+                  style={styles.logoImage}
+                  resizeMode="contain"
+                />
               </View>
-
-              <Text style={styles.heroTitle}>{projectName}</Text>
               <Text style={styles.heroSubtitle}>Intelligent Pharma CRM & Field Automation</Text>
             </View>
           </View>
@@ -397,7 +395,7 @@ const InputBase: React.FC<InputBaseProps> = (props) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#12355B",
+    backgroundColor: "#EBF3FC",
   },
   container: {
     flex: 1,
@@ -408,68 +406,70 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
 
-  // Hero Section
+  // Hero Section - Client's Halka Blue Brand Palette
   heroBackground: {
-    backgroundColor: "#12355B",
+    backgroundColor: "#EBF3FC",
     paddingTop: spacing.md,
-    paddingBottom: 48,
+    paddingBottom: 44,
     paddingHorizontal: spacing.lg,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    borderBottomWidth: 1,
+    borderBottomColor: "#D3E4F8",
     position: "relative",
     overflow: "hidden",
   },
   glowCircle1: {
     position: "absolute",
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: "rgba(14, 140, 127, 0.18)",
+    width: 240,
+    height: 240,
+    borderRadius: 120,
+    backgroundColor: "rgba(27, 100, 218, 0.08)",
     top: -60,
     right: -40,
   },
   glowCircle2: {
     position: "absolute",
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: "rgba(30, 111, 217, 0.14)",
-    bottom: -30,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "rgba(37, 99, 235, 0.06)",
+    bottom: -20,
     left: -20,
   },
   topBar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: spacing.lg,
+    marginBottom: spacing.md,
   },
   appTagBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.12)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.18)",
+    borderColor: "#CFE2F8",
   },
   appTagText: {
     fontSize: 9,
     fontWeight: "700",
-    color: "#A5F3FC",
+    color: "#1B64DA",
     letterSpacing: 0.8,
   },
   statusPill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: radii.full,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: "#CFE2F8",
   },
   statusPillOffline: {
-    backgroundColor: "rgba(239, 68, 68, 0.2)",
-    borderColor: "rgba(239, 68, 68, 0.4)",
+    backgroundColor: "#FEE2E2",
+    borderColor: "#FECACA",
   },
   statusDot: {
     width: 6,
@@ -478,10 +478,10 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   statusDotOnline: {
-    backgroundColor: "#10B981",
+    backgroundColor: "#16A34A",
   },
   statusDotOffline: {
-    backgroundColor: "#EF4444",
+    backgroundColor: "#DC2626",
   },
   statusDotChecking: {
     backgroundColor: "#F59E0B",
@@ -489,7 +489,7 @@ const styles = StyleSheet.create({
   statusPillText: {
     fontSize: 10,
     fontWeight: "600",
-    color: "#FFFFFF",
+    color: "#1E293B",
   },
 
   // Brand Hero
@@ -497,81 +497,50 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: spacing.xs,
   },
-  logoHalo: {
-    width: 76,
-    height: 76,
-    borderRadius: 24,
-    backgroundColor: "rgba(14, 140, 127, 0.3)",
+  logoPlate: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    width: "92%",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.md,
     borderWidth: 1.5,
-    borderColor: "rgba(14, 140, 127, 0.6)",
+    borderColor: "#D9E9FA",
+    shadowColor: "#1B64DA",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 4,
   },
-  logoBadge: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  emblemCrossV: {
-    position: "absolute",
-    width: 9,
-    height: 28,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 4.5,
-  },
-  emblemCrossH: {
-    position: "absolute",
-    width: 28,
-    height: 9,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 4.5,
-  },
-  emblemCenterDot: {
-    position: "absolute",
-    width: 5,
-    height: 5,
-    borderRadius: 2.5,
-    backgroundColor: colors.primaryDark,
-  },
-  heroTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    color: "#FFFFFF",
-    letterSpacing: -0.4,
+  logoImage: {
+    width: "100%",
+    height: 56,
   },
   heroSubtitle: {
     fontSize: 12,
-    fontWeight: "500",
-    color: "#93C5FD",
-    marginTop: 4,
+    fontWeight: "600",
+    color: "#1E3A8A",
+    marginTop: 10,
     letterSpacing: 0.2,
   },
 
   // Floating Card
   floatingCardContainer: {
     paddingHorizontal: spacing.lg,
-    marginTop: -28,
+    marginTop: -20,
   },
   card: {
     backgroundColor: colors.surface,
     borderRadius: 24,
     padding: spacing.xl,
-    shadowColor: "#0E8C7F",
+    shadowColor: "#1B64DA",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.08,
     shadowRadius: 20,
     elevation: 6,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: "#D8E4F2",
   },
   cardHeader: {
     marginBottom: spacing.lg,

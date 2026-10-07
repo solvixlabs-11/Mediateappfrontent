@@ -18,8 +18,9 @@ import {
   approvalsApi,
 } from "../api/approvalsApi";
 import { colors, radii, spacing } from "../../../shared/theme/tokens";
+import { Header } from "../../../shared/components/Header";
 
-export const ApprovalsInboxScreen: React.FC = () => {
+export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
   const [requests, setRequests] = useState<ApprovalRequestDto[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
@@ -125,19 +126,18 @@ export const ApprovalsInboxScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>Approvals Inbox</Text>
-          <Text style={styles.headerSubtitle}>
-            {pendingList.length} pending MR request{pendingList.length === 1 ? "" : "s"}
-          </Text>
-        </View>
-
-        <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh} activeOpacity={0.7}>
-          <Ionicons name="refresh-outline" size={20} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+      {/* Top Header with Mediate Logo & Manager/Admin Role Badge */}
+      <Header
+        title="Approvals Inbox"
+        subtitle={`${pendingList.length} pending MR request${pendingList.length === 1 ? "" : "s"}`}
+        showBack={navigation?.canGoBack ? navigation.canGoBack() : false}
+        onBack={() => navigation?.goBack?.()}
+        rightAction={
+          <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh} activeOpacity={0.7}>
+            <Ionicons name="refresh-outline" size={20} color={colors.primary} />
+          </TouchableOpacity>
+        }
+      />
 
       {/* Tabs */}
       <View style={styles.tabsRow}>

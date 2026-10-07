@@ -16,6 +16,7 @@ import { useMasterStore } from "../store";
 import { MasterItemDto, mastersApi } from "../api/mastersApi";
 import { TerritoryDto, territoriesApi } from "../../territories/api/territoriesApi";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { Header } from "../../../shared/components/Header";
 
 type SectionType = "SPECIALIZATIONS" | "TERRITORIES" | "CATEGORIES" | "GEOGRAPHY";
 
@@ -118,31 +119,30 @@ export function AdminMastersScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Masters & Geography</Text>
-          <Text style={styles.subtitle}>System configuration & dropdown registries</Text>
-        </View>
-
-        {activeSection === "TERRITORIES" ? (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setTerritoryModalVisible(true)}
-          >
-            <Ionicons name="add" size={18} color="#fff" />
-            <Text style={styles.addButtonText}>Add Territory</Text>
-          </TouchableOpacity>
-        ) : activeSection === "SPECIALIZATIONS" ? (
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Ionicons name="add" size={18} color="#fff" />
-            <Text style={styles.addButtonText}>Add Spec</Text>
-          </TouchableOpacity>
-        ) : null}
-      </View>
+      {/* Header with Mediate Logo & Admin Role Badge */}
+      <Header
+        title="Masters & Geography"
+        subtitle="System configuration & dropdown registries"
+        rightAction={
+          activeSection === "TERRITORIES" ? (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setTerritoryModalVisible(true)}
+            >
+              <Ionicons name="add" size={16} color="#fff" />
+              <Text style={styles.addButtonText}>Add Territory</Text>
+            </TouchableOpacity>
+          ) : activeSection === "SPECIALIZATIONS" ? (
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => setModalVisible(true)}
+            >
+              <Ionicons name="add" size={16} color="#fff" />
+              <Text style={styles.addButtonText}>Add Spec</Text>
+            </TouchableOpacity>
+          ) : null
+        }
+      />
 
       {/* Segment Selector */}
       <View style={styles.segmentContainer}>

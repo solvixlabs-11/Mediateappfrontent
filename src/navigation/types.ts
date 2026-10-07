@@ -62,6 +62,19 @@ export type RootStackParamList = {
     scopeLabel?: string;
     filters: any;
   };
+
+  // Route Aliases & Fallbacks
+  Approvals: undefined;
+  Visits: undefined;
+  Plan: undefined;
+  Tasks: undefined;
+  Customers: undefined;
+  Users: undefined;
+  Team: undefined;
+  Masters: undefined;
+  Reports: undefined;
+  More: undefined;
+  Profile: undefined;
 };
 
 export type RoleTabParamList = {

@@ -22,6 +22,14 @@ export interface ReportQueryParams {
   territory_id?: number | null;
   customer_type?: string | null;
   status?: string | null;
+  specialization?: string | null;
+  category?: string | null;
+  active?: boolean | null;
+  work_type?: string | null;
+  visit_type?: string | null;
+  verified?: boolean | null;
+  deviation_type?: string | null;
+  days_not_seen?: number | null;
   page?: number;
   page_size?: number;
 }

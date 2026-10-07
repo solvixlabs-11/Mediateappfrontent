@@ -27,6 +27,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { Header } from "../../../shared/components/Header";
 
 type TabType = "DOCTORS" | "CHEMISTS" | "HOSPITALS" | "STOCKISTS" | "NEARBY";
 
@@ -278,27 +279,25 @@ export function CustomersHomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Top App Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.title}>Customers Directory</Text>
-          <Text style={styles.subtitle}>
-            Doctors, Chemists, Hospitals & Stockists
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() =>
-            navigation.navigate(ROUTES.CustomerForm, {
-              customerType: "DOCTOR",
-            })
-          }
-          activeOpacity={0.8}
-        >
-          <Ionicons name="add" size={20} color="#fff" />
-          <Text style={styles.addButtonText}>Add Doctor</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Top App Header with Mediate Logo & MR Role Badge */}
+      <Header
+        title="Customers Directory"
+        subtitle="Doctors, Chemists, Hospitals & Stockists"
+        rightAction={
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() =>
+              navigation.navigate(ROUTES.CustomerForm, {
+                customerType: "DOCTOR",
+              })
+            }
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add" size={16} color="#fff" />
+            <Text style={styles.addButtonText}>Add Doctor</Text>
+          </TouchableOpacity>
+        }
+      />
 
       {/* Tabs */}
       <View style={styles.tabsContainer}>

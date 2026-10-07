@@ -46,7 +46,7 @@ export function useReportResult(reportKey: string, params: ReportQueryParams) {
     enabled: !!reportKey,
   });
 
-  // If query fails or offline, check local cache
+  // If offline, check local cache
   const checkCache = useCallback(async () => {
     const cached = await reportsStorage.getCachedReportResult(reportKey);
     if (cached) {
@@ -56,30 +56,35 @@ export function useReportResult(reportKey: string, params: ReportQueryParams) {
   }, [reportKey]);
 
   useEffect(() => {
-    if (!isOnline || query.isError) {
+    if (!isOnline) {
       checkCache();
+    } else {
+      setOfflineCachedData(null);
+      setOfflineCachedAt(null);
     }
-  }, [isOnline, query.isError, checkCache]);
+  }, [isOnline, checkCache]);
 
   // Aggregate items across all fetched pages
-  const items = query.data?.pages.flatMap((page) => page.items) || offlineCachedData?.items || [];
-  const meta = query.data?.pages[0]?.meta || offlineCachedData?.meta;
-  const summary = query.data?.pages[0]?.summary || offlineCachedData?.summary || {};
-  const totalRecords = query.data?.pages[0]?.total ?? offlineCachedData?.total ?? 0;
-  const columns = query.data?.pages[0]?.columns || offlineCachedData?.columns || [];
+  const items = isOnline
+    ? (query.data?.pages.flatMap((page) => page.items) || [])
+    : (offlineCachedData?.items || []);
+  const meta = isOnline ? (query.data?.pages[0]?.meta || null) : (offlineCachedData?.meta || null);
+  const summary = isOnline ? (query.data?.pages[0]?.summary || {}) : (offlineCachedData?.summary || {});
+  const totalRecords = isOnline ? (query.data?.pages[0]?.total ?? 0) : (offlineCachedData?.total ?? 0);
+  const columns = isOnline ? (query.data?.pages[0]?.columns || []) : (offlineCachedData?.columns || []);
 
   const isShowingOfflineCache = !isOnline && Boolean(offlineCachedData);
   const errorMessage = query.error ? getReportErrorMessage(query.error) : null;
 
   return {
     reportKey,
-    isLoading: query.isLoading && !offlineCachedData,
+    isLoading: query.isLoading && (isOnline || !offlineCachedData),
     isFetchingNextPage: query.isFetchingNextPage,
     hasNextPage: Boolean(query.hasNextPage),
     fetchNextPage: query.fetchNextPage,
     refetch: query.refetch,
     isRefetching: query.isRefetching,
-    isError: query.isError && !offlineCachedData,
+    isError: isOnline ? query.isError : (query.isError && !offlineCachedData),
     error: query.error,
     errorMessage,
 

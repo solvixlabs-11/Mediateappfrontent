@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
+  Image,
   RefreshControl,
   ScrollView,
   StatusBar as RNStatusBar,
@@ -130,22 +131,66 @@ export function AdminHomeScreen() {
     }
   };
 
+  const handleOpenApprovals = () => {
+    // 1. Direct Tab Jump if we are in MANAGER tab navigator
+    if (typeof (navigation as any).jumpTo === "function") {
+      try {
+        (navigation as any).jumpTo("Approvals");
+        return;
+      } catch (e) {
+        // Tab "Approvals" might not exist if in ADMIN role tab navigator
+      }
+    }
+
+    // 2. Check parent navigator for jumpTo
+    const parent = navigation.getParent ? navigation.getParent() : null;
+    if (parent && typeof (parent as any).jumpTo === "function") {
+      try {
+        (parent as any).jumpTo("Approvals");
+        return;
+      } catch (e) {}
+    }
+
+    // 3. Fallback to navigate("Approvals")
+    try {
+      (navigation as any).navigate("Approvals");
+      return;
+    } catch (e) {}
+
+    // 4. Fallback to Root stack ApprovalsInbox
+    try {
+      navigation.navigate(ROUTES.ApprovalsInbox as any);
+      return;
+    } catch (e) {
+      if (parent) {
+        try {
+          (parent as any).navigate(ROUTES.ApprovalsInbox as any);
+          return;
+        } catch (err) {}
+      }
+    }
+  };
+
   const renderHeader = () => (
     <View style={styles.headerSection}>
-      {/* Top Greeting Bar */}
-      <View style={styles.topBar}>
-        <View style={styles.userCol}>
-          <Text style={styles.greetingTitle}>
-            {user?.role === "ADMIN" ? "Admin Operations Hub" : "Field Force Command"}
-          </Text>
-          <Text style={styles.greetingSubtitle}>
-            Welcome back, {user?.fullName || "Manager"} • Mediate Healthcare
-          </Text>
+      {/* Top Brand Bar with Mediate Logo & Role Badge */}
+      <View style={styles.brandBar}>
+        <View style={styles.brandGroup}>
+          <Image
+            source={require("../../../../assets/logo.png")}
+            style={styles.brandLogo}
+            resizeMode="contain"
+          />
+          <View style={user?.role === "ADMIN" ? styles.adminBadge : styles.managerBadge}>
+            <Text style={user?.role === "ADMIN" ? styles.adminBadgeText : styles.managerBadgeText}>
+              {user?.role === "ADMIN" ? "ADMIN" : "MANAGER"}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.topRightActions}>
           <View style={styles.dateChip}>
-            <Ionicons name="calendar-outline" size={14} color={colors.primary} />
+            <Ionicons name="calendar-outline" size={13} color={colors.primary} />
             <Text style={styles.dateChipText}>Today</Text>
           </View>
           <TouchableOpacity
@@ -160,6 +205,18 @@ export function AdminHomeScreen() {
               </View>
             )}
           </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Greeting Sub-Bar */}
+      <View style={styles.topBar}>
+        <View style={styles.userCol}>
+          <Text style={styles.greetingTitle}>
+            {user?.role === "ADMIN" ? "Admin Operations Hub" : "Field Force Command"}
+          </Text>
+          <Text style={styles.greetingSubtitle}>
+            Welcome back, {user?.fullName || "Manager"} • Mediate Healthcare
+          </Text>
         </View>
       </View>
 
@@ -254,24 +311,19 @@ export function AdminHomeScreen() {
       {/* Pending Approvals Card (Section 8.2 item 5) */}
       <View style={styles.approvalsCard}>
         <View style={styles.approvalsHeader}>
-          <View style={styles.approvalsTitleRow}>
+          <TouchableOpacity
+            style={styles.approvalsTitleRow}
+            onPress={handleOpenApprovals}
+            activeOpacity={0.7}
+          >
             <Ionicons name="shield-checkmark" size={20} color={colors.primary} />
             <Text style={styles.approvalsTitle}>Pending Approvals</Text>
-          </View>
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.viewAllBtn}
-            onPress={() => {
-              // MANAGER has an "Approvals" tab; ADMIN does not — use stack screen instead
-              if (user?.role === "MANAGER") {
-                const parent = navigation.getParent();
-                if (parent) {
-                  parent.navigate("Approvals" as never);
-                  return;
-                }
-              }
-              // ADMIN (or fallback): push ApprovalsInbox as a stack screen
-              navigation.navigate(ROUTES.ApprovalsInbox as any);
-            }}
+            onPress={handleOpenApprovals}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            activeOpacity={0.7}
           >
             <Text style={styles.viewAllBtnText}>View Inbox ({pending?.total_pending ?? 0})</Text>
             <Ionicons name="chevron-forward" size={14} color={colors.primary} />
@@ -279,29 +331,41 @@ export function AdminHomeScreen() {
         </View>
 
         <View style={styles.approvalsPillsRow}>
-          <View style={[styles.approvalPill, { backgroundColor: "#EFF6FF" }]}>
+          <TouchableOpacity
+            style={[styles.approvalPill, { backgroundColor: "#EFF6FF" }]}
+            onPress={handleOpenApprovals}
+            activeOpacity={0.7}
+          >
             <Ionicons name="airplane-outline" size={16} color="#2563EB" />
             <Text style={[styles.approvalPillValue, { color: "#2563EB" }]}>
               {pending?.tours_count ?? 0}
             </Text>
             <Text style={styles.approvalPillLabel}>Tours</Text>
-          </View>
+          </TouchableOpacity>
 
-          <View style={[styles.approvalPill, { backgroundColor: "#ECFDF5" }]}>
+          <TouchableOpacity
+            style={[styles.approvalPill, { backgroundColor: "#ECFDF5" }]}
+            onPress={handleOpenApprovals}
+            activeOpacity={0.7}
+          >
             <Ionicons name="receipt-outline" size={16} color="#059669" />
             <Text style={[styles.approvalPillValue, { color: "#059669" }]}>
               {pending?.expenses_count ?? 0}
             </Text>
             <Text style={styles.approvalPillLabel}>Expenses</Text>
-          </View>
+          </TouchableOpacity>
 
-          <View style={[styles.approvalPill, { backgroundColor: "#FEF3C7" }]}>
+          <TouchableOpacity
+            style={[styles.approvalPill, { backgroundColor: "#FEF3C7" }]}
+            onPress={handleOpenApprovals}
+            activeOpacity={0.7}
+          >
             <Ionicons name="time-outline" size={16} color="#D97706" />
             <Text style={[styles.approvalPillValue, { color: "#D97706" }]}>
               {pending?.leaves_count ?? 0}
             </Text>
             <Text style={styles.approvalPillLabel}>Leaves</Text>
-          </View>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -585,7 +649,51 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     paddingTop: spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: "#E8F0FA",
+  },
+  brandBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.xs,
+  },
+  brandGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  brandLogo: {
+    width: 104,
+    height: 28,
+    marginRight: 8,
+  },
+  adminBadge: {
+    backgroundColor: "#ECFDF5",
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+  },
+  adminBadgeText: {
+    fontSize: 9,
+    fontWeight: "700",
+    color: "#047857",
+    letterSpacing: 0.5,
+  },
+  managerBadge: {
+    backgroundColor: "#EEF2FF",
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    borderColor: "#C7D2FE",
+  },
+  managerBadgeText: {
+    fontSize: 9,
+    fontWeight: "700",
+    color: "#4338CA",
+    letterSpacing: 0.5,
   },
   topBar: {
     flexDirection: "row",
@@ -748,12 +856,19 @@ const styles = StyleSheet.create({
   viewAllBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 2,
+    gap: 4,
+    paddingVertical: 5,
+    paddingHorizontal: 9,
+    borderRadius: radii.full,
+    backgroundColor: "#EFF6FF",
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
   },
   viewAllBtnText: {
     ...typography.caption,
     fontWeight: "700",
     color: colors.primary,
+    fontSize: 12,
   },
   approvalsPillsRow: {
     flexDirection: "row",

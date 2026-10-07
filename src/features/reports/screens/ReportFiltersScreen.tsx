@@ -89,6 +89,26 @@ export function ReportFiltersScreen() {
     selectedStatus,
     setSelectedStatus,
 
+    canPickCategory,
+    selectedCategory,
+    setSelectedCategory,
+
+    canPickSpecialization,
+    selectedSpecialization,
+    setSelectedSpecialization,
+
+    canPickActive,
+    selectedActive,
+    setSelectedActive,
+
+    canPickWorkType,
+    selectedWorkType,
+    setSelectedWorkType,
+
+    canPickDeviationType,
+    selectedDeviationType,
+    setSelectedDeviationType,
+
     filterState,
     isValid,
   } = useReportFilters(filterSchema as ReportFilterSchema, existingFilters);
@@ -122,11 +142,12 @@ export function ReportFiltersScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Date Presets Section */}
-        <Card style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="calendar-outline" size={18} color={colors.primary} />
-            <Text style={styles.sectionTitle}>DATE RANGE</Text>
-          </View>
+        {filterSchema?.date_range !== false && (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="calendar-outline" size={18} color={colors.primary} />
+              <Text style={styles.sectionTitle}>DATE RANGE</Text>
+            </View>
 
           <View style={styles.presetsGrid}>
             {DATE_PRESETS.map((p) => {
@@ -182,8 +203,9 @@ export function ReportFiltersScreen() {
             </Text>
           )}
         </Card>
+      )}
 
-        {/* Hierarchy Filters (Manager & MR) */}
+      {/* Hierarchy Filters (Manager & MR) */}
         {role !== "MR" && (
           <Card style={styles.sectionCard}>
             <View style={styles.sectionHeader}>
@@ -302,6 +324,152 @@ export function ReportFiltersScreen() {
                       ]}
                     >
                       {st.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Card>
+        )}
+
+        {/* Category Filter */}
+        {canPickCategory && (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="pricetag-outline" size={18} color={colors.primary} />
+              <Text style={styles.sectionTitle}>CATEGORY</Text>
+            </View>
+            <View style={styles.chipsRow}>
+              {[
+                { label: "All Categories", value: null },
+                { label: "Category A", value: "A" },
+                { label: "Category B", value: "B" },
+                { label: "Category C", value: "C" },
+              ].map((c) => {
+                const isSelected = selectedCategory === c.value;
+                return (
+                  <TouchableOpacity
+                    key={c.label}
+                    style={[styles.typeChip, isSelected && styles.typeChipSelected]}
+                    onPress={() => setSelectedCategory(c.value)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.typeChipText,
+                        isSelected && styles.typeChipTextSelected,
+                      ]}
+                    >
+                      {c.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Card>
+        )}
+
+        {/* Work Type Filter */}
+        {canPickWorkType && (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="briefcase-outline" size={18} color={colors.primary} />
+              <Text style={styles.sectionTitle}>WORK TYPE</Text>
+            </View>
+            <View style={styles.chipsRow}>
+              {[
+                { label: "All Work Types", value: null },
+                { label: "Field Work", value: "PRESENT" },
+                { label: "Half Day", value: "HALF_DAY" },
+                { label: "Leave", value: "LEAVE" },
+              ].map((w) => {
+                const isSelected = selectedWorkType === w.value;
+                return (
+                  <TouchableOpacity
+                    key={w.label}
+                    style={[styles.typeChip, isSelected && styles.typeChipSelected]}
+                    onPress={() => setSelectedWorkType(w.value)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.typeChipText,
+                        isSelected && styles.typeChipTextSelected,
+                      ]}
+                    >
+                      {w.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Card>
+        )}
+
+        {/* Active Status Filter */}
+        {canPickActive && (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="checkmark-circle-outline" size={18} color={colors.primary} />
+              <Text style={styles.sectionTitle}>ACTIVE STATUS</Text>
+            </View>
+            <View style={styles.chipsRow}>
+              {[
+                { label: "All", value: null },
+                { label: "Active Only", value: true },
+                { label: "Inactive Only", value: false },
+              ].map((a) => {
+                const isSelected = selectedActive === a.value;
+                return (
+                  <TouchableOpacity
+                    key={a.label}
+                    style={[styles.typeChip, isSelected && styles.typeChipSelected]}
+                    onPress={() => setSelectedActive(a.value)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.typeChipText,
+                        isSelected && styles.typeChipTextSelected,
+                      ]}
+                    >
+                      {a.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </Card>
+        )}
+
+        {/* Deviation Type Filter */}
+        {canPickDeviationType && (
+          <Card style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="alert-circle-outline" size={18} color={colors.primary} />
+              <Text style={styles.sectionTitle}>DEVIATION TYPE</Text>
+            </View>
+            <View style={styles.chipsRow}>
+              {[
+                { label: "All Deviations", value: null },
+                { label: "Missed Call", value: "Missed Call" },
+                { label: "Unplanned Call", value: "Unplanned Call" },
+              ].map((d) => {
+                const isSelected = selectedDeviationType === d.value;
+                return (
+                  <TouchableOpacity
+                    key={d.label}
+                    style={[styles.typeChip, isSelected && styles.typeChipSelected]}
+                    onPress={() => setSelectedDeviationType(d.value)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.typeChipText,
+                        isSelected && styles.typeChipTextSelected,
+                      ]}
+                    >
+                      {d.label}
                     </Text>
                   </TouchableOpacity>
                 );

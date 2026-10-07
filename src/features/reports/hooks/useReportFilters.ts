@@ -8,6 +8,7 @@ import {
   getPresetDateRange,
   validateDateRange,
   formatDate,
+  normalizeDateInput,
 } from "../utils/reportDateUtils";
 import { ReportFilterSchema } from "../api/reportsApi";
 
@@ -23,6 +24,11 @@ export interface ReportFilterState {
   territory_name?: string;
   customer_type: string | null;
   status: string | null;
+  category?: string | null;
+  specialization?: string | null;
+  active?: boolean | null;
+  work_type?: string | null;
+  deviation_type?: string | null;
 }
 
 export function useReportFilters(
@@ -66,6 +72,21 @@ export function useReportFilters(
   const [selectedStatus, setSelectedStatus] = useState<string | null>(
     initialFilters?.status ?? null
   );
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(
+    initialFilters?.category ?? null
+  );
+  const [selectedSpecialization, setSelectedSpecialization] = useState<string | null>(
+    initialFilters?.specialization ?? null
+  );
+  const [selectedActive, setSelectedActive] = useState<boolean | null>(
+    initialFilters?.active ?? null
+  );
+  const [selectedWorkType, setSelectedWorkType] = useState<string | null>(
+    initialFilters?.work_type ?? null
+  );
+  const [selectedDeviationType, setSelectedDeviationType] = useState<string | null>(
+    initialFilters?.deviation_type ?? null
+  );
 
   const [dateError, setDateError] = useState<string | null>(null);
 
@@ -85,7 +106,9 @@ export function useReportFilters(
     setPreset("Custom");
     setFromDate(start);
     setToDate(end);
-    const val = validateDateRange(start, end);
+    const normStart = normalizeDateInput(start);
+    const normEnd = normalizeDateInput(end);
+    const val = validateDateRange(normStart, normEnd);
     if (!val.valid) {
       setDateError(val.error || "Invalid date range");
     } else {
@@ -153,14 +176,17 @@ export function useReportFilters(
 
   // Validation
   const isValid = useMemo(() => {
-    const rangeCheck = validateDateRange(fromDate, toDate);
+    if (filterSchema?.date_range === false) {
+      return true;
+    }
+    const rangeCheck = validateDateRange(normalizeDateInput(fromDate), normalizeDateInput(toDate));
     return rangeCheck.valid;
-  }, [fromDate, toDate]);
+  }, [filterSchema?.date_range, fromDate, toDate]);
 
   const filterState: ReportFilterState = {
     preset,
-    from_date: fromDate,
-    to_date: toDate,
+    from_date: filterSchema?.date_range === false ? "" : normalizeDateInput(fromDate),
+    to_date: filterSchema?.date_range === false ? "" : normalizeDateInput(toDate),
     mr_id: role === "MR" ? (currentUser?.id ?? null) : selectedMrId,
     mr_name: role === "MR" ? currentUser?.fullName : selectedMrName,
     manager_id: selectedManagerId,
@@ -169,6 +195,11 @@ export function useReportFilters(
     territory_name: selectedTerritoryName,
     customer_type: selectedCustomerType,
     status: selectedStatus,
+    category: selectedCategory,
+    specialization: selectedSpecialization,
+    active: selectedActive,
+    work_type: selectedWorkType,
+    deviation_type: selectedDeviationType,
   };
 
   return {
@@ -215,14 +246,39 @@ export function useReportFilters(
     availableTerritories: territoriesQuery.data || [],
 
     // Customer Type
-    canPickCustomerType: filterSchema?.customer_type_picker ?? true,
+    canPickCustomerType: filterSchema?.customer_type_picker ?? false,
     selectedCustomerType,
     setSelectedCustomerType,
 
     // Status
-    canPickStatus: filterSchema?.status_picker ?? true,
+    canPickStatus: filterSchema?.status_picker ?? false,
     selectedStatus,
     setSelectedStatus,
+
+    // Category
+    canPickCategory: Boolean(filterSchema?.category_picker),
+    selectedCategory,
+    setSelectedCategory,
+
+    // Specialization
+    canPickSpecialization: Boolean(filterSchema?.specialization_picker),
+    selectedSpecialization,
+    setSelectedSpecialization,
+
+    // Active status
+    canPickActive: Boolean(filterSchema?.active_picker),
+    selectedActive,
+    setSelectedActive,
+
+    // Work type
+    canPickWorkType: Boolean(filterSchema?.work_type_picker),
+    selectedWorkType,
+    setSelectedWorkType,
+
+    // Deviation type
+    canPickDeviationType: Boolean(filterSchema?.deviation_type_picker),
+    selectedDeviationType,
+    setSelectedDeviationType,
 
     filterState,
     isValid,

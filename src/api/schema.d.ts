@@ -4237,6 +4237,20 @@ export interface components {
             filter_schema: components["schemas"]["ReportFilterSchema"];
             /** Available Formats */
             available_formats?: string[];
+            /**
+             * Status
+             * @default NOW
+             */
+            status: string;
+            /**
+             * Is Ready
+             * @default true
+             */
+            is_ready: boolean;
+            /** Coming Soon Reason */
+            coming_soon_reason?: string | null;
+            /** Report Number */
+            report_number?: number | null;
         };
         /**
          * ReportCatalogResponse
@@ -4312,6 +4326,48 @@ export interface components {
             status_picker: boolean;
             /** Status Options */
             status_options?: string[];
+            /**
+             * Specialization Picker
+             * @default false
+             */
+            specialization_picker: boolean;
+            /**
+             * Category Picker
+             * @default false
+             */
+            category_picker: boolean;
+            /** Category Options */
+            category_options?: string[];
+            /**
+             * Active Picker
+             * @default false
+             */
+            active_picker: boolean;
+            /**
+             * Work Type Picker
+             * @default false
+             */
+            work_type_picker: boolean;
+            /**
+             * Visit Type Picker
+             * @default false
+             */
+            visit_type_picker: boolean;
+            /**
+             * Verified Picker
+             * @default false
+             */
+            verified_picker: boolean;
+            /**
+             * Deviation Type Picker
+             * @default false
+             */
+            deviation_type_picker: boolean;
+            /**
+             * Days Not Seen Picker
+             * @default false
+             */
+            days_not_seen_picker: boolean;
         };
         /**
          * ReportMeta
@@ -4349,6 +4405,11 @@ export interface components {
              * @default 0
              */
             total_records: number;
+            /**
+             * Landscape
+             * @default false
+             */
+            landscape: boolean;
         };
         /**
          * ReportResponse
@@ -8562,6 +8623,22 @@ export interface operations {
                 customer_type?: string | null;
                 /** @description Filter by status (e.g. Verified, Approved) */
                 status?: string | null;
+                /** @description Filter by specialization */
+                specialization?: string | null;
+                /** @description Filter by category */
+                category?: string | null;
+                /** @description Filter by active status */
+                active?: boolean | null;
+                /** @description Filter by work type */
+                work_type?: string | null;
+                /** @description Filter by visit type */
+                visit_type?: string | null;
+                /** @description Filter by geofence verified */
+                verified?: boolean | null;
+                /** @description Filter by deviation type */
+                deviation_type?: string | null;
+                /** @description Filter by days not seen threshold */
+                days_not_seen?: number | null;
                 /** @description Page number */
                 page?: number;
                 /** @description Page size */
@@ -8618,6 +8695,22 @@ export interface operations {
                 customer_type?: string | null;
                 /** @description Filter by status */
                 status?: string | null;
+                /** @description Filter by specialization */
+                specialization?: string | null;
+                /** @description Filter by category */
+                category?: string | null;
+                /** @description Filter by active status */
+                active?: boolean | null;
+                /** @description Filter by work type */
+                work_type?: string | null;
+                /** @description Filter by visit type */
+                visit_type?: string | null;
+                /** @description Filter by geofence verified */
+                verified?: boolean | null;
+                /** @description Filter by deviation type */
+                deviation_type?: string | null;
+                /** @description Filter by days not seen threshold */
+                days_not_seen?: number | null;
             };
             header?: never;
             path: {

@@ -91,3 +91,16 @@ export function validateDateRange(fromDateStr: string, toDateStr: string): { val
 
   return { valid: true };
 }
+
+/** Normalizes date strings like YYYY-M-D or YYYY-MM-DD into zero-padded YYYY-MM-DD */
+export function normalizeDateInput(str: string): string {
+  if (!str) return "";
+  const parts = str.trim().split("-");
+  if (parts.length === 3) {
+    const [y, m, d] = parts;
+    if (y.length === 4 && m.length <= 2 && d.length <= 2) {
+      return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+    }
+  }
+  return str.trim();
+}

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
   Linking,
   Platform,
   RefreshControl,
@@ -224,15 +225,16 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <RNStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* Top App Bar Header */}
+      {/* Top App Bar Header with Mediate Logo & MR Role Badge */}
       <View style={styles.topAppBar}>
         <View style={styles.brandRow}>
-          <View style={styles.logoBadge}>
-            <Ionicons name="medical" size={16} color="#FFFFFF" />
-          </View>
-          <View style={styles.brandCol}>
-            <Text style={styles.brandText}>Mediate MR</Text>
-            <Text style={styles.brandSubtext}>Field Operations</Text>
+          <Image
+            source={require("../../../../assets/logo.png")}
+            style={styles.headerBrandLogo}
+            resizeMode="contain"
+          />
+          <View style={styles.roleBadgePill}>
+            <Text style={styles.roleBadgePillText}>MR FIELD</Text>
           </View>
         </View>
 
@@ -325,7 +327,7 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 activeOpacity={0.8}
                 onPress={() => {
                   requirePunchIn(() => {
-                    if (navigation) navigation.navigate("Visits");
+                    if (navigation) navigation.navigate("Plan");
                   });
                 }}
               >
@@ -822,27 +824,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
   },
-  logoBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: "#0D5C46",
-    alignItems: "center",
-    justifyContent: "center",
+  headerBrandLogo: {
+    width: 106,
+    height: 28,
   },
-  brandCol: {
-    justifyContent: "center",
+  roleBadgePill: {
+    backgroundColor: "#EBF3FC",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.full,
+    borderWidth: 1,
+    borderColor: "#CFE2F8",
   },
-  brandText: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#0F172A",
-    letterSpacing: -0.3,
-  },
-  brandSubtext: {
-    fontSize: 11,
-    fontWeight: "500",
-    color: "#64748B",
+  roleBadgePillText: {
+    fontSize: 9,
+    fontWeight: "700",
+    color: "#1B64DA",
+    letterSpacing: 0.5,
   },
   topRightActions: {
     flexDirection: "row",

@@ -36,13 +36,18 @@ export function ReportResultScreen() {
   const [isExportSheetVisible, setIsExportSheetVisible] = useState(false);
 
   const queryParams = {
-    from_date: filters?.from_date,
-    to_date: filters?.to_date,
+    from_date: filters?.from_date || undefined,
+    to_date: filters?.to_date || undefined,
     mr_id: filters?.mr_id,
     manager_id: filters?.manager_id,
     territory_id: filters?.territory_id,
     customer_type: filters?.customer_type,
     status: filters?.status,
+    category: filters?.category,
+    specialization: filters?.specialization,
+    active: filters?.active,
+    work_type: filters?.work_type,
+    deviation_type: filters?.deviation_type,
   };
 
   const {

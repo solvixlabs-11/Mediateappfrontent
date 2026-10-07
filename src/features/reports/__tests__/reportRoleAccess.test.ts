@@ -3,52 +3,35 @@ import { ReportCatalogItem } from "../api/reportsApi";
 describe("Role-based Catalog Grouping & MR Picker Visibility", () => {
   const sampleReports: ReportCatalogItem[] = [
     {
-      key: "r01_dcr_detailed",
-      title: "DCR Detailed (date wise)",
-      group: "Activity",
-      description: "Every visit report, grouped by date",
+      key: "doctor_list",
+      title: "Doctor List",
+      group: "Master Lists",
+      description: "Master list of doctors",
       filter_schema: {
-        date_range: true,
+        date_range: false,
         mr_picker: true,
         manager_picker: false,
-        territory_picker: false,
-        customer_type_picker: true,
-        status_picker: false,
-      },
-    },
-    {
-      key: "r03_customer_visits",
-      title: "Customer-wise Visits",
-      group: "Customers",
-      description: "Visits by doctor, chemist, hospital, stockist",
-      filter_schema: {
-        date_range: true,
-        mr_picker: true,
-        manager_picker: false,
-        territory_picker: false,
-        customer_type_picker: true,
-        status_picker: true,
-      },
-    },
-    {
-      key: "r10_leave",
-      title: "Leave",
-      group: "HR and Expense",
-      description: "Leave requests and balances",
-      filter_schema: {
-        date_range: true,
-        mr_picker: true,
-        manager_picker: false,
-        territory_picker: false,
+        territory_picker: true,
         customer_type_picker: false,
-        status_picker: true,
+        status_picker: false,
+        specialization_picker: true,
+        category_picker: true,
+        active_picker: true,
+        work_type_picker: false,
+        visit_type_picker: false,
+        verified_picker: false,
+        deviation_type_picker: false,
+        days_not_seen_picker: false,
       },
+      available_formats: ["json", "xlsx", "pdf"],
+      status: "NOW",
+      is_ready: true,
     },
     {
-      key: "r14_approval_turnaround",
-      title: "Approval Turnaround",
-      group: "Approvals",
-      description: "Turnaround time and pending ageing",
+      key: "mr_daily_punching",
+      title: "MR Daily Punching",
+      group: "Attendance and Daily Work",
+      description: "Field check-in and check-out logs",
       filter_schema: {
         date_range: true,
         mr_picker: true,
@@ -56,12 +39,78 @@ describe("Role-based Catalog Grouping & MR Picker Visibility", () => {
         territory_picker: false,
         customer_type_picker: false,
         status_picker: false,
+        specialization_picker: false,
+        category_picker: false,
+        active_picker: false,
+        work_type_picker: true,
+        visit_type_picker: false,
+        verified_picker: false,
+        deviation_type_picker: false,
+        days_not_seen_picker: false,
       },
+      available_formats: ["json", "xlsx", "pdf"],
+      status: "NOW",
+      is_ready: true,
+    },
+    {
+      key: "mr_wise_visits",
+      title: "MR Wise Visits",
+      group: "Visits",
+      description: "Visit logs per customer",
+      filter_schema: {
+        date_range: true,
+        mr_picker: true,
+        manager_picker: false,
+        territory_picker: true,
+        customer_type_picker: true,
+        status_picker: true,
+        specialization_picker: false,
+        category_picker: false,
+        active_picker: false,
+        work_type_picker: false,
+        visit_type_picker: true,
+        verified_picker: true,
+        deviation_type_picker: false,
+        days_not_seen_picker: false,
+      },
+      available_formats: ["json", "xlsx", "pdf"],
+      status: "NOW",
+      is_ready: true,
+    },
+    {
+      key: "order_register",
+      title: "Order Register",
+      group: "Stock and Orders",
+      description: "Commercial orders register",
+      filter_schema: {
+        date_range: true,
+        mr_picker: true,
+        manager_picker: false,
+        territory_picker: false,
+        customer_type_picker: false,
+        status_picker: true,
+        specialization_picker: false,
+        category_picker: false,
+        active_picker: false,
+        work_type_picker: false,
+        visit_type_picker: false,
+        verified_picker: false,
+        deviation_type_picker: false,
+        days_not_seen_picker: false,
+      },
+      available_formats: [],
+      status: "P8",
+      is_ready: false,
     },
   ];
 
-  test("correctly groups reports into standard 4 groups", () => {
-    const groups = ["Activity", "Customers", "HR and Expense", "Approvals"];
+  test("correctly groups reports into catalog groups", () => {
+    const groups = [
+      "Master Lists",
+      "Attendance and Daily Work",
+      "Visits",
+      "Stock and Orders",
+    ];
     const groupedMap = new Map<string, ReportCatalogItem[]>();
     groups.forEach((g) => groupedMap.set(g, []));
 
@@ -69,10 +118,10 @@ describe("Role-based Catalog Grouping & MR Picker Visibility", () => {
       groupedMap.get(r.group)?.push(r);
     });
 
-    expect(groupedMap.get("Activity")?.length).toBe(1);
-    expect(groupedMap.get("Customers")?.length).toBe(1);
-    expect(groupedMap.get("HR and Expense")?.length).toBe(1);
-    expect(groupedMap.get("Approvals")?.length).toBe(1);
+    expect(groupedMap.get("Master Lists")?.length).toBe(1);
+    expect(groupedMap.get("Attendance and Daily Work")?.length).toBe(1);
+    expect(groupedMap.get("Visits")?.length).toBe(1);
+    expect(groupedMap.get("Stock and Orders")?.length).toBe(1);
   });
 
   test("MR role has NO MR picker", () => {

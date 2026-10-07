@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -7,6 +7,7 @@ import { RootNavigator } from "./src/navigation/RootNavigator";
 import { ErrorBoundary } from "./src/shared/components/ErrorBoundary";
 import { Toast } from "./src/shared/components/Toast";
 import { getDatabase } from "./src/shared/services/sqlite";
+import { SplashScreen } from "./src/features/auth/screens/SplashScreen";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,6 +20,7 @@ const queryClient = new QueryClient({
 
 export default function App() {
   const initializeAuth = useAuthStore((s) => s.initializeAuth);
+  const [showSplash, setShowSplash] = useState(true);
 
   useEffect(() => {
     // Initialize SQLite & outbox table
@@ -31,6 +33,15 @@ export default function App() {
       console.error("Failed to initialize Auth:", err);
     });
   }, [initializeAuth]);
+
+  if (showSplash) {
+    return (
+      <SafeAreaProvider>
+        <StatusBar style="dark" />
+        <SplashScreen onFinish={() => setShowSplash(false)} />
+      </SafeAreaProvider>
+    );
+  }
 
   return (
     <SafeAreaProvider>
