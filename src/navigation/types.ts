@@ -30,6 +30,7 @@ export type RootStackParamList = {
   };
 
   // Additional registered stack screens
+  ApprovalsInbox: undefined;
   AttendanceHistory: undefined;
   Nearby: undefined;
   DcrList: undefined;
@@ -44,6 +45,23 @@ export type RootStackParamList = {
   ApprovalMatrix: undefined;
   GeofenceSettings: undefined;
   ComingSoon: { featureName: string; phase: string };
+
+  // Reports Engine Screens (Registered Stacks)
+  ReportsCatalog: undefined;
+  ReportFilters: {
+    reportKey: string;
+    reportTitle: string;
+    filterSchema?: any;
+    scopeLabel?: string;
+    existingFilters?: any;
+  };
+  ReportResult: {
+    reportKey: string;
+    reportTitle: string;
+    filterSchema?: any;
+    scopeLabel?: string;
+    filters: any;
+  };
 };
 
 export type RoleTabParamList = {

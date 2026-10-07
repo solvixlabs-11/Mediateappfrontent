@@ -11,9 +11,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { API_BASE_URL } from "../../../api/client";
+import { ROUTES } from "../../../navigation/routes";
 import { authApi } from "../../auth/api/authApi";
 import { useAuthStore } from "../../auth/store";
 import { usersApi } from "../../users/api/usersApi";
@@ -25,8 +27,12 @@ import { Input } from "../../../shared/components/Input";
 import { ScreenContainer } from "../../../shared/components/ScreenContainer";
 import { StatusChip } from "../../../shared/components/StatusChip";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { ProductsCatalogScreen } from "../../products/screens/ProductsCatalogScreen";
+import { OrdersScreen } from "../../orders/screens/OrdersScreen";
+import { NotificationsModal } from "../../notifications/screens/NotificationsScreen";
 
 export function ProfileScreen() {
+  const navigation = useNavigation<any>();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
@@ -46,6 +52,11 @@ export function ProfileScreen() {
   const [newPw, setNewPw] = useState("");
   const [confirmPw, setConfirmPw] = useState("");
   const [isChangingPw, setIsChangingPw] = useState(false);
+
+  // Enterprise Feature Modals State
+  const [isProductsVisible, setIsProductsVisible] = useState(false);
+  const [isOrdersVisible, setIsOrdersVisible] = useState(false);
+  const [isNotifsVisible, setIsNotifsVisible] = useState(false);
 
   const fetchProfile = async () => {
     try {
@@ -323,6 +334,65 @@ export function ProfileScreen() {
           </Card>
         )}
 
+        {/* Enterprise Operations & Modules */}
+        <Card style={styles.sectionCard}>
+          <Text style={styles.cardHeaderTitle}>Enterprise Modules</Text>
+
+          <TouchableOpacity
+            style={styles.actionRow}
+            onPress={() => setIsProductsVisible(true)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionLeft}>
+              <Ionicons name="tablet-landscape-outline" size={20} color={colors.primary} />
+              <Text style={styles.actionLabel}>Products & E-Detailing</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          <TouchableOpacity
+            style={styles.actionRow}
+            onPress={() => setIsOrdersVisible(true)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionLeft}>
+              <Ionicons name="bag-handle-outline" size={20} color="#0D9488" />
+              <Text style={styles.actionLabel}>Commercial Orders & POB</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          <TouchableOpacity
+            style={styles.actionRow}
+            onPress={() => navigation.navigate(ROUTES.ReportsCatalog as any)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionLeft}>
+              <Ionicons name="bar-chart-outline" size={20} color="#7C3AED" />
+              <Text style={styles.actionLabel}>Performance & Coverage Reports</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
+          </TouchableOpacity>
+
+          <View style={styles.divider} />
+
+          <TouchableOpacity
+            style={styles.actionRow}
+            onPress={() => setIsNotifsVisible(true)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.actionLeft}>
+              <Ionicons name="notifications-outline" size={20} color="#D97706" />
+              <Text style={styles.actionLabel}>Notification Center</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
+          </TouchableOpacity>
+        </Card>
+
         {/* Security & Authentication */}
         <Card style={styles.sectionCard}>
           <Text style={styles.cardHeaderTitle}>Security & Sessions</Text>
@@ -445,6 +515,26 @@ export function ProfileScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Enterprise Feature Modals */}
+      <ProductsCatalogScreen
+        visible={isProductsVisible}
+        onClose={() => setIsProductsVisible(false)}
+        onSelectProductForOrder={() => {
+          setIsProductsVisible(false);
+          setIsOrdersVisible(true);
+        }}
+      />
+
+      <OrdersScreen
+        visible={isOrdersVisible}
+        onClose={() => setIsOrdersVisible(false)}
+      />
+
+      <NotificationsModal
+        visible={isNotifsVisible}
+        onClose={() => setIsNotifsVisible(false)}
+      />
     </ScreenContainer>
   );
 }

@@ -1,6 +1,40 @@
 # Changelog - Mediate Healthcare MR Mobile App
 
-## [Phase 5] - Manager Approvals & MR Tour, Expenses, Leaves (2026-10-02)
+## [Phase 7] - Reports Engine with View, Filters, & Download (2026-10-05)
+
+### Added
+- **Reports Catalog (`src/features/reports/screens/ReportsCatalogScreen.tsx`)**:
+  - Registered as standard stack screen `ROUTES.ReportsCatalog` (no full-screen modals).
+  - Categorized reports into 4 groups: Activity, Customers, HR and Expense, Approvals.
+  - Search box filtering by title, key, or description.
+  - Dynamic scope chip: "Showing: Your team (8 MRs)" / "Showing: Self".
+  - Embedded "Recent exports" list (last 10) persisted locally in SQLite with one-tap system sharing.
+  - Role-based placement: under `Reports` tab for Admin, and under `More` tab for MR and Manager.
+- **Report Filters (`src/features/reports/screens/ReportFiltersScreen.tsx`)**:
+  - Registered as `ROUTES.ReportFilters`.
+  - Date presets: Today, Yesterday, This week, This month, Last month, Custom. Enforces 92-day max range limit.
+  - Strict role-based MR picker: MR role has NO MR picker; Manager has team picker; Admin has all MRs + Manager dropdown.
+  - Territory picker, Status picker, and Customer type picker.
+- **Report Result (`src/features/reports/screens/ReportResultScreen.tsx`)**:
+  - Registered as `ROUTES.ReportResult`.
+  - KPI summary strip at top in light green `#DCFCE7` cards.
+  - Active filter chips that reopen `ReportFiltersScreen` with state pre-filled.
+  - Infinite scroll card list using TanStack `useInfiniteQuery` and pull-to-refresh.
+  - Offline mode: detects offline state, displays `"Reports need internet. Showing last saved result"` from SQLite cache, and disables export.
+- **Export Bottom Sheet (`src/features/reports/components/ExportBottomSheet.tsx`)**:
+  - Chooses PDF or Excel (.xlsx).
+  - Formats filename conforming to spec: `<key>_<from>_to_<to>_<scope>.<ext>`.
+  - Resumable download with progress tracking and Cancel button using `expo-file-system`.
+  - Launches system share sheet with `expo-sharing` (correct MIME types: `application/pdf`, `application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`).
+  - Records into Recent Exports and displays success toast.
+- **Data & Storage Layer (`src/features/reports/api/`, `hooks/`, `services/`)**:
+  - Generated types from OpenAPI schema (`openapi.json`).
+  - Friendly error mappings for `REPORT_SCOPE_DENIED`, `REPORT_RANGE_TOO_LARGE`, `EXPORT_TOO_LARGE`, `REPORT_NOT_FOUND`.
+  - SQLite persistence (`reportsStorage.ts`) for recent exports and offline report caching.
+- **Tests**:
+  - 4 test suites passing (22/22 tests green): `reportRoleAccess.test.ts`, `reportErrors.test.ts`, `reportDateUtils.test.ts`, `reportExport.test.ts`.
+  - Strict TypeScript compilation (`tsc --noEmit` clean: 0 errors).
+
 
 ### Added
 - **Manager Approvals Inbox (`src/features/approvals/screens/ApprovalsInboxScreen.tsx`)**:

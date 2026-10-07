@@ -1714,6 +1714,238 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get reports catalog available for caller's role
+         * @description Return reports catalog with titles, groups, filter schemas, and scope info.
+         */
+        get: operations["get_reports_catalog_api_v1_reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/dashboard": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get aggregate field performance and coverage dashboard KPIs
+         * @description Compute and return operational field KPIs, leaderboard, and customer coverage.
+         */
+        get: operations["get_reports_dashboard_api_v1_reports_dashboard_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get paged JSON report with summary and metadata
+         * @description Execute dynamic report query with server-enforced scoping and return paged results.
+         */
+        get: operations["get_report_api_v1_reports__key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{key}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export report file as PDF or Excel (XLSX)
+         * @description Stream report as PDF or Excel workbook with audit log tracking.
+         */
+        get: operations["export_report_api_v1_reports__key__export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List available product therapy categories
+         * @description Get distinct categories.
+         */
+        get: operations["get_categories_api_v1_products_categories_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List products with category and keyword search
+         * @description List products.
+         */
+        get: operations["list_products_api_v1_products_get"];
+        put?: never;
+        /**
+         * Create a new pharmaceutical product
+         * @description Create product.
+         */
+        post: operations["create_product_api_v1_products_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get detailed product specs and visual aids
+         * @description Get single product with detailing visual aid slides.
+         */
+        get: operations["get_product_api_v1_products__product_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/products/{product_id}/visual-aids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add an E-Detailing visual aid slide to a product
+         * @description Add visual aid slide.
+         */
+        post: operations["add_visual_aid_api_v1_products__product_id__visual_aids_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List booked orders with scoping and filters
+         * @description List orders.
+         */
+        get: operations["list_orders_api_v1_orders_get"];
+        put?: never;
+        /**
+         * Book a new commercial order
+         * @description Create order.
+         */
+        post: operations["create_order_api_v1_orders_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/orders/{order_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get order details with line items
+         * @description Get single order.
+         */
+        get: operations["get_order_api_v1_orders__order_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/targets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get monthly targets (ADMIN and MANAGER)
+         * @description Fetch monthly targets scoped to caller's team.
+         */
+        get: operations["get_targets_api_v1_targets_get"];
+        /**
+         * Set or update an MR's monthly target (ADMIN and MANAGER)
+         * @description Upsert monthly target for an MR.
+         */
+        put: operations["set_target_api_v1_targets_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2148,6 +2380,31 @@ export interface components {
             code?: string | null;
             /** Is Active */
             is_active: boolean;
+        };
+        /** CustomerCoverageReportItem */
+        CustomerCoverageReportItem: {
+            /** Customer Type */
+            customer_type: string;
+            /**
+             * Total Customers
+             * @default 0
+             */
+            total_customers: number;
+            /**
+             * Visited Customers
+             * @default 0
+             */
+            visited_customers: number;
+            /**
+             * Coverage Percentage
+             * @default 0
+             */
+            coverage_percentage: number;
+            /**
+             * Pending Follow Ups
+             * @default 0
+             */
+            pending_follow_ups: number;
         };
         /**
          * DcrDailySummary
@@ -3112,6 +3369,47 @@ export interface components {
             /** Refresh Token */
             refresh_token?: string | null;
         };
+        /** MRPerformanceReportItem */
+        MRPerformanceReportItem: {
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name: string;
+            /** Email */
+            email: string;
+            /** Territory Name */
+            territory_name?: string | null;
+            /**
+             * Total Calls
+             * @default 0
+             */
+            total_calls: number;
+            /**
+             * Total Pob
+             * @default 0
+             */
+            total_pob: number;
+            /**
+             * Call Average
+             * @default 0
+             */
+            call_average: number;
+            /**
+             * Geofence Verified Calls
+             * @default 0
+             */
+            geofence_verified_calls: number;
+            /**
+             * Geofence Compliance
+             * @default 0
+             */
+            geofence_compliance: number;
+            /**
+             * Attendance Days
+             * @default 0
+             */
+            attendance_days: number;
+        };
         /**
          * ManagerDashboardResponse
          * @description Manager team oversight & KPI metrics.
@@ -3514,6 +3812,116 @@ export interface components {
             total_count: number;
         };
         /**
+         * OrderCreate
+         * @description Payload to create and book a commercial order.
+         */
+        OrderCreate: {
+            /**
+             * Customer Type
+             * @description CHEMIST or STOCKIST
+             */
+            customer_type: string;
+            /** Customer Id */
+            customer_id: number;
+            /** Expected Delivery Date */
+            expected_delivery_date?: string | null;
+            /**
+             * Payment Terms
+             * @default Net 30 Days
+             */
+            payment_terms: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Items */
+            items: components["schemas"]["OrderItemCreate"][];
+        };
+        /**
+         * OrderItemCreate
+         * @description Payload to add an item to an order.
+         */
+        OrderItemCreate: {
+            /** Product Id */
+            product_id: number;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price: number;
+            /**
+             * Free Quantity
+             * @default 0
+             */
+            free_quantity: number;
+        };
+        /**
+         * OrderItemResponse
+         * @description Line item representation.
+         */
+        OrderItemResponse: {
+            /** Id */
+            id: number;
+            /** Order Id */
+            order_id: number;
+            /** Product Id */
+            product_id: number;
+            /** Product Name */
+            product_name?: string | null;
+            /** Product Code */
+            product_code?: string | null;
+            /** Quantity */
+            quantity: number;
+            /** Unit Price */
+            unit_price: number;
+            /** Total Price */
+            total_price: number;
+            /** Free Quantity */
+            free_quantity: number;
+        };
+        /**
+         * OrderResponse
+         * @description Full order details response.
+         */
+        OrderResponse: {
+            /** Id */
+            id: number;
+            /** Order Number */
+            order_number: string;
+            /** Customer Type */
+            customer_type: string;
+            /** Customer Id */
+            customer_id: number;
+            /** Customer Name */
+            customer_name?: string | null;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name?: string | null;
+            /** Total Amount */
+            total_amount: number;
+            /** Status */
+            status: string;
+            /** Expected Delivery Date */
+            expected_delivery_date?: string | null;
+            /** Payment Terms */
+            payment_terms?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["OrderItemResponse"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
          * PendingApprovalsSummary
          * @description Summary of pending approval requests categorized by entity type.
          */
@@ -3619,6 +4027,128 @@ export interface components {
             created_at: string;
         };
         /**
+         * ProductCreate
+         * @description Payload to add a new product.
+         */
+        ProductCreate: {
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /**
+             * Brand
+             * @default Mediate Pharma
+             */
+            brand: string;
+            /** Category */
+            category: string;
+            /** Composition */
+            composition?: string | null;
+            /** Strength */
+            strength?: string | null;
+            /**
+             * Packaging
+             * @default 10x10 Tablets
+             */
+            packaging: string;
+            /** Mrp */
+            mrp: number;
+            /** Ptr */
+            ptr: number;
+            /** Pts */
+            pts: number;
+            /**
+             * Gst Rate
+             * @default 12
+             */
+            gst_rate: number;
+            /** Indications */
+            indications?: string | null;
+            /** Dosage Guidelines */
+            dosage_guidelines?: string | null;
+            /**
+             * Is Sample Available
+             * @default true
+             */
+            is_sample_available: boolean;
+        };
+        /**
+         * ProductResponse
+         * @description Full pharmaceutical product response.
+         */
+        ProductResponse: {
+            /** Id */
+            id: number;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Brand */
+            brand: string;
+            /** Category */
+            category: string;
+            /** Composition */
+            composition?: string | null;
+            /** Strength */
+            strength?: string | null;
+            /** Packaging */
+            packaging: string;
+            /** Mrp */
+            mrp: number;
+            /** Ptr */
+            ptr: number;
+            /** Pts */
+            pts: number;
+            /** Gst Rate */
+            gst_rate: number;
+            /** Indications */
+            indications?: string | null;
+            /** Dosage Guidelines */
+            dosage_guidelines?: string | null;
+            /** Is Sample Available */
+            is_sample_available: boolean;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Visual Aids
+             * @default []
+             */
+            visual_aids: components["schemas"]["ProductVisualAidResponse"][];
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ProductVisualAidResponse
+         * @description Visual aid slide response.
+         */
+        ProductVisualAidResponse: {
+            /** Id */
+            id: number;
+            /** Product Id */
+            product_id: number;
+            /** Title */
+            title: string;
+            /** Image Url */
+            image_url?: string | null;
+            /** Slide Order */
+            slide_order: number;
+            /** Key Talk Points */
+            key_talk_points?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
          * ProfileUpdateRequest
          * @description Self-service profile update request.
          */
@@ -3690,6 +4220,240 @@ export interface components {
              * @default MR
              */
             role_code: string;
+        };
+        /**
+         * ReportCatalogItem
+         * @description Metadata item in the reports catalog.
+         */
+        ReportCatalogItem: {
+            /** Key */
+            key: string;
+            /** Title */
+            title: string;
+            /** Group */
+            group: string;
+            /** Description */
+            description: string;
+            filter_schema: components["schemas"]["ReportFilterSchema"];
+            /** Available Formats */
+            available_formats?: string[];
+        };
+        /**
+         * ReportCatalogResponse
+         * @description List of accessible reports for caller's role.
+         */
+        ReportCatalogResponse: {
+            /**
+             * Role
+             * @default
+             */
+            role: string;
+            /** Groups */
+            groups?: string[];
+            /** Reports */
+            reports: components["schemas"]["ReportCatalogItem"][];
+            /** Scope Label */
+            scope_label: string;
+        };
+        /**
+         * ReportColumn
+         * @description Column definition for report tabular views and exports.
+         */
+        ReportColumn: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Type
+             * @default string
+             */
+            type: string;
+            /**
+             * Align
+             * @default left
+             */
+            align: string;
+        };
+        /**
+         * ReportFilterSchema
+         * @description Declarative filter options supported by a specific report.
+         */
+        ReportFilterSchema: {
+            /**
+             * Date Range
+             * @default true
+             */
+            date_range: boolean;
+            /**
+             * Mr Picker
+             * @default true
+             */
+            mr_picker: boolean;
+            /**
+             * Manager Picker
+             * @default false
+             */
+            manager_picker: boolean;
+            /**
+             * Territory Picker
+             * @default false
+             */
+            territory_picker: boolean;
+            /**
+             * Customer Type Picker
+             * @default false
+             */
+            customer_type_picker: boolean;
+            /**
+             * Status Picker
+             * @default false
+             */
+            status_picker: boolean;
+            /** Status Options */
+            status_options?: string[];
+        };
+        /**
+         * ReportMeta
+         * @description Header metadata for a report generation result.
+         */
+        ReportMeta: {
+            /** Key */
+            key: string;
+            /**
+             * Report Key
+             * @default
+             */
+            report_key: string;
+            /** Title */
+            title: string;
+            /** Group */
+            group: string;
+            /** Filters */
+            filters: {
+                [key: string]: unknown;
+            };
+            /** Scope Label */
+            scope_label: string;
+            /**
+             * User Scope
+             * @default
+             */
+            user_scope: string;
+            /** Generated At */
+            generated_at: string;
+            /** Columns */
+            columns?: components["schemas"]["ReportColumn"][];
+            /**
+             * Total Records
+             * @default 0
+             */
+            total_records: number;
+        };
+        /**
+         * ReportResponse
+         * @description Standard JSON response for a paged report.
+         */
+        ReportResponse: {
+            meta: components["schemas"]["ReportMeta"];
+            /** Columns */
+            columns?: components["schemas"]["ReportColumn"][];
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /** Items */
+            items: {
+                [key: string]: unknown;
+            }[];
+            /** Total */
+            total: number;
+            /**
+             * Total Records
+             * @default 0
+             */
+            total_records: number;
+            /**
+             * Page
+             * @default 1
+             */
+            page: number;
+            /**
+             * Page Size
+             * @default 50
+             */
+            page_size: number;
+            /**
+             * Total Pages
+             * @default 1
+             */
+            total_pages: number;
+        };
+        /** ReportsDashboardResponse */
+        ReportsDashboardResponse: {
+            summary: components["schemas"]["ReportsSummaryResponse"];
+            /** Mr Performances */
+            mr_performances: components["schemas"]["MRPerformanceReportItem"][];
+            /** Customer Coverage */
+            customer_coverage: components["schemas"]["CustomerCoverageReportItem"][];
+        };
+        /** ReportsSummaryResponse */
+        ReportsSummaryResponse: {
+            /**
+             * Total Calls
+             * @default 0
+             */
+            total_calls: number;
+            /**
+             * Doctor Calls
+             * @default 0
+             */
+            doctor_calls: number;
+            /**
+             * Chemist Calls
+             * @default 0
+             */
+            chemist_calls: number;
+            /**
+             * Hospital Calls
+             * @default 0
+             */
+            hospital_calls: number;
+            /**
+             * Stockist Calls
+             * @default 0
+             */
+            stockist_calls: number;
+            /**
+             * Total Pob
+             * @default 0
+             */
+            total_pob: number;
+            /**
+             * Average Calls Per Day
+             * @default 0
+             */
+            average_calls_per_day: number;
+            /**
+             * Total Attendance Days
+             * @default 0
+             */
+            total_attendance_days: number;
+            /**
+             * Geofence Compliance Rate
+             * @default 0
+             */
+            geofence_compliance_rate: number;
+            /**
+             * Pending Approvals Count
+             * @default 0
+             */
+            pending_approvals_count: number;
+            /**
+             * Active Mrs Count
+             * @default 0
+             */
+            active_mrs_count: number;
         };
         /**
          * RoleResponse
@@ -3840,6 +4604,95 @@ export interface components {
             credit_days?: number | null;
             /** Is Active */
             is_active?: boolean | null;
+        };
+        /**
+         * TargetCreateOrUpdate
+         * @description Payload to create or update an MR's monthly target.
+         */
+        TargetCreateOrUpdate: {
+            /**
+             * User Id
+             * @description Target MR user ID
+             */
+            user_id: number;
+            /**
+             * Year
+             * @description Target year
+             */
+            year: number;
+            /**
+             * Month
+             * @description Target month (1-12)
+             */
+            month: number;
+            /**
+             * Visit Target
+             * @description Monthly call/visit target
+             * @default 0
+             */
+            visit_target: number;
+            /**
+             * Doctor Call Target
+             * @description Doctor visit target
+             * @default 0
+             */
+            doctor_call_target: number;
+            /**
+             * Chemist Call Target
+             * @description Chemist visit target
+             * @default 0
+             */
+            chemist_call_target: number;
+            /**
+             * Primary Sales Target
+             * @description Primary sales target (Rs)
+             * @default 0
+             */
+            primary_sales_target: number;
+            /**
+             * Secondary Sales Target
+             * @description Secondary sales / POB target (Rs)
+             * @default 0
+             */
+            secondary_sales_target: number;
+        };
+        /**
+         * TargetResponse
+         * @description Response representation of a target.
+         */
+        TargetResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name?: string | null;
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /** Visit Target */
+            visit_target: number;
+            /** Doctor Call Target */
+            doctor_call_target: number;
+            /** Chemist Call Target */
+            chemist_call_target: number;
+            /** Primary Sales Target */
+            primary_sales_target: number;
+            /** Secondary Sales Target */
+            secondary_sales_target: number;
+        };
+        /**
+         * TargetsListResponse
+         * @description List of targets returned for a month/year query.
+         */
+        TargetsListResponse: {
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /** Items */
+            items: components["schemas"]["TargetResponse"][];
         };
         /**
          * TaskCommentCreate
@@ -4353,6 +5206,23 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /**
+         * VisualAidCreate
+         * @description Payload to add visual aid slide.
+         */
+        VisualAidCreate: {
+            /** Title */
+            title: string;
+            /** Image Url */
+            image_url?: string | null;
+            /**
+             * Slide Order
+             * @default 1
+             */
+            slide_order: number;
+            /** Key Talk Points */
+            key_talk_points?: string | null;
         };
     };
     responses: never;
@@ -7604,6 +8474,494 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DeviceTokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_reports_catalog_api_v1_reports_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportCatalogResponse"];
+                };
+            };
+        };
+    };
+    get_reports_dashboard_api_v1_reports_dashboard_get: {
+        parameters: {
+            query?: {
+                /** @description Start date for reporting window */
+                start_date?: string | null;
+                /** @description End date for reporting window */
+                end_date?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportsDashboardResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_report_api_v1_reports__key__get: {
+        parameters: {
+            query?: {
+                /** @description Start date in YYYY-MM-DD (Asia/Kolkata) */
+                from_date?: string | null;
+                /** @description End date in YYYY-MM-DD (Asia/Kolkata) */
+                to_date?: string | null;
+                /** @description Alias for from_date */
+                start_date?: string | null;
+                /** @description Alias for to_date */
+                end_date?: string | null;
+                /** @description Filter by Medical Representative user ID */
+                mr_id?: number | null;
+                /** @description Filter by Reporting Manager user ID */
+                manager_id?: number | null;
+                /** @description Filter by territory ID */
+                territory_id?: number | null;
+                /** @description Filter by customer type (DOCTOR, CHEMIST, etc.) */
+                customer_type?: string | null;
+                /** @description Filter by status (e.g. Verified, Approved) */
+                status?: string | null;
+                /** @description Page number */
+                page?: number;
+                /** @description Page size */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_report_api_v1_reports__key__export_get: {
+        parameters: {
+            query?: {
+                /** @description Export format: 'xlsx' or 'pdf' */
+                format?: string;
+                /** @description Start date in YYYY-MM-DD (Asia/Kolkata) */
+                from_date?: string | null;
+                /** @description End date in YYYY-MM-DD (Asia/Kolkata) */
+                to_date?: string | null;
+                /** @description Alias for from_date */
+                start_date?: string | null;
+                /** @description Alias for to_date */
+                end_date?: string | null;
+                /** @description Filter by Medical Representative user ID */
+                mr_id?: number | null;
+                /** @description Filter by Reporting Manager user ID */
+                manager_id?: number | null;
+                /** @description Filter by territory ID */
+                territory_id?: number | null;
+                /** @description Filter by customer type */
+                customer_type?: string | null;
+                /** @description Filter by status */
+                status?: string | null;
+            };
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Streamed report file download */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                    "application/pdf": unknown;
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_categories_api_v1_products_categories_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+        };
+    };
+    list_products_api_v1_products_get: {
+        parameters: {
+            query?: {
+                /** @description Therapy category filter */
+                category?: string | null;
+                /** @description Search by name, composition, brand, or SKU */
+                search?: string | null;
+                /** @description Filter products with samples available */
+                is_sample_available?: boolean | null;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_product_api_v1_products_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ProductCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_product_api_v1_products__product_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_visual_aid_api_v1_products__product_id__visual_aids_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                product_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VisualAidCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProductVisualAidResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_orders_api_v1_orders_get: {
+        parameters: {
+            query?: {
+                /** @description CHEMIST or STOCKIST */
+                customer_type?: string | null;
+                /** @description Specific customer ID */
+                customer_id?: number | null;
+                /** @description SUBMITTED, CONFIRMED, DELIVERED, CANCELLED */
+                status?: string | null;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_order_api_v1_orders_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_order_api_v1_orders__order_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_targets_api_v1_targets_get: {
+        parameters: {
+            query?: {
+                /** @description Year (defaults to current year) */
+                year?: number | null;
+                /** @description Month (defaults to current month) */
+                month?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetsListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_target_api_v1_targets_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TargetCreateOrUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TargetResponse"];
                 };
             };
             /** @description Validation Error */

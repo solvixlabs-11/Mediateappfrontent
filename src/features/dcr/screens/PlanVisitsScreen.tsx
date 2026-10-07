@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   RefreshControl,
   StyleSheet,
@@ -76,7 +77,16 @@ export function PlanVisitsScreen() {
     loadData();
   };
 
+  const [isPunchedIn, setIsPunchedIn] = useState(false);
+
   const handleLogCallFromPlan = (plan: PlannedVisitDto) => {
+    if (!isPunchedIn) {
+      Alert.alert(
+        "Punch-In Required 🔒",
+        "You cannot start or log a customer visit before punching in. Please record your daily attendance check-in above first."
+      );
+      return;
+    }
     navigation.navigate(ROUTES.DcrForm, {
       initialPlannedVisitId: plan.id,
       initialCustomerType: plan.customer_type,
@@ -112,6 +122,13 @@ export function PlanVisitsScreen() {
         <TouchableOpacity
           style={styles.newDcrBtn}
           onPress={() => {
+            if (!isPunchedIn) {
+              Alert.alert(
+                "Punch-In Required 🔒",
+                "You cannot log visits before punching in. Please complete your morning attendance check-in above first."
+              );
+              return;
+            }
             navigation.navigate(ROUTES.DcrForm);
           }}
           activeOpacity={0.8}
@@ -134,7 +151,7 @@ export function PlanVisitsScreen() {
         ListHeaderComponent={
           <View style={styles.scrollHeader}>
             {/* Daily Attendance Card */}
-            <AttendanceCard />
+            <AttendanceCard onStatusChanged={(att) => setIsPunchedIn(!!att?.check_in_time)} />
 
             {/* KPI Summary Tiles */}
             {summary && (

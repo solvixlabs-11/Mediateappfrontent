@@ -18,6 +18,8 @@ Project: Mediate MR Mobile App (`Mediateappfrontent`)
 | `react-native-safe-area-context` | `~5.7.0` | Insets & notch/punch-hole handling | Yes / Pending rebuild | No |
 | `expo-image-picker` | `^57.0.20` | Profile photo upload, Expense receipts | **No (added in P1/P5)** | **YES** |
 | `@expo/vector-icons` | `^15.1.1` | UI icons across all screens | Partial (requires `expo-font`) | **YES** |
+| `expo-file-system` | `~57.0.7` | Reports PDF/Excel download to cache | **No (added in P7)** | **YES** |
+| `expo-sharing` | `~57.0.0` | System share sheet for exports | **No (added in P7)** | **YES** |
 
 ---
 

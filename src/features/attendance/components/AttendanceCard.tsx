@@ -11,6 +11,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { AttendanceDto, attendanceApi } from "../api/attendanceApi";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
 
+import { getCurrentGeoLocation } from "../../../shared/utils/location";
+
 interface AttendanceCardProps {
   onStatusChanged?: (attendance: AttendanceDto | null) => void;
 }
@@ -39,18 +41,22 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
   const handleCheckIn = async () => {
     setIsActionLoading(true);
     try {
+      const geo = await getCurrentGeoLocation();
       const record = await attendanceApi.checkIn({
-        latitude: 19.0760,
-        longitude: 72.8777,
-        accuracy: 10.0,
-        address: "Bandra Kurla Complex, Mumbai",
-        mock_location_flag: false,
+        latitude: geo.latitude,
+        longitude: geo.longitude,
+        accuracy: geo.accuracy,
+        address: geo.address,
+        mock_location_flag: geo.mock_location_flag,
         remarks: "Started field work",
         client_uuid: `att-in-${Date.now()}`,
       });
       setAttendance(record);
       if (onStatusChanged) onStatusChanged(record);
-      Alert.alert("Success", "Attendance Check-in recorded successfully!");
+      Alert.alert(
+        "GPS Check-in Verified 🎉",
+        `Time: ${new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })}\nDate: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}\nLocation: ${geo.address}\nGPS: ${geo.latitude.toFixed(5)}, ${geo.longitude.toFixed(5)}\n\nAdmin & Managers have received your live field location.`
+      );
     } catch (err: any) {
       if (err?.response?.status === 409) {
         const today = await attendanceApi.getToday();
@@ -75,10 +81,13 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
           onPress: async () => {
             setIsActionLoading(true);
             try {
+              const geo = await getCurrentGeoLocation();
               const record = await attendanceApi.checkOut({
-                latitude: 19.0765,
-                longitude: 72.8780,
-                mock_location_flag: false,
+                latitude: geo.latitude,
+                longitude: geo.longitude,
+                accuracy: geo.accuracy,
+                address: geo.address,
+                mock_location_flag: geo.mock_location_flag,
                 remarks: "Day completed",
               });
               setAttendance(record);

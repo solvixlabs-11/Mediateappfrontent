@@ -25,6 +25,7 @@ import {
 import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { NotificationsModal } from "../../notifications/screens/NotificationsScreen";
 
 type FilterStatus = "ALL" | "VISITING" | "CHECKED_IN" | "IDLE" | "NOT_CHECKED_IN" | "ON_LEAVE";
 
@@ -37,6 +38,7 @@ export function AdminHomeScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<FilterStatus>("ALL");
+  const [isNotifsOpen, setIsNotifsOpen] = useState(false);
 
   const loadLiveActivity = useCallback(async () => {
     try {
@@ -148,12 +150,8 @@ export function AdminHomeScreen() {
           </View>
           <TouchableOpacity
             style={styles.bellBtn}
-            onPress={() =>
-              Alert.alert(
-                "System Live Status",
-                `All field synchronization services are operational. ${summary?.checked_in_count ?? 0} representatives currently in field.`
-              )
-            }
+            activeOpacity={0.7}
+            onPress={() => setIsNotifsOpen(true)}
           >
             <Ionicons name="notifications-outline" size={20} color={colors.navy} />
             {(pending?.total_pending ?? 0) > 0 && (
@@ -263,13 +261,16 @@ export function AdminHomeScreen() {
           <TouchableOpacity
             style={styles.viewAllBtn}
             onPress={() => {
-              // Navigate to Approvals inbox
-              const parent = navigation.getParent();
-              if (parent) {
-                parent.navigate("Approvals" as never);
-              } else {
-                navigation.navigate(ROUTES.AppTabs as any);
+              // MANAGER has an "Approvals" tab; ADMIN does not — use stack screen instead
+              if (user?.role === "MANAGER") {
+                const parent = navigation.getParent();
+                if (parent) {
+                  parent.navigate("Approvals" as never);
+                  return;
+                }
               }
+              // ADMIN (or fallback): push ApprovalsInbox as a stack screen
+              navigation.navigate(ROUTES.ApprovalsInbox as any);
             }}
           >
             <Text style={styles.viewAllBtnText}>View Inbox ({pending?.total_pending ?? 0})</Text>
@@ -500,8 +501,8 @@ export function AdminHomeScreen() {
                 style={styles.locationPinBtn}
                 onPress={() =>
                   Alert.alert(
-                    `${item.mr_name} Location`,
-                    `GPS Lat: ${item.latitude?.toFixed(5)}, Lng: ${item.longitude?.toFixed(5)}\nStatus: ${getStatusLabel(item.status)}`
+                    `${item.mr_name} - Field Attendance Details 📍`,
+                    `Status: ${getStatusLabel(item.status)}\nCheck-In Time: ${item.check_in_time ? new Date(item.check_in_time).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }) : "N/A"}\nLocation: ${item.last_activity_text || "Field Operations"}\nGPS Lat: ${item.latitude?.toFixed(5)}\nGPS Lng: ${item.longitude?.toFixed(5)}\nGPS Status: ${item.is_verified ? "Verified Accurate GPS" : "Unverified"}`
                   )
                 }
               >
@@ -551,6 +552,13 @@ export function AdminHomeScreen() {
           }
         />
       )}
+
+      {/* Notifications Modal with Admin / Manager Mode */}
+      <NotificationsModal
+        visible={isNotifsOpen}
+        onClose={() => setIsNotifsOpen(false)}
+        roleMode="ADMIN"
+      />
     </SafeAreaView>
   );
 }

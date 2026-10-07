@@ -20,6 +20,11 @@ import { DcrDailySummaryDto, PlannedVisitDto, dcrApi } from "../../dcr/api/dcrAp
 import { useFocusEffect } from "@react-navigation/native";
 import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing } from "../../../shared/theme/tokens";
+import { getCurrentGeoLocation } from "../../../shared/utils/location";
+import { NotificationsModal } from "../../notifications/screens/NotificationsScreen";
+import { notificationsApi } from "../../notifications/api/notificationsApi";
+import { ProductsCatalogScreen } from "../../products/screens/ProductsCatalogScreen";
+import { OrdersScreen } from "../../orders/screens/OrdersScreen";
 
 interface MrDashboardScreenProps {
   navigation?: any;
@@ -35,9 +40,10 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isPunchLoading, setIsPunchLoading] = useState(false);
-
-  // Navigation & Data Reload on Focus
-  // Modal states removed per Section 3.1 & Rule M-18
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const [isNotifsOpen, setIsNotifsOpen] = useState(false);
+  const [isProductsOpen, setIsProductsOpen] = useState(false);
+  const [isOrdersOpen, setIsOrdersOpen] = useState(false);
 
   // Load Dashboard Data
   const loadDashboardData = useCallback(async () => {
@@ -66,6 +72,14 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
       } catch (err) {
         console.warn("Failed to fetch planned visits:", err);
       }
+
+      // 4. Fetch Unread Notifications
+      try {
+        const notifs = await notificationsApi.getSummary();
+        setUnreadNotifs(notifs.unread_count);
+      } catch (err) {
+        console.warn("Failed to fetch notification summary:", err);
+      }
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -87,21 +101,25 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
     loadDashboardData();
   };
 
-  // Handle Punch In / Out
+  // Handle Punch In / Out with Live GPS Coordinates
   const handlePunchCheckIn = async () => {
     setIsPunchLoading(true);
     try {
+      const geo = await getCurrentGeoLocation();
       const record = await attendanceApi.checkIn({
-        latitude: 19.0760,
-        longitude: 72.8777,
-        accuracy: 12.0,
-        address: "Dadar West, Mumbai",
-        mock_location_flag: false,
+        latitude: geo.latitude,
+        longitude: geo.longitude,
+        accuracy: geo.accuracy,
+        address: geo.address,
+        mock_location_flag: geo.mock_location_flag,
         remarks: "Morning field punch",
         client_uuid: `att-in-${Date.now()}`,
       });
       setAttendance(record);
-      Alert.alert("GPS Verified", "Checked in successfully for Field Work!");
+      Alert.alert(
+        "GPS Punch-In Recorded 🎉",
+        `Time: ${new Date().toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true })}\nDate: ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}\nLocation: ${geo.address}\nGPS: ${geo.latitude.toFixed(5)}, ${geo.longitude.toFixed(5)}\n\nDaily field operations are now unlocked! Admin & Managers have received your verified location.`
+      );
     } catch (err: any) {
       if (err?.response?.status === 409) {
         // Idempotent: already checked in, re-fetch state
@@ -130,12 +148,13 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
           onPress: async () => {
             setIsPunchLoading(true);
             try {
+              const geo = await getCurrentGeoLocation();
               const record = await attendanceApi.checkOut({
-                latitude: 19.0765,
-                longitude: 72.8780,
-                accuracy: 10.0,
-                address: "Dadar West, Mumbai",
-                mock_location_flag: false,
+                latitude: geo.latitude,
+                longitude: geo.longitude,
+                accuracy: geo.accuracy,
+                address: geo.address,
+                mock_location_flag: geo.mock_location_flag,
                 remarks: "Day field work completed",
               });
               setAttendance(record);
@@ -154,6 +173,25 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
     );
   };
 
+  const isCheckedIn = !!attendance?.check_in_time;
+  const isCheckedOut = !!attendance?.check_out_time;
+
+  // Action Guard: Enforces daily punching before any field activity
+  const requirePunchIn = (actionCallback: () => void) => {
+    if (!isCheckedIn) {
+      Alert.alert(
+        "Attendance Punch-In Required 🔒",
+        "Field operations are locked until daily attendance is recorded.\n\nPlease punch in now to verify your morning GPS location and enable field features for management oversight.",
+        [
+          { text: "Punch In Now", onPress: handlePunchCheckIn },
+          { text: "Cancel", style: "cancel" },
+        ]
+      );
+      return;
+    }
+    actionCallback();
+  };
+
   // Format dynamic dates
   const todayFormatted = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -161,9 +199,6 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
     month: "short",
     year: "numeric",
   });
-
-  const isCheckedIn = !!attendance?.check_in_time;
-  const isCheckedOut = !!attendance?.check_out_time;
 
   const checkInTimeFormatted = attendance?.check_in_time
     ? new Date(attendance.check_in_time).toLocaleTimeString("en-US", {
@@ -210,14 +245,14 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
           <TouchableOpacity
             style={styles.bellBtn}
             activeOpacity={0.7}
-            onPress={() => {
-              Alert.alert("Field Alerts", "You have 3 operational alerts scheduled for today.");
-            }}
+            onPress={() => setIsNotifsOpen(true)}
           >
             <Ionicons name="notifications-outline" size={20} color="#1E293B" />
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>3</Text>
-            </View>
+            {unreadNotifs > 0 && (
+              <View style={styles.notificationBadge}>
+                <Text style={styles.notificationBadgeText}>{unreadNotifs}</Text>
+              </View>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -276,7 +311,9 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 style={styles.expenseAlertPill}
                 activeOpacity={0.8}
                 onPress={() => {
-                  if (navigation) navigation.navigate(ROUTES.ExpenseList);
+                  requirePunchIn(() => {
+                    if (navigation) navigation.navigate(ROUTES.ExpenseList);
+                  });
                 }}
               >
                 <Ionicons name="alert-circle-outline" size={12} color="#B91C1C" />
@@ -287,7 +324,9 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 style={styles.followupAlertPill}
                 activeOpacity={0.8}
                 onPress={() => {
-                  if (navigation) navigation.navigate("Visits");
+                  requirePunchIn(() => {
+                    if (navigation) navigation.navigate("Visits");
+                  });
                 }}
               >
                 <Ionicons name="warning-outline" size={12} color="#B45309" />
@@ -296,6 +335,42 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
             </View>
           </View>
         </View>
+
+        {/* MANDATORY PUNCH-IN GATE BANNER */}
+        {!isCheckedIn && (
+          <View style={styles.mandatoryPunchBanner}>
+            <View style={styles.mandatoryPunchHeader}>
+              <View style={styles.lockIconCircle}>
+                <Ionicons name="lock-closed" size={20} color="#DC2626" />
+              </View>
+              <View style={styles.mandatoryPunchTitleCol}>
+                <Text style={styles.mandatoryPunchTitle}>FIELD OPERATIONS LOCKED</Text>
+                <Text style={styles.mandatoryPunchSubtitle}>
+                  Daily Punch-In Required Before Any Action
+                </Text>
+              </View>
+            </View>
+            <Text style={styles.mandatoryPunchDesc}>
+              Field visits, doctor calls, tour planning, commercial orders, and expense entries are locked
+              until your daily attendance is recorded. Punch in now with GPS location to unlock operations.
+            </Text>
+            <TouchableOpacity
+              style={styles.mandatoryPunchBtn}
+              onPress={handlePunchCheckIn}
+              disabled={isPunchLoading}
+              activeOpacity={0.85}
+            >
+              {isPunchLoading ? (
+                <ActivityIndicator color="#FFFFFF" size="small" />
+              ) : (
+                <>
+                  <Ionicons name="location" size={18} color="#FFFFFF" />
+                  <Text style={styles.mandatoryPunchBtnText}>Punch In with GPS Now</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* 1. Field Work & Attendance Card */}
         <View style={styles.cardContainer}>
@@ -472,13 +547,15 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
               style={styles.startVisitBtn}
               activeOpacity={0.85}
               onPress={() => {
-                if (navigation) {
-                  navigation.navigate(ROUTES.DcrForm, {
-                    initialPlannedVisitId: nextVisit?.id,
-                    initialCustomerType: nextVisit?.customer_type,
-                    initialCustomerId: nextVisit?.doctor_id || undefined,
-                  });
-                }
+                requirePunchIn(() => {
+                  if (navigation) {
+                    navigation.navigate(ROUTES.DcrForm, {
+                      initialPlannedVisitId: nextVisit?.id,
+                      initialCustomerType: nextVisit?.customer_type,
+                      initialCustomerId: nextVisit?.doctor_id || undefined,
+                    });
+                  }
+                });
               }}
             >
               <Ionicons name="paper-plane-outline" size={18} color="#FFFFFF" />
@@ -507,10 +584,12 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
           <View style={styles.quickActionsGrid}>
             {/* Tile 1: New Visit Report */}
             <TouchableOpacity
-              style={styles.actionTile}
+              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
               activeOpacity={0.8}
               onPress={() => {
-                if (navigation) navigation.navigate(ROUTES.DcrForm);
+                requirePunchIn(() => {
+                  if (navigation) navigation.navigate(ROUTES.DcrForm);
+                });
               }}
             >
               <View style={styles.tileLeft}>
@@ -519,15 +598,24 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 </View>
                 <Text style={styles.tileTitle}>New Visit Report</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              {!isCheckedIn ? (
+                <View style={styles.lockTag}>
+                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
+                  <Text style={styles.lockTagText}>Locked</Text>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              )}
             </TouchableOpacity>
 
             {/* Tile 2: Plan Tour / Visit */}
             <TouchableOpacity
-              style={styles.actionTile}
+              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
               activeOpacity={0.8}
               onPress={() => {
-                if (navigation) navigation.navigate(ROUTES.TourPlanner);
+                requirePunchIn(() => {
+                  if (navigation) navigation.navigate(ROUTES.TourPlanner);
+                });
               }}
             >
               <View style={styles.tileLeft}>
@@ -536,15 +624,24 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 </View>
                 <Text style={styles.tileTitle}>Plan Tour / TP</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              {!isCheckedIn ? (
+                <View style={styles.lockTag}>
+                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
+                  <Text style={styles.lockTagText}>Locked</Text>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              )}
             </TouchableOpacity>
 
             {/* Tile 3: Add Expense */}
             <TouchableOpacity
-              style={styles.actionTile}
+              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
               activeOpacity={0.8}
               onPress={() => {
-                if (navigation) navigation.navigate(ROUTES.ExpenseList);
+                requirePunchIn(() => {
+                  if (navigation) navigation.navigate(ROUTES.ExpenseList);
+                });
               }}
             >
               <View style={styles.tileLeft}>
@@ -553,15 +650,24 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 </View>
                 <Text style={styles.tileTitle}>Add Expense</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              {!isCheckedIn ? (
+                <View style={styles.lockTag}>
+                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
+                  <Text style={styles.lockTagText}>Locked</Text>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              )}
             </TouchableOpacity>
 
             {/* Tile 4: Apply Leave */}
             <TouchableOpacity
-              style={styles.actionTile}
+              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
               activeOpacity={0.8}
               onPress={() => {
-                if (navigation) navigation.navigate(ROUTES.LeaveList);
+                requirePunchIn(() => {
+                  if (navigation) navigation.navigate(ROUTES.LeaveList);
+                });
               }}
             >
               <View style={styles.tileLeft}>
@@ -570,20 +676,50 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 </View>
                 <Text style={styles.tileTitle}>Apply Leave</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              {!isCheckedIn ? (
+                <View style={styles.lockTag}>
+                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
+                  <Text style={styles.lockTagText}>Locked</Text>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              )}
             </TouchableOpacity>
 
-            {/* Tile 5: My Orders / POB */}
+            {/* Tile 5: Products & E-Detailing */}
             <TouchableOpacity
-              style={styles.actionTile}
+              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
               activeOpacity={0.8}
               onPress={() => {
-                if (navigation) {
-                  navigation.navigate(ROUTES.ComingSoon, {
-                    featureName: "Orders & Secondary Booking (POB)",
-                    phase: "Phase 6",
-                  });
-                }
+                requirePunchIn(() => {
+                  setIsProductsOpen(true);
+                });
+              }}
+            >
+              <View style={styles.tileLeft}>
+                <View style={[styles.tileIconCircle, { backgroundColor: "#E0E7FF" }]}>
+                  <Ionicons name="tablet-landscape-outline" size={20} color="#4F46E5" />
+                </View>
+                <Text style={styles.tileTitle}>Products & E-Detailing</Text>
+              </View>
+              {!isCheckedIn ? (
+                <View style={styles.lockTag}>
+                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
+                  <Text style={styles.lockTagText}>Locked</Text>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              )}
+            </TouchableOpacity>
+
+            {/* Tile 6: My Orders / POB */}
+            <TouchableOpacity
+              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
+              activeOpacity={0.8}
+              onPress={() => {
+                requirePunchIn(() => {
+                  setIsOrdersOpen(true);
+                });
               }}
             >
               <View style={styles.tileLeft}>
@@ -592,29 +728,42 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
                 </View>
                 <Text style={styles.tileTitle}>My Orders / POB</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              {!isCheckedIn ? (
+                <View style={styles.lockTag}>
+                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
+                  <Text style={styles.lockTagText}>Locked</Text>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              )}
             </TouchableOpacity>
 
-            {/* Tile 6: Tasks & Reminders */}
+            {/* Tile 7: Tasks & Reminders */}
             <TouchableOpacity
-              style={styles.actionTile}
+              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
               activeOpacity={0.8}
               onPress={() => {
-                if (navigation) {
-                  navigation.navigate(ROUTES.ComingSoon, {
-                    featureName: "Tasks & Reminders",
-                    phase: "Phase 6",
-                  });
-                }
+                requirePunchIn(() => {
+                  if (navigation) {
+                    navigation.navigate("Tasks");
+                  }
+                });
               }}
             >
               <View style={styles.tileLeft}>
                 <View style={[styles.tileIconCircle, { backgroundColor: "#EDE9FE" }]}>
-                  <Ionicons name="options-outline" size={20} color="#7C3AED" />
+                  <Ionicons name="checkbox-outline" size={20} color="#7C3AED" />
                 </View>
                 <Text style={styles.tileTitle}>Tasks & Reminders</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              {!isCheckedIn ? (
+                <View style={styles.lockTag}>
+                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
+                  <Text style={styles.lockTagText}>Locked</Text>
+                </View>
+              ) : (
+                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -625,8 +774,30 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
           <Text style={styles.syncFooterText}>Cloud sync verified • DCR v3.8.4 Live</Text>
         </View>
 
-        <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Modals for Notifications, Products & Detailing, Orders */}
+      <NotificationsModal
+        visible={isNotifsOpen}
+        onClose={() => {
+          setIsNotifsOpen(false);
+          loadDashboardData();
+        }}
+      />
+
+      <ProductsCatalogScreen
+        visible={isProductsOpen}
+        onClose={() => setIsProductsOpen(false)}
+        onSelectProductForOrder={() => {
+          setIsProductsOpen(false);
+          setIsOrdersOpen(true);
+        }}
+      />
+
+      <OrdersScreen
+        visible={isOrdersOpen}
+        onClose={() => setIsOrdersOpen(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -1266,5 +1437,93 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#64748B",
     fontWeight: "500",
+  },
+  mandatoryPunchBanner: {
+    backgroundColor: "#FEF2F2",
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: "#FCA5A5",
+    padding: 14,
+    marginBottom: 12,
+    shadowColor: "#EF4444",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  mandatoryPunchHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginBottom: 8,
+  },
+  lockIconCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#FEE2E2",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#FCA5A5",
+  },
+  mandatoryPunchTitleCol: {
+    flex: 1,
+  },
+  mandatoryPunchTitle: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: "#991B1B",
+    letterSpacing: 0.5,
+  },
+  mandatoryPunchSubtitle: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#B91C1C",
+    marginTop: 1,
+  },
+  mandatoryPunchDesc: {
+    fontSize: 12,
+    color: "#7F1D1D",
+    lineHeight: 17,
+    marginBottom: 12,
+  },
+  mandatoryPunchBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#DC2626",
+    paddingVertical: 11,
+    borderRadius: 10,
+    shadowColor: "#DC2626",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  mandatoryPunchBtnText: {
+    color: "#FFFFFF",
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  actionTileLocked: {
+    backgroundColor: "#F8FAFC",
+    borderColor: "#E2E8F0",
+    opacity: 0.85,
+  },
+  lockTag: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 3,
+    backgroundColor: "#FEE2E2",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  lockTagText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: "#DC2626",
   },
 });

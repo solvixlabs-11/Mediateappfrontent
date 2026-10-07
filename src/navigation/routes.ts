@@ -51,6 +51,11 @@ export const ROUTES = {
   ApprovalMatrix: "ApprovalMatrix",
   GeofenceSettings: "GeofenceSettings",
 
+  // Reports & Analytics Stacks & Screens
+  ReportsCatalog: "ReportsCatalog",
+  ReportFilters: "ReportFilters",
+  ReportResult: "ReportResult",
+
   // Common / Shared
   Profile: "Profile",
   Notifications: "Notifications",

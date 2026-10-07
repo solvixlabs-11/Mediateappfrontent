@@ -17,6 +17,10 @@ import { DcrFormScreen } from "../features/dcr/screens/DcrFormScreen";
 import { CustomerDetailScreen } from "../features/customers/screens/CustomerDetailScreen";
 import { CustomerFormScreen } from "../features/customers/screens/CustomerFormScreen";
 import { ComingSoonScreen } from "../features/coming_soon/screens/ComingSoonScreen";
+import { ApprovalsInboxScreen } from "../features/approvals/screens/ApprovalsInboxScreen";
+import { ReportsCatalogScreen } from "../features/reports/screens/ReportsCatalogScreen";
+import { ReportFiltersScreen } from "../features/reports/screens/ReportFiltersScreen";
+import { ReportResultScreen } from "../features/reports/screens/ReportResultScreen";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -38,6 +42,10 @@ export function RootNavigator() {
             <Stack.Screen name={ROUTES.CustomerDetail as any} component={CustomerDetailScreen} />
             <Stack.Screen name={ROUTES.CustomerForm as any} component={CustomerFormScreen} />
             <Stack.Screen name={ROUTES.ComingSoon as any} component={ComingSoonScreen} />
+            <Stack.Screen name={ROUTES.ApprovalsInbox as any} component={ApprovalsInboxScreen} />
+            <Stack.Screen name={ROUTES.ReportsCatalog as any} component={ReportsCatalogScreen} />
+            <Stack.Screen name={ROUTES.ReportFilters as any} component={ReportFiltersScreen} />
+            <Stack.Screen name={ROUTES.ReportResult as any} component={ReportResultScreen} />
           </>
         ) : (
           <Stack.Screen name={ROUTES.Auth as any} component={LoginScreen} />

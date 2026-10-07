@@ -14,6 +14,7 @@ import { AdminHomeScreen } from "../features/dashboard/screens/AdminHomeScreen";
 import { MrDashboardScreen } from "../features/dashboard/screens/MrDashboardScreen";
 import { PlanVisitsScreen } from "../features/dcr/screens/PlanVisitsScreen";
 import { TasksListScreen } from "../features/tasks/screens/TasksListScreen";
+import { ReportsCatalogScreen } from "../features/reports/screens/ReportsCatalogScreen";
 import { AttendanceCard } from "../features/attendance/components/AttendanceCard";
 import { Card } from "../shared/components/Card";
 import { Header } from "../shared/components/Header";
@@ -150,12 +151,7 @@ export function RoleTabNavigator() {
       <Tab.Screen name="Home" component={AdminHomeScreen} />
       <Tab.Screen name="Users" component={UsersListScreen} />
       <Tab.Screen name="Masters" component={AdminMastersScreen} />
-      <Tab.Screen
-        name="Reports"
-        children={() => (
-          <ComingSoonScreen featureName="Reports & Export" phase="Phase 7" />
-        )}
-      />
+      <Tab.Screen name="Reports" component={ReportsCatalogScreen} />
       <Tab.Screen name="More" component={ProfileScreen} />
     </Tab.Navigator>
   );
