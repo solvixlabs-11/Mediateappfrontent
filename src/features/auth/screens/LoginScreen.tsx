@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { apiClient } from "../../../api/client";
+import { apiClient, API_BASE_URL } from "../../../api/client";
 import { useToastStore } from "../../../shared/components/Toast";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
 import { authApi, DemoAccount } from "../api/authApi";
@@ -43,6 +43,7 @@ export const LoginScreen: React.FC = () => {
     let isMounted = true;
     const fetchConfig = async () => {
       try {
+        console.log("[LoginScreen] Fetching config from:", `${API_BASE_URL}/api/v1/auth/config`);
         const config = await authApi.getConfig();
         if (isMounted) {
           if (config.project_name) {
@@ -58,7 +59,8 @@ export const LoginScreen: React.FC = () => {
           }
           setIsServerOnline(true);
         }
-      } catch {
+      } catch (err: any) {
+        console.warn("[LoginScreen] fetchConfig failed:", err?.message, err?.code, "Target URL:", API_BASE_URL);
         if (isMounted) {
           setIsServerOnline(false);
         }
@@ -91,12 +93,15 @@ export const LoginScreen: React.FC = () => {
 
   const checkServerHealth = async () => {
     try {
+      console.log("[LoginScreen] Testing health at:", `${API_BASE_URL}/health`);
       await apiClient.get("/health");
       setIsServerOnline(true);
       showToast("Server is connected and operational", "success");
-    } catch {
+    } catch (err: any) {
+      const errDetail = err?.message || err?.code || "Unreachable";
+      console.warn("[LoginScreen] Health check failed:", errDetail, "URL:", `${API_BASE_URL}/health`);
       setIsServerOnline(false);
-      showToast("Backend unreachable. Please verify LAN/Wi-Fi connection.", "error");
+      showToast(`Cannot reach ${API_BASE_URL} (${errDetail})`, "error");
     }
   };
 

@@ -12,6 +12,7 @@ import { AdminMastersScreen } from "../features/masters/screens/AdminMastersScre
 import { ApprovalsInboxScreen } from "../features/approvals/screens/ApprovalsInboxScreen";
 import { AdminHomeScreen } from "../features/dashboard/screens/AdminHomeScreen";
 import { MrDashboardScreen } from "../features/dashboard/screens/MrDashboardScreen";
+import { MrBuddyHomeScreen } from "../features/dashboard/screens/MrBuddyHomeScreen";
 import { PlanVisitsScreen } from "../features/dcr/screens/PlanVisitsScreen";
 import { TasksListScreen } from "../features/tasks/screens/TasksListScreen";
 import { ReportsCatalogScreen } from "../features/reports/screens/ReportsCatalogScreen";
@@ -24,59 +25,13 @@ import { colors, radii, spacing, typography } from "../shared/theme/tokens";
 
 const Tab = createBottomTabNavigator();
 
-function HomeScreen() {
-  const user = useAuthStore((s) => s.user);
-
-  return (
-    <ScreenContainer>
-      <Header
-        title={`Welcome, ${user?.fullName || "Representative"}`}
-        subtitle={`Role: ${user?.role || "MR"} | Mediate Healthcare`}
-      />
-      <View style={styles.homeContent}>
-        {(user?.role === "MR" || user?.role === "MANAGER") && (
-          <View style={{ marginBottom: spacing.md }}>
-            <AttendanceCard />
-          </View>
-        )}
-        <Card style={styles.welcomeCard}>
-          <View style={styles.badgeRow}>
-            <StatusChip
-              status={user?.role || "MR"}
-              label={`Authenticated as ${user?.role || "MR"}`}
-            />
-          </View>
-          <Text style={styles.welcomeTitle}>Mediate Enterprise Portal</Text>
-          <Text style={styles.welcomeSubtitle}>
-            Your daily operational dashboard. All data and navigation controls below are scoped
-            to your role and verified directly from the backend server.
-          </Text>
-
-          <View style={styles.kpiGrid}>
-            <View style={styles.kpiTile}>
-              <Ionicons name="shield-checkmark" size={24} color={colors.primary} />
-              <Text style={styles.kpiTileTitle}>JWT Session</Text>
-              <Text style={styles.kpiTileDesc}>Encrypted & Active</Text>
-            </View>
-            <View style={styles.kpiTile}>
-              <Ionicons name="cloud-done" size={24} color={colors.navy} />
-              <Text style={styles.kpiTileTitle}>Backend Connected</Text>
-              <Text style={styles.kpiTileDesc}>Live SQL Database</Text>
-            </View>
-          </View>
-        </Card>
-      </View>
-    </ScreenContainer>
-  );
-}
-
 export function RoleTabNavigator() {
   const user = useAuthStore((s) => s.user);
   const role = user?.role || "MR";
 
   const screenOptions = ({ route }: { route: { name: string } }) => ({
     headerShown: false,
-    tabBarActiveTintColor: colors.primary,
+    tabBarActiveTintColor: "#DC2626",
     tabBarInactiveTintColor: colors.textSecondary,
     tabBarStyle: {
       backgroundColor: colors.surface,
@@ -94,7 +49,7 @@ export function RoleTabNavigator() {
       let iconName: keyof typeof Ionicons.glyphMap = "ellipse";
 
       if (route.name === "Home") {
-        iconName = focused ? "home" : "home-outline";
+        iconName = focused ? "grid" : "grid-outline";
       } else if (route.name === "Plan") {
         iconName = focused ? "calendar" : "calendar-outline";
       } else if (route.name === "Customers") {
@@ -119,11 +74,11 @@ export function RoleTabNavigator() {
     },
   });
 
-  // MR: Home (S06) | Plan (S10) | Customers (S13) | Tasks (S23) | More (S59)
+  // MR: Home (MR Buddy Grid) | Plan | Customers | Tasks | More
   if (role === "MR") {
     return (
       <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="Home" component={MrDashboardScreen} />
+        <Tab.Screen name="Home" component={MrBuddyHomeScreen} />
         <Tab.Screen name="Plan" component={PlanVisitsScreen} />
         <Tab.Screen name="Customers" component={CustomersHomeScreen} />
         <Tab.Screen name="Tasks" component={TasksListScreen} />
@@ -132,11 +87,11 @@ export function RoleTabNavigator() {
     );
   }
 
-  // MANAGER: Home (S38) | Team (S39) | Approvals (S44) | Tasks (S23) | More (S59)
+  // MANAGER: Home (MR Buddy Grid) | Team | Approvals | Tasks | More
   if (role === "MANAGER") {
     return (
       <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="Home" component={AdminHomeScreen} />
+        <Tab.Screen name="Home" component={MrBuddyHomeScreen} />
         <Tab.Screen name="Team" component={MyTeamScreen} />
         <Tab.Screen name="Approvals" component={ApprovalsInboxScreen} />
         <Tab.Screen name="Tasks" component={TasksListScreen} />
@@ -145,10 +100,10 @@ export function RoleTabNavigator() {
     );
   }
 
-  // ADMIN: Home (S48) | Users (S50) | Masters (S54) | Reports (S53, ComingSoon) | More (S59)
+  // ADMIN: Home (MR Buddy Grid) | Users | Masters | Reports | More
   return (
     <Tab.Navigator screenOptions={screenOptions}>
-      <Tab.Screen name="Home" component={AdminHomeScreen} />
+      <Tab.Screen name="Home" component={MrBuddyHomeScreen} />
       <Tab.Screen name="Users" component={UsersListScreen} />
       <Tab.Screen name="Masters" component={AdminMastersScreen} />
       <Tab.Screen name="Reports" component={ReportsCatalogScreen} />

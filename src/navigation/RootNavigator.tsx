@@ -14,6 +14,14 @@ import { AddExpenseScreen } from "../features/expenses/screens/AddExpenseScreen"
 import { LeaveListScreen } from "../features/leaves/screens/LeaveListScreen";
 import { ApplyLeaveScreen } from "../features/leaves/screens/ApplyLeaveScreen";
 import { DcrFormScreen } from "../features/dcr/screens/DcrFormScreen";
+import { DeviationScreen } from "../features/dcr/screens/DeviationScreen";
+import { DoctorVisitScreen } from "../features/dcr/screens/DoctorVisitScreen";
+import { NewDoctorVisitScreen } from "../features/customers/screens/NewDoctorVisitScreen";
+import { ChemistVisitScreen } from "../features/dcr/screens/ChemistVisitScreen";
+import { NewChemistVisitScreen } from "../features/customers/screens/NewChemistVisitScreen";
+import { StockistVisitScreen } from "../features/dcr/screens/StockistVisitScreen";
+import { NewStockistVisitScreen } from "../features/customers/screens/NewStockistVisitScreen";
+import { LiveTrackingScreen } from "../features/tracking/screens/LiveTrackingScreen";
 import { CustomerDetailScreen } from "../features/customers/screens/CustomerDetailScreen";
 import { CustomerFormScreen } from "../features/customers/screens/CustomerFormScreen";
 import { ComingSoonScreen } from "../features/coming_soon/screens/ComingSoonScreen";
@@ -51,6 +59,14 @@ export function RootNavigator() {
             <Stack.Screen name={ROUTES.LeaveList as any} component={LeaveListScreen} />
             <Stack.Screen name={ROUTES.LeaveApply as any} component={ApplyLeaveScreen} />
             <Stack.Screen name={ROUTES.DcrForm as any} component={DcrFormScreen} />
+            <Stack.Screen name={ROUTES.Deviation as any} component={DeviationScreen} />
+            <Stack.Screen name={ROUTES.DoctorVisit as any} component={DoctorVisitScreen} />
+            <Stack.Screen name={ROUTES.NewDoctorVisit as any} component={NewDoctorVisitScreen} />
+            <Stack.Screen name={ROUTES.ChemistVisit as any} component={ChemistVisitScreen} />
+            <Stack.Screen name={ROUTES.NewChemistVisit as any} component={NewChemistVisitScreen} />
+            <Stack.Screen name={ROUTES.StockistVisit as any} component={StockistVisitScreen} />
+            <Stack.Screen name={ROUTES.NewStockistVisit as any} component={NewStockistVisitScreen} />
+            <Stack.Screen name={ROUTES.LiveTracking as any} component={LiveTrackingScreen} />
             <Stack.Screen name={ROUTES.CustomerDetail as any} component={CustomerDetailScreen} />
             <Stack.Screen name={ROUTES.CustomerForm as any} component={CustomerFormScreen} />
             <Stack.Screen name={ROUTES.ComingSoon as any} component={ComingSoonScreen} />

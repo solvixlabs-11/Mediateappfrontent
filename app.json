@@ -17,6 +17,7 @@
     },
     "android": {
       "package": "com.mediatehealthcare.mrapp",
+      "usesCleartextTraffic": true,
       "adaptiveIcon": {
         "backgroundColor": "#12355B",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -31,7 +32,9 @@
     "plugins": [
       "expo-secure-store",
       "expo-sqlite",
-      "expo-sharing"
+      "expo-sharing",
+      "expo-font",
+      "expo-status-bar"
     ]
   }
 }

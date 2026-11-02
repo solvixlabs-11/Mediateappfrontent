@@ -120,6 +120,22 @@ export interface StockistDto {
   created_at: string;
 }
 
+export interface StockistCreateDto {
+  agency_name: string;
+  contact_person?: string;
+  phone?: string;
+  email?: string;
+  dl_number?: string;
+  gstin?: string;
+  address?: string;
+  area_id?: number;
+  territory_id?: number;
+  pincode?: string;
+  latitude?: number;
+  longitude?: number;
+  credit_days?: number;
+}
+
 export interface NearbyCustomerDto {
   id: number;
   customer_type: "DOCTOR" | "CHEMIST" | "STOCKIST" | "HOSPITAL";
@@ -221,6 +237,11 @@ export const customersApi = {
     limit?: number;
   }): Promise<StockistDto[]> => {
     const res = await apiClient.get<StockistDto[]>("/api/v1/customers/stockists", { params });
+    return res.data;
+  },
+
+  createStockist: async (data: StockistCreateDto): Promise<StockistDto> => {
+    const res = await apiClient.post<StockistDto>("/api/v1/customers/stockists", data);
     return res.data;
   },
 

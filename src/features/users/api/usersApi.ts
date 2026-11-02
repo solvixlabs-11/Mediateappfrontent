@@ -30,6 +30,12 @@ export const usersApi = {
     return res.data;
   },
 
+  /** Get dynamic live tracking and GPS telemetry for field MR staff */
+  getLiveTracking: async (): Promise<any[]> => {
+    const res = await apiClient.get<any[]>("/api/v1/users/live-tracking");
+    return res.data;
+  },
+
   /** Get profile of current user with manager info */
   getProfile: async (): Promise<UserDetail> => {
     const res = await apiClient.get<UserDetail>("/api/v1/users/me/profile");

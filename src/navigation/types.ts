@@ -18,6 +18,23 @@ export type RootStackParamList = {
     initialCustomerType?: string;
     initialCustomerId?: number;
   } | undefined;
+  Deviation: undefined;
+  DoctorVisit: {
+    initialPlannedVisitId?: number;
+    initialCustomerId?: number;
+  } | undefined;
+  NewDoctorVisit: undefined;
+  ChemistVisit: {
+    initialPlannedVisitId?: number;
+    initialCustomerId?: number;
+  } | undefined;
+  NewChemistVisit: undefined;
+  StockistVisit: {
+    initialPlannedVisitId?: number;
+    initialCustomerId?: number;
+  } | undefined;
+  NewStockistVisit: undefined;
+  LiveTracking: undefined;
   CustomerDetail: {
     customerType: "DOCTOR" | "CHEMIST" | "HOSPITAL" | "STOCKIST";
     customerId: number;
