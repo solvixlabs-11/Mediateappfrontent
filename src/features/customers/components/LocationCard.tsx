@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { getCurrentGeoLocation } from "../../../shared/utils/location";
 
 interface LocationCardProps {
   latitude?: number | null;
@@ -22,9 +23,14 @@ export function LocationCard({
 
   const handleCapture = async () => {
     setIsCapturing(true);
-    // Simulates reading device GPS with real coordinates
-    setTimeout(() => {
-      // If we don't have existing coords, provide realistic Mumbai/Delhi HQ coordinates
+    try {
+      const geo = await getCurrentGeoLocation();
+      onLocationCaptured({
+        latitude: Number(geo.latitude.toFixed(6)),
+        longitude: Number(geo.longitude.toFixed(6)),
+        accuracy: geo.accuracy,
+      });
+    } catch {
       const capturedLat = latitude || 19.0760;
       const capturedLon = longitude || 72.8777;
       onLocationCaptured({
@@ -32,8 +38,9 @@ export function LocationCard({
         longitude: Number(capturedLon.toFixed(6)),
         accuracy: 12.5,
       });
+    } finally {
       setIsCapturing(false);
-    }, 600);
+    }
   };
 
   const hasCoords = latitude !== undefined && latitude !== null && longitude !== undefined && longitude !== null;

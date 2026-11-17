@@ -6,12 +6,12 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
-  StatusBar as RNStatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -318,7 +318,7 @@ export function MrBuddyHomeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <RNStatusBar barStyle="light-content" backgroundColor="#DC2626" />
+      <StatusBar style="light" />
 
       {/* Top Red Header Bar */}
       <View style={styles.headerBar}>

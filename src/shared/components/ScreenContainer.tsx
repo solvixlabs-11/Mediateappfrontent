@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
-import { StatusBar, StyleSheet, View, ViewProps } from "react-native";
+import { StyleSheet, View, ViewProps } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { colors, spacing } from "../theme/tokens";
 
@@ -15,7 +16,7 @@ export const ScreenContainer: React.FC<ScreenContainerProps> = ({
 }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <StatusBar style="dark" />
       <View style={[styles.container, style]} {...rest}>
         {children}
       </View>

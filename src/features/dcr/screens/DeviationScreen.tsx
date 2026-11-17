@@ -5,13 +5,13 @@ import {
   FlatList,
   Modal,
   ScrollView,
-  StatusBar as RNStatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -54,72 +54,30 @@ export function DeviationScreen() {
     territoriesApi
       .listTerritories({ limit: 50 })
       .then((terr) => {
-        if (terr.length > 0) {
-          setRoutes(terr);
-        } else {
-          setRoutes([
-            { id: 1, name: "ROUTE 01 - BHUJ CENTRAL", code: "R01", headquarters: "Bhuj", is_active: true, areas: [], created_at: "" },
-            { id: 2, name: "ROUTE 02 - AHMEDABAD WEST", code: "R02", headquarters: "Ahmedabad", is_active: true, areas: [], created_at: "" },
-            { id: 3, name: "ROUTE 03 - PUNE CENTRAL", code: "R03", headquarters: "Pune", is_active: true, areas: [], created_at: "" },
-            { id: 4, name: "ROUTE 04 - MUMBAI SOUTH", code: "R04", headquarters: "Mumbai", is_active: true, areas: [], created_at: "" },
-          ]);
-        }
+        setRoutes(terr || []);
       })
       .catch(() => {
-        setRoutes([
-          { id: 1, name: "ROUTE 01 - BHUJ CENTRAL", code: "R01", headquarters: "Bhuj", is_active: true, areas: [], created_at: "" },
-          { id: 2, name: "ROUTE 02 - AHMEDABAD WEST", code: "R02", headquarters: "Ahmedabad", is_active: true, areas: [], created_at: "" },
-          { id: 3, name: "ROUTE 03 - PUNE CENTRAL", code: "R03", headquarters: "Pune", is_active: true, areas: [], created_at: "" },
-          { id: 4, name: "ROUTE 04 - MUMBAI SOUTH", code: "R04", headquarters: "Mumbai", is_active: true, areas: [], created_at: "" },
-        ]);
+        setRoutes([]);
       });
 
     // 2. Load Cities
     mastersApi
       .getCities()
       .then((cList) => {
-        if (cList.length > 0) {
-          setCities(cList);
-        } else {
-          setCities([
-            { id: 1, state_id: 1, code: "BHUJ", name: "Bhuj", is_active: true },
-            { id: 2, state_id: 1, code: "AHM", name: "Ahmedabad", is_active: true },
-            { id: 3, state_id: 2, code: "PUN", name: "Pune", is_active: true },
-            { id: 4, state_id: 2, code: "MUM", name: "Mumbai", is_active: true },
-          ]);
-        }
+        setCities(cList || []);
       })
       .catch(() => {
-        setCities([
-          { id: 1, state_id: 1, code: "BHUJ", name: "Bhuj", is_active: true },
-          { id: 2, state_id: 1, code: "AHM", name: "Ahmedabad", is_active: true },
-          { id: 3, state_id: 2, code: "PUN", name: "Pune", is_active: true },
-          { id: 4, state_id: 2, code: "MUM", name: "Mumbai", is_active: true },
-        ]);
+        setCities([]);
       });
 
     // 3. Load Areas
     mastersApi
       .getAreas()
       .then((aList) => {
-        if (aList.length > 0) {
-          setAreas(aList);
-        } else {
-          setAreas([
-            { id: 1, city_id: 1, name: "Chanakyapuri", is_active: true },
-            { id: 2, city_id: 1, name: "Station Road", is_active: true },
-            { id: 3, city_id: 2, name: "Camp Area", is_active: true },
-            { id: 4, city_id: 2, name: "Civil Hospital Road", is_active: true },
-          ]);
-        }
+        setAreas(aList || []);
       })
       .catch(() => {
-        setAreas([
-          { id: 1, city_id: 1, name: "Chanakyapuri", is_active: true },
-          { id: 2, city_id: 1, name: "Station Road", is_active: true },
-          { id: 3, city_id: 2, name: "Camp Area", is_active: true },
-          { id: 4, city_id: 2, name: "Civil Hospital Road", is_active: true },
-        ]);
+        setAreas([]);
       });
   }, []);
 
@@ -137,15 +95,11 @@ export function DeviationScreen() {
       return;
     }
 
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      Alert.alert(
-        "Deviation Saved 🎉",
-        `Deviation for ${selectedRoute.name} (${selectedCity.name} - ${selectedArea.name}) has been authorized for ${date}.`,
-        [{ text: "OK", onPress: () => navigation.goBack() }]
-      );
-    }, 500);
+    Alert.alert(
+      "Deviation Logged",
+      `Route deviation for ${selectedRoute.name} (${selectedCity.name} - ${selectedArea.name}) on ${date} recorded locally. Manager authorization endpoint pending backend activation.`,
+      [{ text: "OK", onPress: () => navigation.goBack() }]
+    );
   };
 
   const filteredRoutes = routes.filter((r) =>
@@ -162,7 +116,7 @@ export function DeviationScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <RNStatusBar barStyle="light-content" backgroundColor="#1E293B" />
+      <StatusBar style="light" />
 
       {/* Header */}
       <View style={styles.header}>

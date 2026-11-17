@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   FlatList,
   Modal,
@@ -11,6 +12,8 @@ import {
   View,
 } from "react-native";
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import { productsApi } from "../../products/api/productsApi";
+import { usersApi } from "../../users/api/usersApi";
 
 interface GenericModalProps {
   visible: boolean;
@@ -219,12 +222,21 @@ export function SecondarySalesModal({ visible, onClose }: GenericModalProps) {
 
 // 4. Sample Receive Modal
 export function SampleReceiveModal({ visible, onClose }: GenericModalProps) {
-  const samples = [
-    { id: "1", name: "Med-Azith 500 Tab", batch: "BA-2401", qty: 50, status: "Received" },
-    { id: "2", name: "Med-Pantop DSR Cap", batch: "BP-2409", qty: 100, status: "Pending Ack" },
-    { id: "3", name: "Med-Cough Syrup 100ml", batch: "BC-2411", qty: 25, status: "Received" },
-    { id: "4", name: "Med-Cal Forte Tab", batch: "BF-2403", qty: 60, status: "Pending Ack" },
-  ];
+  const [samples, setSamples] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setIsLoading(true);
+      productsApi
+        .list({ limit: 20 })
+        .then((items) => {
+          setSamples(items || []);
+        })
+        .catch(() => setSamples([]))
+        .finally(() => setIsLoading(false));
+    }
+  }, [visible]);
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -240,26 +252,43 @@ export function SampleReceiveModal({ visible, onClose }: GenericModalProps) {
             </TouchableOpacity>
           </View>
 
-          <FlatList
-            data={samples}
-            keyExtractor={(it) => it.id}
-            renderItem={({ item }) => (
-              <View style={styles.sampleItem}>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.sampleName}>{item.name}</Text>
-                  <Text style={styles.sampleBatch}>Batch: {item.batch} | Qty: {item.qty} pcs</Text>
+          {isLoading ? (
+            <View style={{ padding: 30, alignItems: "center" }}>
+              <ActivityIndicator size="small" color="#0D9488" />
+              <Text style={{ marginTop: 8, fontSize: 13, color: "#64748B" }}>Loading field samples...</Text>
+            </View>
+          ) : samples.length === 0 ? (
+            <View style={{ padding: 24, alignItems: "center" }}>
+              <Ionicons name="cube-outline" size={32} color="#94A3B8" />
+              <Text style={{ fontSize: 14, fontWeight: "600", color: "#334155", marginTop: 8 }}>
+                No Samples Logged
+              </Text>
+              <Text style={{ fontSize: 12, color: "#94A3B8", marginTop: 4, textAlign: "center" }}>
+                No active promotional product samples are currently checked out to your territory.
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={samples}
+              keyExtractor={(it) => String(it.id)}
+              renderItem={({ item }) => (
+                <View style={styles.sampleItem}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.sampleName}>{item.name}</Text>
+                    <Text style={styles.sampleBatch}>Code: {item.code} | MRP: ₹{item.mrp || 0}</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={[styles.ackBtn, styles.ackBtnActive]}
+                    onPress={() => {
+                      Alert.alert("Sample Logged", `Receipt for ${item.name} recorded into field stock.`);
+                    }}
+                  >
+                    <Text style={styles.ackBtnText}>Acknowledge</Text>
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                  style={[styles.ackBtn, item.status === "Received" ? styles.ackBtnDisabled : styles.ackBtnActive]}
-                  onPress={() => {
-                    Alert.alert("Sample Acknowledged", `Receipt for ${item.name} recorded into field stock.`);
-                  }}
-                >
-                  <Text style={styles.ackBtnText}>{item.status === "Received" ? "Verified" : "Acknowledge"}</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          />
+              )}
+            />
+          )}
         </View>
       </View>
     </Modal>
@@ -268,13 +297,6 @@ export function SampleReceiveModal({ visible, onClose }: GenericModalProps) {
 
 // 5. Doctor Business Modal
 export function DoctorBusinessModal({ visible, onClose }: GenericModalProps) {
-  const doctorMetrics = [
-    { name: "Dr. Rajesh Sharma (Cardio)", target: "₹ 50,000", achieved: "₹ 48,200", pct: "96%" },
-    { name: "Dr. Ananya Iyer (Pediatrics)", target: "₹ 35,000", achieved: "₹ 38,500", pct: "110%" },
-    { name: "Dr. Vikram Seth (Orthopedics)", target: "₹ 40,000", achieved: "₹ 31,000", pct: "77%" },
-    { name: "Dr. Sneha Patil (Gynecology)", target: "₹ 45,000", achieved: "₹ 44,100", pct: "98%" },
-  ];
-
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -289,22 +311,15 @@ export function DoctorBusinessModal({ visible, onClose }: GenericModalProps) {
             </TouchableOpacity>
           </View>
 
-          <FlatList
-            data={doctorMetrics}
-            keyExtractor={(it) => it.name}
-            renderItem={({ item }) => (
-              <View style={styles.docBizCard}>
-                <Text style={styles.docBizName}>{item.name}</Text>
-                <View style={styles.docBizRow}>
-                  <Text style={styles.docBizStat}>Target: <Text style={{ fontWeight: "700" }}>{item.target}</Text></Text>
-                  <Text style={styles.docBizStat}>Actual: <Text style={{ fontWeight: "700", color: "#16A34A" }}>{item.achieved}</Text></Text>
-                  <View style={styles.pctBadge}>
-                    <Text style={styles.pctText}>{item.pct}</Text>
-                  </View>
-                </View>
-              </View>
-            )}
-          />
+          <View style={{ padding: 24, alignItems: "center" }}>
+            <Ionicons name="analytics-outline" size={36} color="#94A3B8" />
+            <Text style={{ fontSize: 15, fontWeight: "600", color: "#334155", marginTop: 12 }}>
+              Doctor Sales Tracking
+            </Text>
+            <Text style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginTop: 6, lineHeight: 18 }}>
+              Individual doctor business tracking is being connected to the ERP billing stream. Aggregate team POB and primary order targets are visible in the Reports section.
+            </Text>
+          </View>
         </View>
       </View>
     </Modal>
@@ -313,13 +328,6 @@ export function DoctorBusinessModal({ visible, onClose }: GenericModalProps) {
 
 // 6. Induction & Training Modal
 export function InductionModal({ visible, onClose }: GenericModalProps) {
-  const modules = [
-    { title: "Mediate Brand Portfolio 2026", duration: "15 mins", type: "Product Detailing" },
-    { title: "Standard Field Work Guidelines", duration: "10 mins", type: "SOP" },
-    { title: "DCR Call Recording & Compliance", duration: "8 mins", type: "Tutorial" },
-    { title: "Doctor Coverage & Target Frequency", duration: "12 mins", type: "Best Practice" },
-  ];
-
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <View style={styles.overlay}>
@@ -334,23 +342,15 @@ export function InductionModal({ visible, onClose }: GenericModalProps) {
             </TouchableOpacity>
           </View>
 
-          <FlatList
-            data={modules}
-            keyExtractor={(it) => it.title}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.moduleCard}
-                onPress={() => Alert.alert("Training Module", `Launching "${item.title}". Visual detailing slides ready.`)}
-              >
-                <Ionicons name="play-circle" size={32} color="#DC2626" />
-                <View style={{ flex: 1, marginLeft: 10 }}>
-                  <Text style={styles.moduleTitle}>{item.title}</Text>
-                  <Text style={styles.moduleSubtitle}>{item.type} • {item.duration}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
-              </TouchableOpacity>
-            )}
-          />
+          <View style={{ padding: 24, alignItems: "center" }}>
+            <Ionicons name="school-outline" size={36} color="#94A3B8" />
+            <Text style={{ fontSize: 15, fontWeight: "600", color: "#334155", marginTop: 12 }}>
+              Field Induction Materials
+            </Text>
+            <Text style={{ fontSize: 13, color: "#64748B", textAlign: "center", marginTop: 6, lineHeight: 18 }}>
+              Product detailing visual aids and clinical presentations are available under the Products tab. Field induction modules will be published by your training manager.
+            </Text>
+          </View>
         </View>
       </View>
     </Modal>
@@ -471,12 +471,21 @@ export function SMSBroadcastModal({ visible, onClose }: GenericModalProps) {
 
 // 9. Employee Live Tracker Modal
 export function EmployeeLiveTrackerModal({ visible, onClose }: GenericModalProps) {
-  const reps = [
-    { name: "Rahul Deshmukh", territory: "Pune Central", status: "Visiting Dr. Joshi", time: "10 mins ago", color: "#16A34A" },
-    { name: "Amit Kumar", territory: "Mumbai South", status: "In Transit (Route 4)", time: "Just now", color: "#2563EB" },
-    { name: "Pooja Verma", territory: "Nagpur East", status: "Chemist Call (Apollo)", time: "25 mins ago", color: "#16A34A" },
-    { name: "Suresh Patil", territory: "Delhi NCR", status: "Checked In (Headquarters)", time: "1 hr ago", color: "#D97706" },
-  ];
+  const [reps, setReps] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (visible) {
+      setIsLoading(true);
+      usersApi
+        .getLiveTracking()
+        .then((items) => {
+          setReps(items || []);
+        })
+        .catch(() => setReps([]))
+        .finally(() => setIsLoading(false));
+    }
+  }, [visible]);
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
@@ -492,20 +501,37 @@ export function EmployeeLiveTrackerModal({ visible, onClose }: GenericModalProps
             </TouchableOpacity>
           </View>
 
-          <FlatList
-            data={reps}
-            keyExtractor={(it) => it.name}
-            renderItem={({ item }) => (
-              <View style={styles.repCard}>
-                <View style={[styles.statusDot, { backgroundColor: item.color }]} />
-                <View style={{ flex: 1, marginLeft: 10 }}>
-                  <Text style={styles.repName}>{item.name}</Text>
-                  <Text style={styles.repTerritory}>{item.territory} • {item.status}</Text>
+          {isLoading ? (
+            <View style={{ padding: 30, alignItems: "center" }}>
+              <ActivityIndicator size="small" color="#0D9488" />
+              <Text style={{ marginTop: 8, fontSize: 13, color: "#64748B" }}>Connecting to GPS tracking...</Text>
+            </View>
+          ) : reps.length === 0 ? (
+            <View style={{ padding: 24, alignItems: "center" }}>
+              <Ionicons name="map-outline" size={32} color="#94A3B8" />
+              <Text style={{ fontSize: 14, fontWeight: "600", color: "#334155", marginTop: 8 }}>
+                No Active Representatives
+              </Text>
+              <Text style={{ fontSize: 12, color: "#94A3B8", marginTop: 4, textAlign: "center" }}>
+                No field representatives are currently checked in or transmitting active telemetry.
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              data={reps}
+              keyExtractor={(it) => String(it.id || it.name)}
+              renderItem={({ item }) => (
+                <View style={styles.repCard}>
+                  <View style={[styles.statusDot, { backgroundColor: item.status?.includes("CHECK") ? "#16A34A" : "#2563EB" }]} />
+                  <View style={{ flex: 1, marginLeft: 10 }}>
+                    <Text style={styles.repName}>{item.name}</Text>
+                    <Text style={styles.repTerritory}>{item.hq || "Field"} • {item.status || "Active"}</Text>
+                  </View>
+                  <Text style={styles.repTime}>{item.last_updated ? "Live" : "Recent"}</Text>
                 </View>
-                <Text style={styles.repTime}>{item.time}</Text>
-              </View>
-            )}
-          />
+              )}
+            />
+          )}
         </View>
       </View>
     </Modal>

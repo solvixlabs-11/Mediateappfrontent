@@ -6,22 +6,25 @@ import {
   Image,
   Modal,
   ScrollView,
-  StatusBar as RNStatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { StockistDto, customersApi } from "../../customers/api/customersApi";
 import { usersApi } from "../../users/api/usersApi";
+import { mastersApi } from "../../masters/api/mastersApi";
 import { dcrApi } from "../api/dcrApi";
 import { getCurrentGeoLocation } from "../../../shared/utils/location";
 import { RootStackParamList } from "../../../navigation/types";
+import { CompanionSearchModal } from "../components/CompanionSearchModal";
+import { StockistSearchModal } from "../components/StockistSearchModal";
 
 interface VisitTypeDef {
   key: string;
@@ -59,8 +62,6 @@ interface CompanionUser {
   hq: string;
 }
 
-const DIVISIONS = ["MEDIATE", "MEDIATE HEALTHCARE", "MEDIATE CARDIOLOGY", "MEDIATE DERMA"];
-
 export function StockistVisitScreen() {
   const navigation = useNavigation();
   const route = useRoute<RouteProp<RootStackParamList, "DcrForm">>();
@@ -86,6 +87,7 @@ export function StockistVisitScreen() {
 
   // Division State
   const [division, setDivision] = useState<string>("MEDIATE");
+  const [divisionsList, setDivisionsList] = useState<string[]>(["MEDIATE", "MEDIATE HEALTHCARE"]);
   const [isDivisionPickerOpen, setIsDivisionPickerOpen] = useState(false);
 
   // Stockist State (Initially null/empty)
@@ -139,23 +141,21 @@ export function StockistVisitScreen() {
           role: "AREA MANAGER",
           hq: "AHMEDABAD HQ",
         }));
-        if (mapped.length > 0) {
-          setAvailableCompanions(mapped);
-        } else {
-          setAvailableCompanions([
-            { id: 101, name: "ANURAG MISHRA", role: "AREA MANAGER", hq: "ARBH (AHMEDABAD HQ)" },
-            { id: 102, name: "SANJAY GUPTA", role: "REGIONAL MANAGER", hq: "GUJARAT HQ" },
-            { id: 103, name: "RAJESH VERMA", role: "ZONAL MANAGER", hq: "WEST ZONE" },
-          ]);
-        }
+        setAvailableCompanions(mapped);
       })
       .catch(() => {
-        setAvailableCompanions([
-          { id: 101, name: "ANURAG MISHRA", role: "AREA MANAGER", hq: "ARBH (AHMEDABAD HQ)" },
-          { id: 102, name: "SANJAY GUPTA", role: "REGIONAL MANAGER", hq: "GUJARAT HQ" },
-          { id: 103, name: "RAJESH VERMA", role: "ZONAL MANAGER", hq: "WEST ZONE" },
-        ]);
+        setAvailableCompanions([]);
       });
+
+    // 2b. Fetch Divisions dynamically from Masters
+    mastersApi
+      .listItems("DIVISION")
+      .then((items) => {
+        if (items && items.length > 0) {
+          setDivisionsList(items.map((i) => i.name));
+        }
+      })
+      .catch(() => {});
 
     // 3. Fetch GPS
     getCurrentGeoLocation().then((loc) => {
@@ -258,7 +258,7 @@ export function StockistVisitScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <RNStatusBar barStyle="light-content" backgroundColor="#1E293B" />
+      <StatusBar style="light" />
 
       {/* Top Header Bar */}
       <View style={styles.header}>
@@ -602,54 +602,17 @@ export function StockistVisitScreen() {
       </View>
 
       {/* 1. Working With Companion Picker Modal */}
-      <Modal visible={isWorkingWithPickerOpen} transparent animationType="fade">
-        <View style={styles.modalBackdrop}>
-          <View style={styles.pickerCard}>
-            <View style={styles.pickerHeader}>
-              <Text style={styles.pickerTitle}>Select Working Companion</Text>
-              <TouchableOpacity onPress={() => setIsWorkingWithPickerOpen(false)}>
-                <Ionicons name="close" size={24} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.searchBar}>
-              <Ionicons name="search" size={18} color="#94A3B8" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search colleague or manager..."
-                value={workingWithSearch}
-                onChangeText={setWorkingWithSearch}
-              />
-            </View>
-
-            <FlatList
-              data={filteredCompanions}
-              keyExtractor={(item) => item.id.toString()}
-              style={{ maxHeight: 340 }}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.itemRow}
-                  onPress={() => {
-                    setWorkingWith(item);
-                    setIsWorkingWithPickerOpen(false);
-                  }}
-                >
-                  <View style={styles.avatarMini}>
-                    <FontAwesome5 name="user-tie" size={16} color="#1B64DA" />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemSub}>
-                      {item.role} • {item.hq}
-                    </Text>
-                  </View>
-                  <Ionicons name="add-circle" size={22} color="#1B64DA" />
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </View>
-      </Modal>
+      <CompanionSearchModal
+        visible={isWorkingWithPickerOpen}
+        companions={filteredCompanions}
+        searchQuery={workingWithSearch}
+        onSearchChange={setWorkingWithSearch}
+        onSelect={(item) => {
+          setWorkingWith(item);
+          setIsWorkingWithPickerOpen(false);
+        }}
+        onClose={() => setIsWorkingWithPickerOpen(false)}
+      />
 
       {/* 2. Division Picker Modal */}
       <Modal visible={isDivisionPickerOpen} transparent animationType="fade">
@@ -662,7 +625,7 @@ export function StockistVisitScreen() {
               </TouchableOpacity>
             </View>
 
-            {DIVISIONS.map((div) => (
+            {divisionsList.map((div) => (
               <TouchableOpacity
                 key={div}
                 style={styles.itemRow}
@@ -689,54 +652,17 @@ export function StockistVisitScreen() {
       </Modal>
 
       {/* 3. Searchable Stockist Picker Modal */}
-      <Modal visible={isStockistPickerOpen} transparent animationType="fade">
-        <View style={styles.modalBackdrop}>
-          <View style={styles.pickerCard}>
-            <View style={styles.pickerHeader}>
-              <Text style={styles.pickerTitle}>Select Stockist Agency</Text>
-              <TouchableOpacity onPress={() => setIsStockistPickerOpen(false)}>
-                <Ionicons name="close" size={24} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.searchBar}>
-              <Ionicons name="search" size={18} color="#94A3B8" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search stockist or agency name..."
-                value={stockistSearchQuery}
-                onChangeText={setStockistSearchQuery}
-              />
-            </View>
-
-            <FlatList
-              data={filteredStockists}
-              keyExtractor={(item) => item.id.toString()}
-              style={{ maxHeight: 360 }}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.itemRow}
-                  onPress={() => {
-                    setSelectedStockist(item);
-                    setIsStockistPickerOpen(false);
-                  }}
-                >
-                  <View style={styles.avatarMini}>
-                    <MaterialCommunityIcons name="truck-delivery" size={16} color="#1B64DA" />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.itemName}>{item.agency_name.toUpperCase()}</Text>
-                    <Text style={styles.itemSub}>
-                      {item.contact_person || "Stockist"} • {item.address || "Agency Office"}
-                    </Text>
-                  </View>
-                  <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </View>
-      </Modal>
+      <StockistSearchModal
+        visible={isStockistPickerOpen}
+        stockists={filteredStockists}
+        searchQuery={stockistSearchQuery}
+        onSearchChange={setStockistSearchQuery}
+        onSelect={(item) => {
+          setSelectedStockist(item);
+          setIsStockistPickerOpen(false);
+        }}
+        onClose={() => setIsStockistPickerOpen(false)}
+      />
     </SafeAreaView>
   );
 }

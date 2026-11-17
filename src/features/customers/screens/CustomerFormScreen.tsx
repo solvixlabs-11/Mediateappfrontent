@@ -150,7 +150,7 @@ export function CustomerFormScreen() {
             style={styles.input}
             placeholder={
               customerType === "DOCTOR"
-                ? "e.g. Dr. Rajesh Sharma"
+                ? "e.g. Dr. Full Name"
                 : customerType === "CHEMIST"
                 ? "e.g. Apollo Pharmacy"
                 : "e.g. City General Hospital"

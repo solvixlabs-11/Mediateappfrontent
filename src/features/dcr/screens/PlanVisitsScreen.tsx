@@ -140,7 +140,7 @@ export function PlanVisitsScreen() {
 
       <FlatList
         data={[]}
-        renderItem={null}
+        renderItem={() => null}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

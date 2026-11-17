@@ -350,7 +350,7 @@ export function UsersListScreen() {
             <ScrollView showsVerticalScrollIndicator={false}>
               <Input
                 label="Full Name"
-                placeholder="e.g. Rahul Sharma"
+                placeholder="e.g. Employee Full Name"
                 value={newName}
                 onChangeText={setNewName}
               />

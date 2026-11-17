@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   Modal,
   StyleSheet,
@@ -9,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { territoriesApi } from "../../territories/api/territoriesApi";
 
 interface ChangeTerritoryModalProps {
   visible: boolean;
@@ -17,21 +19,6 @@ interface ChangeTerritoryModalProps {
   onSelectTerritory: (territory: string) => void;
 }
 
-const DEFAULT_TERRITORIES = [
-  "ALL INDIA P",
-  "PUNE CENTRAL",
-  "PUNE EAST",
-  "MUMBAI SOUTH",
-  "MUMBAI SUBURBAN",
-  "NAGPUR METRO",
-  "DELHI NCR",
-  "BANGALORE URBAN",
-  "HYDERABAD CENTRAL",
-  "AHMEDABAD WEST",
-  "KOLKATA METRO",
-  "CHENNAI CENTRAL",
-];
-
 export function ChangeTerritoryModal({
   visible,
   onClose,
@@ -39,8 +26,31 @@ export function ChangeTerritoryModal({
   onSelectTerritory,
 }: ChangeTerritoryModalProps) {
   const [search, setSearch] = useState("");
+  const [territories, setTerritories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const filtered = DEFAULT_TERRITORIES.filter((t) =>
+  useEffect(() => {
+    if (visible) {
+      setIsLoading(true);
+      territoriesApi
+        .getMyTerritories()
+        .then((res) => {
+          if (res && res.length > 0) {
+            setTerritories(res.map((t) => t.name));
+          } else {
+            return territoriesApi.listTerritories({ limit: 50 }).then((all) => {
+              setTerritories((all || []).map((t) => t.name));
+            });
+          }
+        })
+        .catch(() => {
+          setTerritories([]);
+        })
+        .finally(() => setIsLoading(false));
+    }
+  }, [visible]);
+
+  const filtered = territories.filter((t) =>
     t.toLowerCase().includes(search.toLowerCase().trim())
   );
 
@@ -78,6 +88,18 @@ export function ChangeTerritoryModal({
             data={filtered}
             keyExtractor={(item) => item}
             style={styles.list}
+            ListEmptyComponent={
+              isLoading ? (
+                <View style={{ padding: 24, alignItems: "center" }}>
+                  <ActivityIndicator size="small" color="#DC2626" />
+                  <Text style={{ marginTop: 8, fontSize: 13, color: "#64748B" }}>Loading assigned territories...</Text>
+                </View>
+              ) : (
+                <View style={{ padding: 24, alignItems: "center" }}>
+                  <Text style={{ fontSize: 13, color: "#94A3B8" }}>No matching territories found</Text>
+                </View>
+              )
+            }
             renderItem={({ item }) => {
               const isSelected = item === currentTerritory;
               return (

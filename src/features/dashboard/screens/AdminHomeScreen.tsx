@@ -6,13 +6,13 @@ import {
   Image,
   RefreshControl,
   ScrollView,
-  StatusBar as RNStatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
@@ -27,6 +27,7 @@ import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
 import { NotificationsModal } from "../../notifications/screens/NotificationsScreen";
+import { formatTimeIST } from "../../../shared/utils/date";
 
 type FilterStatus = "ALL" | "VISITING" | "CHECKED_IN" | "IDLE" | "NOT_CHECKED_IN" | "ON_LEAVE";
 
@@ -473,12 +474,7 @@ export function AdminHomeScreen() {
                 <>
                   <Text style={styles.bulletDot}>•</Text>
                   <Text style={styles.checkInTime}>
-                    In:{" "}
-                    {new Date(item.check_in_time).toLocaleTimeString("en-US", {
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
+                    In: {formatTimeIST(item.check_in_time)}
                   </Text>
                 </>
               )}
@@ -566,7 +562,7 @@ export function AdminHomeScreen() {
                 onPress={() =>
                   Alert.alert(
                     `${item.mr_name} - Field Attendance Details 📍`,
-                    `Status: ${getStatusLabel(item.status)}\nCheck-In Time: ${item.check_in_time ? new Date(item.check_in_time).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true }) : "N/A"}\nLocation: ${item.last_activity_text || "Field Operations"}\nGPS Lat: ${item.latitude?.toFixed(5)}\nGPS Lng: ${item.longitude?.toFixed(5)}\nGPS Status: ${item.is_verified ? "Verified Accurate GPS" : "Unverified"}`
+                    `Status: ${getStatusLabel(item.status)}\nCheck-In Time: ${item.check_in_time ? formatTimeIST(item.check_in_time) : "N/A"}\nLocation: ${item.last_activity_text || "Field Operations"}\nGPS Lat: ${item.latitude?.toFixed(5)}\nGPS Lng: ${item.longitude?.toFixed(5)}\nGPS Status: ${item.is_verified ? "Verified Accurate GPS" : "Unverified"}`
                   )
                 }
               >
@@ -591,7 +587,7 @@ export function AdminHomeScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <RNStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar style="dark" />
 
       {isLoading && !isRefreshing ? (
         <View style={styles.loadingContainer}>

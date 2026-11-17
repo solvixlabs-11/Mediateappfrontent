@@ -304,6 +304,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/live-tracking": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get live telemetry and coordinates for all active field staff
+         * @description Fetch active field MRs with real-time GPS locations and punch status.
+         */
+        get: operations["get_live_tracking_data_api_v1_users_live_tracking_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/users/me/profile": {
         parameters: {
             query?: never;
@@ -3346,6 +3366,42 @@ export interface components {
             not_checked_in_count: number;
         };
         /**
+         * LiveTrackingCoordinates
+         * @description Latitude and Longitude GPS pair.
+         */
+        LiveTrackingCoordinates: {
+            /** Latitude */
+            latitude: number;
+            /** Longitude */
+            longitude: number;
+        };
+        /**
+         * LiveTrackingItem
+         * @description Real-time live telemetry item for MR staff.
+         */
+        LiveTrackingItem: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Hq */
+            hq: string;
+            /** Avatar Url */
+            avatar_url?: string | null;
+            /** Status */
+            status: string;
+            /** Address */
+            address: string;
+            coordinates: components["schemas"]["LiveTrackingCoordinates"];
+            /** Last Updated */
+            last_updated: string;
+            /**
+             * Route History
+             * @default []
+             */
+            route_history: components["schemas"]["LiveTrackingCoordinates"][];
+        };
+        /**
          * LoginRequest
          * @description User credentials for standard email/password authentication.
          */
@@ -5655,6 +5711,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserResponse"][];
+                };
+            };
+        };
+    };
+    get_live_tracking_data_api_v1_users_live_tracking_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LiveTrackingItem"][];
                 };
             };
         };

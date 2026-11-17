@@ -7,12 +7,12 @@ import {
   Platform,
   RefreshControl,
   ScrollView,
-  StatusBar as RNStatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../../auth/store";
@@ -22,10 +22,16 @@ import { useFocusEffect } from "@react-navigation/native";
 import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing } from "../../../shared/theme/tokens";
 import { getCurrentGeoLocation } from "../../../shared/utils/location";
+import { formatDateIST, formatTimeIST } from "../../../shared/utils/date";
+import { useHealthCheck } from "../../../shared/hooks/useHealthCheck";
 import { NotificationsModal } from "../../notifications/screens/NotificationsScreen";
 import { notificationsApi } from "../../notifications/api/notificationsApi";
 import { ProductsCatalogScreen } from "../../products/screens/ProductsCatalogScreen";
 import { OrdersScreen } from "../../orders/screens/OrdersScreen";
+import { MrWelcomeHeroCard } from "../components/MrWelcomeHeroCard";
+import { MrAttendancePunchCard } from "../components/MrAttendancePunchCard";
+import { MrDailyVisitTargetCard } from "../components/MrDailyVisitTargetCard";
+import { MrQuickActionsGrid } from "../components/MrQuickActionsGrid";
 
 interface MrDashboardScreenProps {
   navigation?: any;
@@ -193,37 +199,24 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
     actionCallback();
   };
 
-  // Format dynamic dates
-  const todayFormatted = new Date().toLocaleDateString("en-US", {
-    weekday: "long",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
+  const { isOnline } = useHealthCheck();
+
+  // Format dynamic dates using standard Asia/Kolkata timezone
+  const todayFormatted = formatDateIST(new Date());
 
   const checkInTimeFormatted = attendance?.check_in_time
-    ? new Date(attendance.check_in_time).toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true,
-      })
+    ? formatTimeIST(attendance.check_in_time)
     : null;
 
   // KPIs
-  const totalPlanned = summary?.planned_calls_count ?? 6;
-  const totalCompleted = summary?.total_calls ?? 4;
+  const totalPlanned = summary?.planned_calls_count ?? 0;
+  const totalCompleted = summary?.total_calls ?? 0;
   const totalPending = Math.max(0, totalPlanned - totalCompleted);
   const donePercent = totalPlanned > 0 ? Math.round((totalCompleted / totalPlanned) * 100) : 0;
 
-  // Next Up Visit Details (fallback to demo doctor if no active plan in DB)
-  const nextDocName = nextVisit?.customer_name || "Dr. Anand Deshmukh, M.D.";
-  const nextDocSpecialty = "Cardiology";
-  const nextDocClinic = "Apex Heart & Chest Clinic, Dadar (W)";
-  const nextDocPhone = "+919820012345";
-
   return (
     <SafeAreaView style={styles.safeArea} edges={["top"]}>
-      <RNStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar style="dark" />
 
       {/* Top App Bar Header with Mediate Logo & MR Role Badge */}
       <View style={styles.topAppBar}>
@@ -239,9 +232,11 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
         </View>
 
         <View style={styles.topRightActions}>
-          <View style={styles.onlinePill}>
-            <View style={styles.onlineDot} />
-            <Text style={styles.onlinePillText}>Online</Text>
+          <View style={[styles.onlinePill, !isOnline && { backgroundColor: "#FEE2E2", borderColor: "#FECACA" }]}>
+            <View style={[styles.onlineDot, !isOnline && { backgroundColor: "#DC2626" }]} />
+            <Text style={[styles.onlinePillText, !isOnline && { color: "#B91C1C" }]}>
+              {isOnline ? "Online" : "Offline"}
+            </Text>
           </View>
 
           <TouchableOpacity
@@ -285,490 +280,42 @@ export function MrDashboardScreen({ navigation }: MrDashboardScreenProps) {
         showsVerticalScrollIndicator={false}
       >
         {/* Welcome & Context Hero Card */}
-        <View style={styles.welcomeHeroCard}>
-          <View style={styles.welcomeHeroTop}>
-            <View style={styles.welcomeNameCol}>
-              <Text style={styles.welcomeSubTitle}>Good morning,</Text>
-              <Text style={styles.welcomeTitle} numberOfLines={1}>
-                {user?.fullName || "Field Representative"}
-              </Text>
-            </View>
-
-            <View style={styles.hqBadge}>
-              <Ionicons name="location" size={12} color="#0D5C46" />
-              <Text style={styles.hqBadgeText}>Mumbai Central HQ</Text>
-            </View>
-          </View>
-
-          <View style={styles.heroCardDivider} />
-
-          <View style={styles.welcomeHeroBottom}>
-            <View style={styles.dateRow}>
-              <Ionicons name="calendar-outline" size={13} color="#64748B" />
-              <Text style={styles.dateSubtext}>{todayFormatted}</Text>
-            </View>
-
-            <View style={styles.alertsContainer}>
-              <TouchableOpacity
-                style={styles.expenseAlertPill}
-                activeOpacity={0.8}
-                onPress={() => {
-                  requirePunchIn(() => {
-                    if (navigation) navigation.navigate(ROUTES.ExpenseList);
-                  });
-                }}
-              >
-                <Ionicons name="alert-circle-outline" size={12} color="#B91C1C" />
-                <Text style={styles.expenseAlertText}>Expense Claims</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.followupAlertPill}
-                activeOpacity={0.8}
-                onPress={() => {
-                  requirePunchIn(() => {
-                    if (navigation) navigation.navigate("Plan");
-                  });
-                }}
-              >
-                <Ionicons name="warning-outline" size={12} color="#B45309" />
-                <Text style={styles.followupAlertText}>2 Follow-ups</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-
-        {/* MANDATORY PUNCH-IN GATE BANNER */}
-        {!isCheckedIn && (
-          <View style={styles.mandatoryPunchBanner}>
-            <View style={styles.mandatoryPunchHeader}>
-              <View style={styles.lockIconCircle}>
-                <Ionicons name="lock-closed" size={20} color="#DC2626" />
-              </View>
-              <View style={styles.mandatoryPunchTitleCol}>
-                <Text style={styles.mandatoryPunchTitle}>FIELD OPERATIONS LOCKED</Text>
-                <Text style={styles.mandatoryPunchSubtitle}>
-                  Daily Punch-In Required Before Any Action
-                </Text>
-              </View>
-            </View>
-            <Text style={styles.mandatoryPunchDesc}>
-              Field visits, doctor calls, tour planning, commercial orders, and expense entries are locked
-              until your daily attendance is recorded. Punch in now with GPS location to unlock operations.
-            </Text>
-            <TouchableOpacity
-              style={styles.mandatoryPunchBtn}
-              onPress={handlePunchCheckIn}
-              disabled={isPunchLoading}
-              activeOpacity={0.85}
-            >
-              {isPunchLoading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <>
-                  <Ionicons name="location" size={18} color="#FFFFFF" />
-                  <Text style={styles.mandatoryPunchBtnText}>Punch In with GPS Now</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          </View>
-        )}
+        <MrWelcomeHeroCard
+          fullName={user?.fullName}
+          todayFormatted={todayFormatted}
+          onRequirePunchIn={requirePunchIn}
+          navigation={navigation}
+        />
 
         {/* 1. Field Work & Attendance Card */}
-        <View style={styles.cardContainer}>
-          <View style={styles.fieldWorkHeader}>
-            <View style={styles.fieldWorkPill}>
-              <Ionicons name="walk" size={14} color="#0D9488" />
-              <Text style={styles.fieldWorkPillText}>Field Work</Text>
-            </View>
+        <MrAttendancePunchCard
+          isCheckedIn={isCheckedIn}
+          isCheckedOut={isCheckedOut}
+          isPunchLoading={isPunchLoading}
+          checkInTimeFormatted={checkInTimeFormatted}
+          onPunchCheckIn={handlePunchCheckIn}
+          onPunchCheckOut={handlePunchCheckOut}
+        />
 
-            <View style={styles.checkedInStatusRow}>
-              {isCheckedOut ? (
-                <>
-                  <Ionicons name="checkmark-done-circle" size={16} color={colors.navy} />
-                  <Text style={styles.checkedInText}>Punched Out</Text>
-                </>
-              ) : isCheckedIn ? (
-                <>
-                  <Ionicons name="checkmark-circle" size={16} color="#059669" />
-                  <Text style={styles.checkedInText}>Checked in {checkInTimeFormatted}</Text>
-                </>
-              ) : (
-                <>
-                  <Ionicons name="time-outline" size={16} color="#B45309" />
-                  <Text style={[styles.checkedInText, { color: "#B45309" }]}>Not Checked In</Text>
-                </>
-              )}
-            </View>
-          </View>
-
-          <View style={styles.fieldWorkDetailsRow}>
-            <View style={styles.gpsLocationRow}>
-              <Ionicons name="shield-checkmark-outline" size={16} color="#059669" />
-              <Text style={styles.gpsLocationText}>
-                GPS Locked: <Text style={styles.gpsBold}>Dadar West</Text> (±12m)
-              </Text>
-            </View>
-
-            <View style={styles.shiftPill}>
-              <Text style={styles.shiftPillText}>Shift: 09:00 - 18:30</Text>
-            </View>
-          </View>
-
-          {/* Punch Button */}
-          {!isCheckedIn ? (
-            <TouchableOpacity
-              style={styles.primaryPunchBtn}
-              onPress={handlePunchCheckIn}
-              disabled={isPunchLoading}
-              activeOpacity={0.85}
-            >
-              {isPunchLoading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <>
-                  <Ionicons name="log-in-outline" size={20} color="#FFFFFF" />
-                  <Text style={styles.punchBtnText}>Punch Check-in</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          ) : !isCheckedOut ? (
-            <TouchableOpacity
-              style={styles.primaryPunchBtn}
-              onPress={handlePunchCheckOut}
-              disabled={isPunchLoading}
-              activeOpacity={0.85}
-            >
-              {isPunchLoading ? (
-                <ActivityIndicator color="#FFFFFF" size="small" />
-              ) : (
-                <>
-                  <Ionicons name="exit-outline" size={20} color="#FFFFFF" />
-                  <Text style={styles.punchBtnText}>Punch Check-out</Text>
-                </>
-              )}
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.completedPunchBox}>
-              <Ionicons name="checkmark-circle" size={18} color="#059669" />
-              <Text style={styles.completedPunchText}>Shift Finalized • Daily Work Logged</Text>
-            </View>
-          )}
-        </View>
-
-        {/* 2. Today's Visit Target Card */}
-        <View style={styles.cardContainer}>
-          <View style={styles.targetHeaderRow}>
-            <View>
-              <Text style={styles.targetTitle}>Today's Visit Target</Text>
-              <Text style={styles.targetSubtitle}>DCR Route: Dadar West & Prabhadevi</Text>
-            </View>
-            <View style={styles.donePill}>
-              <Text style={styles.donePillText}>{donePercent}% Done</Text>
-            </View>
-          </View>
-
-          {/* 3 Metrics Boxes in a row */}
-          <View style={styles.metricsRow}>
-            <View style={styles.metricCardBlue}>
-              <Text style={styles.metricValBlue}>{totalPlanned}</Text>
-              <Text style={styles.metricLblBlue}>Planned</Text>
-            </View>
-
-            <View style={styles.metricCardGreen}>
-              <Text style={styles.metricValGreen}>{totalCompleted}</Text>
-              <Text style={styles.metricLblGreen}>Done</Text>
-            </View>
-
-            <View style={styles.metricCardYellow}>
-              <Text style={styles.metricValYellow}>{totalPending}</Text>
-              <Text style={styles.metricLblYellow}>Pending</Text>
-            </View>
-          </View>
-
-          {/* Dual-color Progress Bar */}
-          <View style={styles.progressBarBg}>
-            <View
-              style={[
-                styles.progressBarFill,
-                { width: `${Math.min(100, Math.max(10, donePercent))}%` },
-              ]}
-            />
-          </View>
-
-          {/* Sub Breakdown */}
-          <View style={styles.breakdownRow}>
-            <View style={styles.breakdownItem}>
-              <Ionicons name="medkit-outline" size={14} color="#047857" />
-              <Text style={styles.breakdownText}>Primary Doctors: 4/5</Text>
-            </View>
-            <View style={styles.breakdownItem}>
-              <Ionicons name="business-outline" size={14} color="#047857" />
-              <Text style={styles.breakdownText}>Chemists/Stockists: 2/2</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* 3. NEXT UP Doctor Call Card */}
-        <View style={[styles.cardContainer, styles.nextUpCard]}>
-          <View style={styles.nextUpHeaderRow}>
-            <View style={styles.timeTagRow}>
-              <Ionicons name="time-outline" size={14} color="#475569" />
-              <Text style={styles.nextUpTimeText}>NEXT UP • 11:30 AM</Text>
-            </View>
-            <View style={styles.confirmedPill}>
-              <Ionicons name="checkmark" size={12} color="#047857" />
-              <Text style={styles.confirmedPillText}>Confirmed</Text>
-            </View>
-          </View>
-
-          <View style={styles.doctorInfoRow}>
-            <Text style={styles.doctorNameText}>{nextDocName}</Text>
-            <View style={styles.specialtyPill}>
-              <Text style={styles.specialtyPillText}>{nextDocSpecialty}</Text>
-            </View>
-          </View>
-
-          <View style={styles.clinicAddressRow}>
-            <Ionicons name="location-outline" size={14} color="#64748B" />
-            <Text style={styles.clinicAddressText}>{nextDocClinic}</Text>
-          </View>
-
-          {/* Focus Detailing Box */}
-          <View style={styles.focusDetailingBox}>
-            <View style={styles.focusHeader}>
-              <Ionicons name="medical" size={13} color="#0284C7" />
-              <Text style={styles.focusLabel}>Focus Detailing:</Text>
-            </View>
-            <Text style={styles.focusProducts}>CardioMet-50 & Rosuvastatin 20mg</Text>
-          </View>
-
-          {/* Action Row */}
-          <View style={styles.nextUpActionsRow}>
-            <TouchableOpacity
-              style={styles.startVisitBtn}
-              activeOpacity={0.85}
-              onPress={() => {
-                requirePunchIn(() => {
-                  if (navigation) {
-                    navigation.navigate(ROUTES.DcrForm, {
-                      initialPlannedVisitId: nextVisit?.id,
-                      initialCustomerType: nextVisit?.customer_type,
-                      initialCustomerId: nextVisit?.doctor_id || undefined,
-                    });
-                  }
-                });
-              }}
-            >
-              <Ionicons name="paper-plane-outline" size={18} color="#FFFFFF" />
-              <Text style={styles.startVisitBtnText}>Start Visit Call</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.callPhoneBtn}
-              activeOpacity={0.8}
-              onPress={() => {
-                Linking.openURL(`tel:${nextDocPhone}`);
-              }}
-            >
-              <Ionicons name="call-outline" size={20} color="#0D5C46" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        {/* 2. Today's Visit Target Card & Next Up */}
+        <MrDailyVisitTargetCard
+          totalPlanned={totalPlanned}
+          totalCompleted={totalCompleted}
+          totalPending={totalPending}
+          donePercent={donePercent}
+          nextVisit={nextVisit}
+          onRequirePunchIn={requirePunchIn}
+          navigation={navigation}
+        />
 
         {/* 4. Quick Actions Grid */}
-        <View style={styles.quickActionsSection}>
-          <View style={styles.quickActionsHeaderRow}>
-            <Text style={styles.quickActionsTitle}>Quick Actions</Text>
-            <Text style={styles.quickActionsSubtitle}>Standard Ops</Text>
-          </View>
-
-          <View style={styles.quickActionsGrid}>
-            {/* Tile 1: New Visit Report */}
-            <TouchableOpacity
-              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
-              activeOpacity={0.8}
-              onPress={() => {
-                requirePunchIn(() => {
-                  if (navigation) navigation.navigate(ROUTES.DcrForm);
-                });
-              }}
-            >
-              <View style={styles.tileLeft}>
-                <View style={[styles.tileIconCircle, { backgroundColor: "#D1FAE5" }]}>
-                  <Ionicons name="clipboard-outline" size={20} color="#059669" />
-                </View>
-                <Text style={styles.tileTitle}>New Visit Report</Text>
-              </View>
-              {!isCheckedIn ? (
-                <View style={styles.lockTag}>
-                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
-                  <Text style={styles.lockTagText}>Locked</Text>
-                </View>
-              ) : (
-                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-              )}
-            </TouchableOpacity>
-
-            {/* Tile 2: Plan Tour / Visit */}
-            <TouchableOpacity
-              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
-              activeOpacity={0.8}
-              onPress={() => {
-                requirePunchIn(() => {
-                  if (navigation) navigation.navigate(ROUTES.TourPlanner);
-                });
-              }}
-            >
-              <View style={styles.tileLeft}>
-                <View style={[styles.tileIconCircle, { backgroundColor: "#DBEAFE" }]}>
-                  <Ionicons name="calendar-outline" size={20} color="#2563EB" />
-                </View>
-                <Text style={styles.tileTitle}>Plan Tour / TP</Text>
-              </View>
-              {!isCheckedIn ? (
-                <View style={styles.lockTag}>
-                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
-                  <Text style={styles.lockTagText}>Locked</Text>
-                </View>
-              ) : (
-                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-              )}
-            </TouchableOpacity>
-
-            {/* Tile 3: Add Expense */}
-            <TouchableOpacity
-              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
-              activeOpacity={0.8}
-              onPress={() => {
-                requirePunchIn(() => {
-                  if (navigation) navigation.navigate(ROUTES.ExpenseList);
-                });
-              }}
-            >
-              <View style={styles.tileLeft}>
-                <View style={[styles.tileIconCircle, { backgroundColor: "#FEF3C7" }]}>
-                  <Ionicons name="receipt-outline" size={20} color="#D97706" />
-                </View>
-                <Text style={styles.tileTitle}>Add Expense</Text>
-              </View>
-              {!isCheckedIn ? (
-                <View style={styles.lockTag}>
-                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
-                  <Text style={styles.lockTagText}>Locked</Text>
-                </View>
-              ) : (
-                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-              )}
-            </TouchableOpacity>
-
-            {/* Tile 4: Apply Leave */}
-            <TouchableOpacity
-              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
-              activeOpacity={0.8}
-              onPress={() => {
-                requirePunchIn(() => {
-                  if (navigation) navigation.navigate(ROUTES.LeaveList);
-                });
-              }}
-            >
-              <View style={styles.tileLeft}>
-                <View style={[styles.tileIconCircle, { backgroundColor: "#FEE2E2" }]}>
-                  <Ionicons name="calendar-clear-outline" size={20} color="#DC2626" />
-                </View>
-                <Text style={styles.tileTitle}>Apply Leave</Text>
-              </View>
-              {!isCheckedIn ? (
-                <View style={styles.lockTag}>
-                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
-                  <Text style={styles.lockTagText}>Locked</Text>
-                </View>
-              ) : (
-                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-              )}
-            </TouchableOpacity>
-
-            {/* Tile 5: Products & E-Detailing */}
-            <TouchableOpacity
-              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
-              activeOpacity={0.8}
-              onPress={() => {
-                requirePunchIn(() => {
-                  setIsProductsOpen(true);
-                });
-              }}
-            >
-              <View style={styles.tileLeft}>
-                <View style={[styles.tileIconCircle, { backgroundColor: "#E0E7FF" }]}>
-                  <Ionicons name="tablet-landscape-outline" size={20} color="#4F46E5" />
-                </View>
-                <Text style={styles.tileTitle}>Products & E-Detailing</Text>
-              </View>
-              {!isCheckedIn ? (
-                <View style={styles.lockTag}>
-                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
-                  <Text style={styles.lockTagText}>Locked</Text>
-                </View>
-              ) : (
-                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-              )}
-            </TouchableOpacity>
-
-            {/* Tile 6: My Orders / POB */}
-            <TouchableOpacity
-              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
-              activeOpacity={0.8}
-              onPress={() => {
-                requirePunchIn(() => {
-                  setIsOrdersOpen(true);
-                });
-              }}
-            >
-              <View style={styles.tileLeft}>
-                <View style={[styles.tileIconCircle, { backgroundColor: "#CCFBF1" }]}>
-                  <Ionicons name="bag-handle-outline" size={20} color="#0D9488" />
-                </View>
-                <Text style={styles.tileTitle}>My Orders / POB</Text>
-              </View>
-              {!isCheckedIn ? (
-                <View style={styles.lockTag}>
-                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
-                  <Text style={styles.lockTagText}>Locked</Text>
-                </View>
-              ) : (
-                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-              )}
-            </TouchableOpacity>
-
-            {/* Tile 7: Tasks & Reminders */}
-            <TouchableOpacity
-              style={[styles.actionTile, !isCheckedIn && styles.actionTileLocked]}
-              activeOpacity={0.8}
-              onPress={() => {
-                requirePunchIn(() => {
-                  if (navigation) {
-                    navigation.navigate("Tasks");
-                  }
-                });
-              }}
-            >
-              <View style={styles.tileLeft}>
-                <View style={[styles.tileIconCircle, { backgroundColor: "#EDE9FE" }]}>
-                  <Ionicons name="checkbox-outline" size={20} color="#7C3AED" />
-                </View>
-                <Text style={styles.tileTitle}>Tasks & Reminders</Text>
-              </View>
-              {!isCheckedIn ? (
-                <View style={styles.lockTag}>
-                  <Ionicons name="lock-closed" size={12} color="#DC2626" />
-                  <Text style={styles.lockTagText}>Locked</Text>
-                </View>
-              ) : (
-                <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
-              )}
-            </TouchableOpacity>
-          </View>
-        </View>
+        <MrQuickActionsGrid
+          isCheckedIn={isCheckedIn}
+          onRequirePunchIn={requirePunchIn}
+          navigation={navigation}
+          onOpenProducts={() => setIsProductsOpen(true)}
+          onOpenOrders={() => setIsOrdersOpen(true)}
+        />
 
         {/* Footer Sync Status */}
         <View style={styles.syncFooter}>
@@ -922,508 +469,6 @@ const styles = StyleSheet.create({
     paddingTop: 14,
     paddingBottom: 40,
   },
-  welcomeHeroCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: radii.lg,
-    padding: 14,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-  },
-  welcomeHeroTop: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  welcomeNameCol: {
-    flex: 1,
-    marginRight: 8,
-  },
-  welcomeSubTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#64748B",
-    marginBottom: 2,
-  },
-  welcomeTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#0F172A",
-    letterSpacing: -0.3,
-  },
-  hqBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#ECFDF5",
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: "#A7F3D0",
-  },
-  hqBadgeText: {
-    fontSize: 11,
-    color: "#065F46",
-    fontWeight: "700",
-  },
-  heroCardDivider: {
-    height: 1,
-    backgroundColor: "#F1F5F9",
-    marginVertical: 10,
-  },
-  welcomeHeroBottom: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-  dateRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-  dateSubtext: {
-    fontSize: 12,
-    color: "#64748B",
-    fontWeight: "500",
-  },
-  alertsContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-  },
-  expenseAlertPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#FEF2F2",
-    borderWidth: 1,
-    borderColor: "#FECACA",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radii.sm,
-  },
-  expenseAlertText: {
-    fontSize: 11,
-    color: "#B91C1C",
-    fontWeight: "700",
-  },
-  followupAlertPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#FFFBEB",
-    borderWidth: 1,
-    borderColor: "#FDE68A",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: radii.sm,
-  },
-  followupAlertText: {
-    fontSize: 11,
-    color: "#B45309",
-    fontWeight: "700",
-  },
-  cardContainer: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 1,
-  },
-  fieldWorkHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  fieldWorkPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    backgroundColor: "#E6FFFA",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-  },
-  fieldWorkPillText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#0D9488",
-  },
-  checkedInStatusRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  checkedInText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#059669",
-  },
-  fieldWorkDetailsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 14,
-  },
-  gpsLocationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-  gpsLocationText: {
-    fontSize: 12,
-    color: "#475569",
-  },
-  gpsBold: {
-    fontWeight: "700",
-    color: "#0F172A",
-  },
-  shiftPill: {
-    backgroundColor: "#F0F9FF",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  shiftPillText: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#0284C7",
-  },
-  primaryPunchBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#0D5C46",
-    borderRadius: 10,
-    paddingVertical: 12,
-  },
-  punchBtnText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  completedPunchBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    backgroundColor: "#ECFDF5",
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  completedPunchText: {
-    color: "#047857",
-    fontSize: 12,
-    fontWeight: "600",
-  },
-  targetHeaderRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    marginBottom: 12,
-  },
-  targetTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#0F172A",
-  },
-  targetSubtitle: {
-    fontSize: 11,
-    color: "#64748B",
-    marginTop: 2,
-  },
-  donePill: {
-    backgroundColor: "#D1FAE5",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-  },
-  donePillText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#047857",
-  },
-  metricsRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 12,
-  },
-  metricCardBlue: {
-    flex: 1,
-    backgroundColor: "#EFF6FF",
-    borderRadius: 10,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#DBEAFE",
-  },
-  metricValBlue: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#1D4ED8",
-  },
-  metricLblBlue: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#3B82F6",
-    marginTop: 2,
-  },
-  metricCardGreen: {
-    flex: 1,
-    backgroundColor: "#ECFDF5",
-    borderRadius: 10,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#A7F3D0",
-  },
-  metricValGreen: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#047857",
-  },
-  metricLblGreen: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#10B981",
-    marginTop: 2,
-  },
-  metricCardYellow: {
-    flex: 1,
-    backgroundColor: "#FFFBEB",
-    borderRadius: 10,
-    paddingVertical: 10,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#FDE68A",
-  },
-  metricValYellow: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#B45309",
-  },
-  metricLblYellow: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#F59E0B",
-    marginTop: 2,
-  },
-  progressBarBg: {
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: "#FDE68A",
-    overflow: "hidden",
-    marginBottom: 10,
-  },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: "#0D5C46",
-    borderRadius: 4,
-  },
-  breakdownRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-  breakdownItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  breakdownText: {
-    fontSize: 11,
-    color: "#334155",
-    fontWeight: "500",
-  },
-  nextUpCard: {
-    borderLeftWidth: 4,
-    borderLeftColor: "#059669",
-  },
-  nextUpHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 6,
-  },
-  timeTagRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-  },
-  nextUpTimeText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#475569",
-    letterSpacing: 0.5,
-  },
-  confirmedPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    backgroundColor: "#DCFCE7",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  confirmedPillText: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "#047857",
-  },
-  doctorInfoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginTop: 2,
-  },
-  doctorNameText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#0F172A",
-  },
-  specialtyPill: {
-    backgroundColor: "#F3E8FF",
-    paddingHorizontal: 7,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  specialtyPillText: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "#7E22CE",
-  },
-  clinicAddressRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    marginTop: 4,
-    marginBottom: 10,
-  },
-  clinicAddressText: {
-    fontSize: 12,
-    color: "#64748B",
-  },
-  focusDetailingBox: {
-    backgroundColor: "#F0F9FF",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "#E0F2FE",
-  },
-  focusHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-  focusLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#0369A1",
-  },
-  focusProducts: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#0C4A6E",
-    marginTop: 3,
-  },
-  nextUpActionsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  startVisitBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    backgroundColor: "#0D5C46",
-    borderRadius: 10,
-    paddingVertical: 12,
-  },
-  startVisitBtnText: {
-    color: "#FFFFFF",
-    fontSize: 14,
-    fontWeight: "700",
-  },
-  callPhoneBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "#CBD5E1",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#FFFFFF",
-  },
-  quickActionsSection: {
-    marginTop: 4,
-    marginBottom: 10,
-  },
-  quickActionsHeaderRow: {
-    flexDirection: "row",
-    alignItems: "baseline",
-    justifyContent: "space-between",
-    marginBottom: 10,
-  },
-  quickActionsTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#0F172A",
-  },
-  quickActionsSubtitle: {
-    fontSize: 11,
-    color: "#64748B",
-    fontWeight: "500",
-  },
-  quickActionsGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-  actionTile: {
-    width: "48.5%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-  },
-  tileLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    flex: 1,
-  },
-  tileIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  tileTitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#0F172A",
-    flexShrink: 1,
-  },
   syncFooter: {
     flexDirection: "row",
     alignItems: "center",
@@ -1435,93 +480,5 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: "#64748B",
     fontWeight: "500",
-  },
-  mandatoryPunchBanner: {
-    backgroundColor: "#FEF2F2",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: "#FCA5A5",
-    padding: 14,
-    marginBottom: 12,
-    shadowColor: "#EF4444",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  mandatoryPunchHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginBottom: 8,
-  },
-  lockIconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#FEE2E2",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#FCA5A5",
-  },
-  mandatoryPunchTitleCol: {
-    flex: 1,
-  },
-  mandatoryPunchTitle: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#991B1B",
-    letterSpacing: 0.5,
-  },
-  mandatoryPunchSubtitle: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#B91C1C",
-    marginTop: 1,
-  },
-  mandatoryPunchDesc: {
-    fontSize: 12,
-    color: "#7F1D1D",
-    lineHeight: 17,
-    marginBottom: 12,
-  },
-  mandatoryPunchBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#DC2626",
-    paddingVertical: 11,
-    borderRadius: 10,
-    shadowColor: "#DC2626",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  mandatoryPunchBtnText: {
-    color: "#FFFFFF",
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  actionTileLocked: {
-    backgroundColor: "#F8FAFC",
-    borderColor: "#E2E8F0",
-    opacity: 0.85,
-  },
-  lockTag: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    backgroundColor: "#FEE2E2",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-  },
-  lockTagText: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: "#DC2626",
   },
 });

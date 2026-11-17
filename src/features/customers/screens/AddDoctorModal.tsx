@@ -119,7 +119,7 @@ export function AddDoctorModal({
             </Text>
             <TextInput
               style={styles.input}
-              placeholder="e.g. Dr. Rajesh Sharma"
+              placeholder="e.g. Dr. Full Name"
               placeholderTextColor={colors.textSecondary}
               value={fullName}
               onChangeText={setFullName}

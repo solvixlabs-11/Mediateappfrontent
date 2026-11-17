@@ -6,7 +6,6 @@ import {
   Image,
   Modal,
   ScrollView,
-  StatusBar as RNStatusBar,
   StyleSheet,
   Switch,
   Text,
@@ -14,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -31,21 +31,6 @@ interface AreaMapping {
   state: string;
   pincode: string;
 }
-
-const DEFAULT_AREAS: AreaMapping[] = [
-  { id: 1, name: "GHATLODIYA", city: "AHMEDABAD", district: "AHMEDABAD", state: "GUJARAT", pincode: "380061" },
-  { id: 2, name: "CHANAKYAPURI", city: "AHMEDABAD", district: "AHMEDABAD", state: "GUJARAT", pincode: "380061" },
-  { id: 3, name: "NAVRANGPURA", city: "AHMEDABAD", district: "AHMEDABAD", state: "GUJARAT", pincode: "380009" },
-  { id: 4, name: "BAPUNAGAR", city: "AHMEDABAD", district: "AHMEDABAD", state: "GUJARAT", pincode: "380024" },
-  { id: 5, name: "MANINAGAR", city: "AHMEDABAD", district: "AHMEDABAD", state: "GUJARAT", pincode: "380008" },
-  { id: 6, name: "BHUJ CENTRAL", city: "BHUJ", district: "KUTCH", state: "GUJARAT", pincode: "370001" },
-  { id: 7, name: "STATION ROAD", city: "BHUJ", district: "KUTCH", state: "GUJARAT", pincode: "370001" },
-  { id: 8, name: "KOTHRUD", city: "PUNE", district: "PUNE", state: "MAHARASHTRA", pincode: "411038" },
-  { id: 9, name: "CAMP ROAD", city: "PUNE", district: "PUNE", state: "MAHARASHTRA", pincode: "411001" },
-  { id: 10, name: "ANDHERI WEST", city: "MUMBAI", district: "MUMBAI SUBURBAN", state: "MAHARASHTRA", pincode: "400058" },
-  { id: 11, name: "BORIVALI EAST", city: "MUMBAI", district: "MUMBAI SUBURBAN", state: "MAHARASHTRA", pincode: "400066" },
-  { id: 12, name: "CONNAUGHT PLACE", city: "DELHI", district: "NEW DELHI", state: "DELHI", pincode: "110001" },
-];
 
 const CATEGORIES = ["A (PRIME DISTRIBUTOR)", "B (REGULAR STOCKIST)", "C (SUB-STOCKIST)", "SUPER STOCKIST", "C&F AGENT"];
 const DISTRIBUTOR_TYPES = ["Full-Line Pharma Stockist", "Exclusive Franchise", "Semi-Wholesale Depot", "Hospital Supply Distributor", "Generic Medicine Stockist"];
@@ -81,7 +66,7 @@ export function NewStockistVisitScreen() {
   const [addressLine3, setAddressLine3] = useState("");
   const [showAllToggle, setShowAllToggle] = useState(false);
 
-  const [areaList, setAreaList] = useState<AreaMapping[]>(DEFAULT_AREAS);
+  const [areaList, setAreaList] = useState<AreaMapping[]>([]);
   const [selectedArea, setSelectedArea] = useState<AreaMapping | null>(null);
   const [areaText, setAreaText] = useState("");
   const [cityText, setCityText] = useState("");
@@ -122,7 +107,7 @@ export function NewStockistVisitScreen() {
             state: "GUJARAT",
             pincode: a.pincode || "380061",
           }));
-          setAreaList([...DEFAULT_AREAS, ...mapped]);
+          setAreaList(mapped);
         }
       })
       .catch(() => {});
@@ -257,7 +242,7 @@ export function NewStockistVisitScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <RNStatusBar barStyle="light-content" backgroundColor="#1E293B" />
+      <StatusBar style="light" />
 
       {/* Header Bar */}
       <View style={styles.header}>

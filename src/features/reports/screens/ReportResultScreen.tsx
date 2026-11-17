@@ -230,7 +230,9 @@ export function ReportResultScreen() {
           refreshControl={
             <RefreshControl
               refreshing={isRefetching}
-              onRefresh={refetch}
+              onRefresh={() => {
+                refetch();
+              }}
               colors={[colors.primary]}
               tintColor={colors.primary}
             />
@@ -325,7 +327,7 @@ export function ReportResultScreen() {
               <View style={styles.loadingMore}>
                 <Loader message="Loading more entries..." />
               </View>
-            ) : null
+            ) : undefined
           }
         />
       )}

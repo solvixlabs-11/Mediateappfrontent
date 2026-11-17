@@ -354,7 +354,7 @@ export function ReportsCatalogScreen() {
                   </TouchableOpacity>
                 ))}
               </View>
-            ) : null
+            ) : undefined
           }
         />
       )}

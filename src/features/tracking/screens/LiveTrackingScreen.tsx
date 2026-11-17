@@ -8,18 +8,20 @@ import {
   Modal,
   Platform,
   ScrollView,
-  StatusBar as RNStatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import { usersApi } from "../../users/api/usersApi";
+
+const RNWebView = WebView as unknown as React.ComponentType<any>;
 
 export interface TrackableUser {
   id: number;
@@ -36,112 +38,12 @@ export interface TrackableUser {
   routeHistory?: Array<{ latitude: number; longitude: number }>;
 }
 
-const DEFAULT_TRACKABLE_USERS: TrackableUser[] = [
-  {
-    id: 1,
-    name: "ABDUL AYAZ KHAN",
-    hq: "ROURKELA, ROURKELA",
-    status: "PUNCHED IN HERE",
-    address: "3R4M+821, Main Road, Udit Nagar, Rourkela, Odisha 769012, India",
-    coordinates: { latitude: 22.2254, longitude: 84.8546 },
-    lastUpdated: "07-10-2026 06:15 PM",
-    routeHistory: [
-      { latitude: 22.2200, longitude: 84.8500 },
-      { latitude: 22.2230, longitude: 84.8520 },
-      { latitude: 22.2254, longitude: 84.8546 },
-    ],
-  },
-  {
-    id: 2,
-    name: "ABHINAV DUBEY",
-    hq: "VARANASI..",
-    avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=120&auto=format&fit=crop&q=80",
-    status: "PUNCHED OUT HERE",
-    address: "6QJR+693, Pilori, Uttar Pradesh 231314, India",
-    coordinates: { latitude: 25.3176, longitude: 82.9739 },
-    lastUpdated: "07-10-2026 06:36 PM",
-    routeHistory: [
-      { latitude: 25.3100, longitude: 82.9650 },
-      { latitude: 25.3140, longitude: 82.9700 },
-      { latitude: 25.3176, longitude: 82.9739 },
-    ],
-  },
-  {
-    id: 3,
-    name: "ABINASH NANDA",
-    hq: "CUTTACK",
-    status: "DOCTOR CALL ACTIVE",
-    address: "7P9X+445, Badambadi Bus Stand Road, Cuttack, Odisha 753012, India",
-    coordinates: { latitude: 20.4625, longitude: 85.8828 },
-    lastUpdated: "07-10-2026 05:50 PM",
-  },
-  {
-    id: 4,
-    name: "AJAY JHA",
-    hq: "JAMSHEDPUR.",
-    status: "PUNCHED IN HERE",
-    address: "9M4Q+229, Bistupur Main Road, Jamshedpur, Jharkhand 831001, India",
-    coordinates: { latitude: 22.8046, longitude: 86.2029 },
-    lastUpdated: "07-10-2026 06:22 PM",
-  },
-  {
-    id: 5,
-    name: "AJAY KUMAR",
-    hq: "AHMEDABAD..",
-    status: "IN FIELD TRANSIT",
-    address: "3H77+6QP, S.G. Highway, Bodakdev, Ahmedabad, Gujarat 380054, India",
-    coordinates: { latitude: 23.0338, longitude: 72.5133 },
-    lastUpdated: "07-10-2026 06:30 PM",
-    routeHistory: [
-      { latitude: 23.0200, longitude: 72.5000 },
-      { latitude: 23.0280, longitude: 72.5080 },
-      { latitude: 23.0338, longitude: 72.5133 },
-    ],
-  },
-  {
-    id: 6,
-    name: "AKRAM CHUDASAMA",
-    hq: "JAMNAGAR",
-    status: "PUNCHED IN HERE",
-    address: "2W99+11A, Ranjit Road, Jamnagar, Gujarat 361001, India",
-    coordinates: { latitude: 22.4707, longitude: 70.0577 },
-    lastUpdated: "07-10-2026 06:05 PM",
-  },
-  {
-    id: 7,
-    name: "ALPESH BALDANIYA",
-    hq: "SURAT",
-    status: "DOCTOR CALL ACTIVE",
-    address: "4V88+99C, Ring Road, Majura Gate, Surat, Gujarat 395002, India",
-    coordinates: { latitude: 21.1702, longitude: 72.8311 },
-    lastUpdated: "07-10-2026 06:12 PM",
-  },
-  {
-    id: 8,
-    name: "AMIT SHUKLA",
-    hq: "LUCKNOW",
-    status: "PUNCHED OUT HERE",
-    address: "5F22+881, Hazratganj, Lucknow, Uttar Pradesh 226001, India",
-    coordinates: { latitude: 26.8467, longitude: 80.9462 },
-    lastUpdated: "07-10-2026 06:40 PM",
-  },
-  {
-    id: 9,
-    name: "AMIT SWAIN",
-    hq: "BHUBANESWAR",
-    status: "PUNCHED IN HERE",
-    address: "6G44+331, Saheed Nagar, Bhubaneswar, Odisha 751007, India",
-    coordinates: { latitude: 20.2961, longitude: 85.8245 },
-    lastUpdated: "07-10-2026 05:45 PM",
-  },
-];
-
 export function LiveTrackingScreen() {
   const navigation = useNavigation();
-  const webViewRef = useRef<WebView>(null);
+  const webViewRef = useRef<any>(null);
 
   const [isOptionsExpanded, setIsOptionsExpanded] = useState(true);
-  const [usersList, setUsersList] = useState<TrackableUser[]>(DEFAULT_TRACKABLE_USERS);
+  const [usersList, setUsersList] = useState<TrackableUser[]>([]);
   const [selectedUser, setSelectedUser] = useState<TrackableUser | null>(null);
   const [tempSelectedUser, setTempSelectedUser] = useState<TrackableUser | null>(null);
 
@@ -193,11 +95,8 @@ export function LiveTrackingScreen() {
 
   const handleGetLocation = () => {
     if (!selectedUser) return;
-    setIsLoadingLocation(true);
-    setTimeout(() => {
-      setIsLoadingLocation(false);
-      setIsMapLoaded(true);
-    }, 500);
+    setIsLoadingLocation(false);
+    setIsMapLoaded(true);
   };
 
   const handleClearPerson = () => {
@@ -384,7 +283,7 @@ export function LiveTrackingScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
-      <RNStatusBar barStyle="light-content" backgroundColor="#1E293B" />
+      <StatusBar style="light" />
 
       {/* Top Header Bar */}
       <View style={styles.header}>
@@ -480,7 +379,7 @@ export function LiveTrackingScreen() {
         {selectedUser && isMapLoaded ? (
           <View style={styles.mapWrapper}>
             {/* Real Interactive Google Maps WebView */}
-            <WebView
+            <RNWebView
               ref={webViewRef}
               originWhitelist={["*"]}
               source={{ html: generateMapHtml(selectedUser) }}
@@ -553,7 +452,7 @@ export function LiveTrackingScreen() {
       {/* Person Selection Full-Screen Modal (Exact MR Buddy design) */}
       <Modal visible={isPersonModalOpen} animationType="slide" transparent={false}>
         <SafeAreaView style={styles.modalSafeArea} edges={["top", "left", "right", "bottom"]}>
-          <RNStatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+          <StatusBar style="dark" />
 
           {/* Modal Title */}
           <View style={styles.modalHeaderRow}>
