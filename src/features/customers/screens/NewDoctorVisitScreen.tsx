@@ -32,27 +32,14 @@ interface AreaMapping {
   pincode: string;
 }
 
-const SPECIALITIES = [
-  "GYN",
-  "Cardiology",
-  "General Physician",
-  "Pediatrics",
-  "Orthopedics",
-  "Dermatology",
-  "Diabetology",
-  "ENT",
-  "Ophthalmology",
-  "Neurology",
-  "Gastroenterology",
-  "Urology",
-];
-
-const QUALIFICATIONS = ["MD", "MBBS", "MS", "DNB", "BAMS", "BHMS", "BDS", "MCh", "DM", "DGO"];
-const CATEGORIES = ["GYN", "A", "B", "C", "VIP", "CORE"];
-const DOCTOR_TYPES = ["GYN", "Consultant", "Surgeon", "Physician", "Clinic Owner", "Hospital OPD", "Govt Doctor"];
-
 export function NewDoctorVisitScreen() {
   const navigation = useNavigation();
+
+  // Dynamic dropdown lists fetched from live backend API
+  const [specialitiesList, setSpecialitiesList] = useState<string[]>([]);
+  const [qualificationsList, setQualificationsList] = useState<string[]>([]);
+  const [categoriesList, setCategoriesList] = useState<string[]>([]);
+  const [doctorTypesList, setDoctorTypesList] = useState<string[]>([]);
 
   // 4-Step Flow
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -112,6 +99,35 @@ export function NewDoctorVisitScreen() {
   });
 
   useEffect(() => {
+    // Fetch dynamic masters from backend API
+    mastersApi.listItems("SPECIALIZATION").then((res) => {
+      if (res && res.length > 0) {
+        setSpecialitiesList(res.map((i) => i.name));
+        setSpeciality(res[0].name);
+      }
+    }).catch(() => {});
+
+    mastersApi.listItems("QUALIFICATION").then((res) => {
+      if (res && res.length > 0) {
+        setQualificationsList(res.map((i) => i.code || i.name));
+        setQualification(res[0].code || res[0].name);
+      }
+    }).catch(() => {});
+
+    mastersApi.listItems("CUSTOMER_CATEGORY").then((res) => {
+      if (res && res.length > 0) {
+        setCategoriesList(res.map((i) => i.name));
+        setCategory(res[0].name);
+      }
+    }).catch(() => {});
+
+    mastersApi.listItems("DOCTOR_TYPE").then((res) => {
+      if (res && res.length > 0) {
+        setDoctorTypesList(res.map((i) => i.name));
+        setDoctorType(res[0].name);
+      }
+    }).catch(() => {});
+
     // Fetch areas from backend if available
     mastersApi
       .getAreas()
@@ -748,7 +764,7 @@ export function NewDoctorVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={SPECIALITIES}
+              data={specialitiesList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (
@@ -783,7 +799,7 @@ export function NewDoctorVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={QUALIFICATIONS}
+              data={qualificationsList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (
@@ -818,7 +834,7 @@ export function NewDoctorVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={CATEGORIES}
+              data={categoriesList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (
@@ -853,7 +869,7 @@ export function NewDoctorVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={DOCTOR_TYPES}
+              data={doctorTypesList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (

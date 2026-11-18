@@ -38,6 +38,19 @@ export interface BulkDropdownsDto {
   customer_categories: MasterItemDto[];
   visit_priorities: MasterItemDto[];
   states: StateDto[];
+  qualifications?: MasterItemDto[];
+  doctor_types?: MasterItemDto[];
+  store_types?: MasterItemDto[];
+  distributor_types?: MasterItemDto[];
+  credit_terms?: MasterItemDto[];
+  expense_types?: MasterItemDto[];
+  zones?: MasterItemDto[];
+  city_tiers?: MasterItemDto[];
+  hospital_types?: MasterItemDto[];
+  divisions?: MasterItemDto[];
+  designations?: MasterItemDto[];
+  customer_types?: MasterItemDto[];
+  approval_statuses?: MasterItemDto[];
 }
 
 export const mastersApi = {

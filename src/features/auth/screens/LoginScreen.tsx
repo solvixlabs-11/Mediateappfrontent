@@ -2,17 +2,16 @@ import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useLogin } from "../hooks/useLogin";
 import { useToastStore } from "../../../shared/components/Toast";
 import { colors, spacing } from "../../../shared/theme/tokens";
 import { API_BASE_URL, apiClient } from "../../../api/client";
 import { authApi, DemoAccount } from "../api/authApi";
-import { DEV_DEMO_ACCOUNTS } from "../../../mocks/demoAccounts";
 import { LoginHeroBanner } from "../components/LoginHeroBanner";
 import { LoginForm } from "../components/LoginForm";
 import { DemoSwitcherPill } from "../components/DemoSwitcherPill";
@@ -45,25 +44,12 @@ export const LoginScreen: React.FC = () => {
             setEmail(defaultAcc.email);
             setPassword(defaultAcc.password);
             setSelectedRoleCode(defaultAcc.role);
-          } else if (process.env.EXPO_PUBLIC_DEV_LOGIN === "true") {
-            setDemoAccounts(DEV_DEMO_ACCOUNTS);
-            const defaultAcc = DEV_DEMO_ACCOUNTS.find((a) => a.role === "MR") || DEV_DEMO_ACCOUNTS[0];
-            setEmail(defaultAcc.email);
-            setPassword(defaultAcc.password);
-            setSelectedRoleCode(defaultAcc.role);
           }
           setIsServerOnline(true);
         }
-      } catch (err: any) {
+      } catch {
         if (isMounted) {
           setIsServerOnline(false);
-          if (process.env.EXPO_PUBLIC_DEV_LOGIN === "true") {
-            setDemoAccounts(DEV_DEMO_ACCOUNTS);
-            const defaultAcc = DEV_DEMO_ACCOUNTS[0];
-            setEmail(defaultAcc.email);
-            setPassword(defaultAcc.password);
-            setSelectedRoleCode(defaultAcc.role);
-          }
         }
       }
     };

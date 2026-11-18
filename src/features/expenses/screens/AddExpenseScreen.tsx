@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -14,22 +14,52 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { expensesApi } from "../api/expensesApi";
+import { mastersApi } from "../../masters/api/mastersApi";
 import { colors, radii, spacing } from "../../../shared/theme/tokens";
 
-const EXPENSE_TYPES = [
-  { label: "Daily Allowance (DA)", value: "DAILY_ALLOWANCE" as const, icon: "cash-outline" as const },
-  { label: "Travel Fare (TA)", value: "TRAVEL_FARE" as const, icon: "car-outline" as const },
-  { label: "Hotel / Lodging", value: "LODGING" as const, icon: "bed-outline" as const },
-  { label: "Miscellaneous", value: "MISCELLANEOUS" as const, icon: "receipt-outline" as const },
-] as const;
+interface ExpenseTypeOption {
+  label: string;
+  value: "DAILY_ALLOWANCE" | "TRAVEL_FARE" | "LODGING" | "MISCELLANEOUS";
+  icon: keyof typeof Ionicons.glyphMap;
+}
+
+const DEFAULT_EXPENSE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
+  DAILY_ALLOWANCE: "cash-outline",
+  TRAVEL_FARE: "car-outline",
+  LODGING: "bed-outline",
+  MISCELLANEOUS: "receipt-outline",
+};
 
 export function AddExpenseScreen() {
   const navigation = useNavigation();
   const todayStr = new Date().toISOString().split("T")[0];
   const [expenseDate, setExpenseDate] = useState<string>(todayStr);
+  const [expenseTypesList, setExpenseTypesList] = useState<ExpenseTypeOption[]>([
+    { label: "Daily Allowance (DA)", value: "DAILY_ALLOWANCE", icon: "cash-outline" },
+    { label: "Travel Fare (TA)", value: "TRAVEL_FARE", icon: "car-outline" },
+    { label: "Hotel / Lodging", value: "LODGING", icon: "bed-outline" },
+    { label: "Miscellaneous", value: "MISCELLANEOUS", icon: "receipt-outline" },
+  ]);
   const [expenseType, setExpenseType] = useState<
     "DAILY_ALLOWANCE" | "TRAVEL_FARE" | "LODGING" | "MISCELLANEOUS"
   >("DAILY_ALLOWANCE");
+
+  useEffect(() => {
+    mastersApi
+      .listItems("EXPENSE_TYPE")
+      .then((res) => {
+        if (res && res.length > 0) {
+          const mapped: ExpenseTypeOption[] = res.map((i) => ({
+            label: i.name,
+            value: i.code as "DAILY_ALLOWANCE" | "TRAVEL_FARE" | "LODGING" | "MISCELLANEOUS",
+            icon: DEFAULT_EXPENSE_ICONS[i.code] || "receipt-outline",
+          }));
+          setExpenseTypesList(mapped);
+          setExpenseType(mapped[0].value);
+        }
+      })
+      .catch(() => {});
+  }, []);
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [hasReceipt, setHasReceipt] = useState<boolean>(false);
@@ -111,7 +141,7 @@ export function AddExpenseScreen() {
         {/* Category Selector */}
         <Text style={styles.label}>Expense Category *</Text>
         <View style={styles.categoryGrid}>
-          {EXPENSE_TYPES.map((cat) => {
+          {expenseTypesList.map((cat) => {
             const isSelected = expenseType === cat.value;
             return (
               <TouchableOpacity

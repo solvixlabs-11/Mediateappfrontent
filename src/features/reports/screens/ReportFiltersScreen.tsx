@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -20,6 +20,7 @@ import { ROUTES } from "../../../navigation/routes";
 import { useReportFilters } from "../hooks/useReportFilters";
 import { DatePreset } from "../utils/reportDateUtils";
 import { ReportFilterSchema } from "../api/reportsApi";
+import { mastersApi } from "../../masters/api/mastersApi";
 
 const DATE_PRESETS: DatePreset[] = [
   "Today",
@@ -30,26 +31,43 @@ const DATE_PRESETS: DatePreset[] = [
   "Custom",
 ];
 
-const CUSTOMER_TYPES = [
-  { label: "All Types", value: null },
-  { label: "Doctor", value: "DOCTOR" },
-  { label: "Chemist", value: "CHEMIST" },
-  { label: "Hospital", value: "HOSPITAL" },
-  { label: "Stockist", value: "STOCKIST" },
-];
-
-const STATUS_OPTIONS = [
-  { label: "All Statuses", value: null },
-  { label: "Verified", value: "Verified" },
-  { label: "Not Verified", value: "Not Verified" },
-  { label: "Approved", value: "Approved" },
-  { label: "Pending", value: "Pending" },
-  { label: "Rejected", value: "Rejected" },
-];
-
 export function ReportFiltersScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
+
+  // Dynamic filter options fetched from backend API
+  const [customerTypes, setCustomerTypes] = useState<Array<{ label: string; value: string | null }>>([
+    { label: "All Types", value: null },
+  ]);
+  const [statusOptions, setStatusOptions] = useState<Array<{ label: string; value: string | null }>>([
+    { label: "All Statuses", value: null },
+  ]);
+
+  useEffect(() => {
+    mastersApi
+      .listItems("CUSTOMER_TYPE")
+      .then((res) => {
+        if (res && res.length > 0) {
+          setCustomerTypes([
+            { label: "All Types", value: null },
+            ...res.map((i) => ({ label: i.name, value: i.code })),
+          ]);
+        }
+      })
+      .catch(() => {});
+
+    mastersApi
+      .listItems("APPROVAL_STATUS")
+      .then((res) => {
+        if (res && res.length > 0) {
+          setStatusOptions([
+            { label: "All Statuses", value: null },
+            ...res.map((i) => ({ label: i.name, value: i.code })),
+          ]);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const { reportKey, reportTitle, filterSchema, scopeLabel, existingFilters } =
     route.params || {};
@@ -276,7 +294,7 @@ export function ReportFiltersScreen() {
               <Text style={styles.sectionTitle}>CUSTOMER TYPE</Text>
             </View>
             <View style={styles.chipsRow}>
-              {CUSTOMER_TYPES.map((ct) => {
+              {customerTypes.map((ct) => {
                 const isSelected = selectedCustomerType === ct.value;
                 return (
                   <TouchableOpacity
@@ -308,7 +326,7 @@ export function ReportFiltersScreen() {
               <Text style={styles.sectionTitle}>STATUS</Text>
             </View>
             <View style={styles.chipsRow}>
-              {STATUS_OPTIONS.map((st) => {
+              {statusOptions.map((st) => {
                 const isSelected = selectedStatus === st.value;
                 return (
                   <TouchableOpacity

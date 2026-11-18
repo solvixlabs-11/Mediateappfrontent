@@ -32,12 +32,13 @@ interface AreaMapping {
   pincode: string;
 }
 
-const CATEGORIES = ["A (PRIME DISTRIBUTOR)", "B (REGULAR STOCKIST)", "C (SUB-STOCKIST)", "SUPER STOCKIST", "C&F AGENT"];
-const DISTRIBUTOR_TYPES = ["Full-Line Pharma Stockist", "Exclusive Franchise", "Semi-Wholesale Depot", "Hospital Supply Distributor", "Generic Medicine Stockist"];
-const CREDIT_TERMS = ["15 Days Credit", "21 Days Standard", "30 Days Credit", "45 Days Extended", "PDC / Advance Only"];
-
 export function NewStockistVisitScreen() {
   const navigation = useNavigation();
+
+  // Dynamic dropdown lists fetched from live backend API
+  const [categoriesList, setCategoriesList] = useState<string[]>([]);
+  const [distributorTypesList, setDistributorTypesList] = useState<string[]>([]);
+  const [creditTermsList, setCreditTermsList] = useState<string[]>([]);
 
   // 4-Step Flow
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -95,6 +96,28 @@ export function NewStockistVisitScreen() {
   });
 
   useEffect(() => {
+    // Fetch dynamic masters from backend API
+    mastersApi.listItems("CUSTOMER_CATEGORY").then((res) => {
+      if (res && res.length > 0) {
+        setCategoriesList(res.map((i) => i.name));
+        setCategory(res[0].name);
+      }
+    }).catch(() => {});
+
+    mastersApi.listItems("DISTRIBUTOR_TYPE").then((res) => {
+      if (res && res.length > 0) {
+        setDistributorTypesList(res.map((i) => i.name));
+        setDistributorType(res[0].name);
+      }
+    }).catch(() => {});
+
+    mastersApi.listItems("CREDIT_TERMS").then((res) => {
+      if (res && res.length > 0) {
+        setCreditTermsList(res.map((i) => i.name));
+        setCreditTerms(res[0].name);
+      }
+    }).catch(() => {});
+
     mastersApi
       .getAreas()
       .then((res) => {
@@ -733,7 +756,7 @@ export function NewStockistVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={CATEGORIES}
+              data={categoriesList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (
@@ -768,7 +791,7 @@ export function NewStockistVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={DISTRIBUTOR_TYPES}
+              data={distributorTypesList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (
@@ -803,7 +826,7 @@ export function NewStockistVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={CREDIT_TERMS}
+              data={creditTermsList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (

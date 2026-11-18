@@ -32,11 +32,12 @@ interface AreaMapping {
   pincode: string;
 }
 
-const CATEGORIES = ["A", "B", "C", "CORE RETAILER", "VIP STORE"];
-const STORE_TYPES = ["Retail Pharmacy", "Hospital Attached Chemist", "Wholesale & Retail", "Chain Pharmacy", "Generic Drug Store"];
-
 export function NewChemistVisitScreen() {
   const navigation = useNavigation();
+
+  // Dynamic dropdown lists fetched from live backend API
+  const [categoriesList, setCategoriesList] = useState<string[]>([]);
+  const [storeTypesList, setStoreTypesList] = useState<string[]>([]);
 
   // 4-Step Flow
   const [currentStep, setCurrentStep] = useState<number>(1);
@@ -95,6 +96,21 @@ export function NewChemistVisitScreen() {
   });
 
   useEffect(() => {
+    // Fetch dynamic categories and store types from backend
+    mastersApi.listItems("CUSTOMER_CATEGORY").then((res) => {
+      if (res && res.length > 0) {
+        setCategoriesList(res.map((i) => i.name));
+        setCategory(res[0].name);
+      }
+    }).catch(() => {});
+
+    mastersApi.listItems("STORE_TYPE").then((res) => {
+      if (res && res.length > 0) {
+        setStoreTypesList(res.map((i) => i.name));
+        setStoreType(res[0].name);
+      }
+    }).catch(() => {});
+
     mastersApi
       .getAreas()
       .then((res) => {
@@ -743,7 +759,7 @@ export function NewChemistVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={CATEGORIES}
+              data={categoriesList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (
@@ -778,7 +794,7 @@ export function NewChemistVisitScreen() {
               </TouchableOpacity>
             </View>
             <FlatList
-              data={STORE_TYPES}
+              data={storeTypesList}
               keyExtractor={(it) => it}
               style={{ maxHeight: 320 }}
               renderItem={({ item }) => (

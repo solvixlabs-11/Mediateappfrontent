@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Modal,
@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAuthStore } from "../../auth/store";
+import { apiClient } from "../../../api/client";
 import { colors, spacing, typography } from "../../../shared/theme/tokens";
 
 interface MrBuddyDrawerProps {
@@ -43,18 +44,18 @@ export function MrBuddyDrawer({
     ]);
   };
 
-  const menuItems = [
-    { key: "change_territory", label: "Change Territory" },
-    { key: "my_visits", label: "My Visits" },
-    { key: "reports", label: "Reports" },
-    { key: "sample_receive", label: "Sample Receive" },
-    { key: "reimbursement", label: "Reimbursement" },
-    { key: "dr_monthly_business", label: "Dr. Monthly Business" },
-    { key: "near_by_me", label: "Near By Me" },
-    { key: "settings", label: "Settings" },
-    { key: "employee_route", label: "Employee Route" },
-    { key: "whats_new", label: "What's New" },
-  ];
+  const [menuItems, setMenuItems] = useState<Array<{ key: string; label: string }>>([]);
+
+  useEffect(() => {
+    apiClient
+      .get<Array<{ key: string; label: string }>>("/api/v1/navigation/mobile-drawer")
+      .then((res) => {
+        if (res.data && Array.isArray(res.data)) {
+          setMenuItems(res.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -84,7 +85,7 @@ export function MrBuddyDrawer({
               </View>
             </View>
 
-            <Text style={styles.phoneText}>8238848764</Text>
+            <Text style={styles.phoneText}>{user?.phone || ""}</Text>
             <Text style={styles.subOrgText}>MEDIATE HEALTHCARE PVT. LTD.</Text>
             <View style={styles.territoryBadge}>
               <Ionicons name="location-sharp" size={12} color="#DC2626" />
