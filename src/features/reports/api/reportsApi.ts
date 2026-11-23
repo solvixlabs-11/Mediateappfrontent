@@ -1,12 +1,82 @@
 import { apiClient, API_BASE_URL } from "../../../api/client";
 import { components } from "../../../api/schema";
 
-export type ReportCatalogResponse = components["schemas"]["ReportCatalogResponse"];
-export type ReportCatalogItem = components["schemas"]["ReportCatalogItem"];
-export type ReportResponse = components["schemas"]["ReportResponse"];
-export type ReportMeta = components["schemas"]["ReportMeta"];
 export type ReportColumn = components["schemas"]["ReportColumn"];
-export type ReportFilterSchema = components["schemas"]["ReportFilterSchema"];
+
+export interface ReportFilterSchema {
+  date_range?: boolean;
+  mr_picker?: boolean;
+  manager_picker?: boolean;
+  territory_picker?: boolean;
+  customer_type_picker?: boolean;
+  status_picker?: boolean;
+  status_options?: string[];
+  specialization_picker?: boolean;
+  category_picker?: boolean;
+  category_options?: string[];
+  active_picker?: boolean;
+  work_type_picker?: boolean;
+  visit_type_picker?: boolean;
+  verified_picker?: boolean;
+  deviation_type_picker?: boolean;
+  days_not_seen_picker?: boolean;
+  [key: string]: unknown;
+}
+
+export interface ReportCatalogItem {
+  key: string;
+  title: string;
+  name?: string;
+  group: string;
+  description: string;
+  filter_schema: ReportFilterSchema;
+  available_formats?: string[];
+  formats?: string[];
+  status: string;
+  is_ready?: boolean;
+  coming_soon_reason?: string | null;
+  report_number?: number | null;
+  allowed_roles?: string[];
+  sort_order?: number;
+}
+
+export interface ReportCatalogResponse {
+  role?: string;
+  groups?: string[];
+  reports: ReportCatalogItem[];
+  items?: ReportCatalogItem[];
+  total?: number;
+  scope_label?: string;
+}
+
+export interface ReportMeta {
+  key?: string;
+  report_key?: string;
+  title?: string;
+  group?: string;
+  filters?: Record<string, unknown>;
+  scope_label?: string;
+  user_scope?: string;
+  generated_at?: string;
+  columns?: ReportColumn[];
+  total_records?: number;
+  landscape?: boolean;
+  [key: string]: unknown;
+}
+
+export interface ReportResponse {
+  meta?: ReportMeta;
+  columns: ReportColumn[];
+  summary?: Record<string, unknown>;
+  items: Record<string, unknown>[];
+  rows?: Record<string, unknown>[];
+  total: number;
+  total_records?: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
 export type ReportsDashboardDto = components["schemas"]["ReportsDashboardResponse"];
 export type ReportsSummaryDto = components["schemas"]["ReportsSummaryResponse"];
 export type MRPerformanceDto = components["schemas"]["MRPerformanceReportItem"];

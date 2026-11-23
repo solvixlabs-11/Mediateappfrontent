@@ -264,58 +264,61 @@ export function ReportResultScreen() {
               </View>
             </View>
           }
-          renderItem={({ item, index }) => (
-            <Card style={styles.recordCard}>
-              <View style={styles.cardHeader}>
-                <Text style={styles.recordIndex}>#{index + 1}</Text>
-                {item.date != null ? (
-                  <Text style={styles.recordDate}>{String(item.date)}</Text>
-                ) : null}
-                {item.status != null ? (
-                  <View
-                    style={[
-                      styles.statusPill,
-                      item.status === "Approved" || item.status === "Verified"
-                        ? styles.statusPillSuccess
-                        : item.status === "Pending"
-                        ? styles.statusPillWarning
-                        : styles.statusPillDanger,
-                    ]}
-                  >
-                    <Text style={styles.statusPillText}>{String(item.status)}</Text>
-                  </View>
-                ) : null}
-              </View>
-
-              {/* Dynamic primary attributes */}
-              <View style={styles.recordDetails}>
-                {Object.entries(item).map(([fieldKey, val]) => {
-                  if (
-                    fieldKey === "id" ||
-                    fieldKey === "date" ||
-                    fieldKey === "status" ||
-                    val === null ||
-                    val === undefined ||
-                    val === ""
-                  ) {
-                    return null;
-                  }
-
-                  const matchedCol = columns.find((c) => c.key === fieldKey);
-                  const label = matchedCol ? matchedCol.label : formatSummaryLabel(fieldKey);
-
-                  return (
-                    <View key={fieldKey} style={styles.attributeRow}>
-                      <Text style={styles.attributeLabel}>{label}:</Text>
-                      <Text style={styles.attributeValue} numberOfLines={2}>
-                        {typeof val === "boolean" ? (val ? "Yes" : "No") : String(val)}
-                      </Text>
+          renderItem={({ item, index }) => {
+            if (!item) return null;
+            return (
+              <Card style={styles.recordCard}>
+                <View style={styles.cardHeader}>
+                  <Text style={styles.recordIndex}>#{index + 1}</Text>
+                  {item.date != null ? (
+                    <Text style={styles.recordDate}>{String(item.date)}</Text>
+                  ) : null}
+                  {item.status != null ? (
+                    <View
+                      style={[
+                        styles.statusPill,
+                        item.status === "Approved" || item.status === "Verified"
+                          ? styles.statusPillSuccess
+                          : item.status === "Pending"
+                          ? styles.statusPillWarning
+                          : styles.statusPillDanger,
+                      ]}
+                    >
+                      <Text style={styles.statusPillText}>{String(item.status)}</Text>
                     </View>
-                  );
-                })}
-              </View>
-            </Card>
-          )}
+                  ) : null}
+                </View>
+
+                {/* Dynamic primary attributes */}
+                <View style={styles.recordDetails}>
+                  {Object.entries(item).map(([fieldKey, val]) => {
+                    if (
+                      fieldKey === "id" ||
+                      fieldKey === "date" ||
+                      fieldKey === "status" ||
+                      val === null ||
+                      val === undefined ||
+                      val === ""
+                    ) {
+                      return null;
+                    }
+
+                    const matchedCol = columns.find((c) => c.key === fieldKey);
+                    const label = matchedCol ? matchedCol.label : formatSummaryLabel(fieldKey);
+
+                    return (
+                      <View key={fieldKey} style={styles.attributeRow}>
+                        <Text style={styles.attributeLabel}>{label}:</Text>
+                        <Text style={styles.attributeValue} numberOfLines={2}>
+                          {typeof val === "boolean" ? (val ? "Yes" : "No") : String(val)}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+              </Card>
+            );
+          }}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) {
               fetchNextPage();

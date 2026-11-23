@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useMasterStore } from "../../masters/store";
 import { EntityPicker } from "../components/EntityPicker";
 import { LocationCard } from "../components/LocationCard";
+import { AutoDetectLocationCard } from "../../../shared/components/AutoDetectLocationCard";
 import { customersApi, DoctorDto } from "../api/customersApi";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
 
@@ -230,6 +231,22 @@ export function AddDoctorModal({
             />
           </View>
 
+          {/* Auto-Detect Location */}
+          <AutoDetectLocationCard
+            latitude={latitude}
+            longitude={longitude}
+            detectedAddress={address}
+            onLocationDetected={(geo) => {
+              setLatitude(geo.latitude);
+              setLongitude(geo.longitude);
+              if (geo.address) {
+                setAddress(geo.address);
+              }
+            }}
+            title="Auto-Detect Location (GPS)"
+            subtitle="Capture clinic GPS coordinates and auto-fill address"
+          />
+
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>Full Address</Text>
             <TextInput
@@ -242,16 +259,6 @@ export function AddDoctorModal({
               onChangeText={setAddress}
             />
           </View>
-
-          {/* GPS Coordinates & Geofence Tagging */}
-          <LocationCard
-            latitude={latitude}
-            longitude={longitude}
-            onLocationCaptured={(coords) => {
-              setLatitude(coords.latitude);
-              setLongitude(coords.longitude);
-            }}
-          />
 
           {/* Submit Button */}
           <TouchableOpacity

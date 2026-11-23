@@ -21,7 +21,8 @@ import * as ImagePicker from "expo-image-picker";
 import { customersApi } from "../api/customersApi";
 import { mastersApi } from "../../masters/api/mastersApi";
 import { dcrApi } from "../../dcr/api/dcrApi";
-import { getCurrentGeoLocation } from "../../../shared/utils/location";
+import { getCurrentGeoLocation, GeoLocationResult } from "../../../shared/utils/location";
+import { AutoDetectLocationCard } from "../../../shared/components/AutoDetectLocationCard";
 
 interface AreaMapping {
   id: number;
@@ -177,6 +178,32 @@ export function NewDoctorVisitScreen() {
     setPincodeText("");
   };
 
+  const handleLocationDetected = (geo: GeoLocationResult) => {
+    if (geo.addressLine1) {
+      setAddressLine1(geo.addressLine1);
+    }
+    if (geo.area) {
+      setAreaText(geo.area.toUpperCase());
+    }
+    if (geo.city) {
+      setCityText(geo.city.toUpperCase());
+    }
+    if (geo.district) {
+      setDistrictText(geo.district.toUpperCase());
+    }
+    if (geo.state) {
+      setStateText(geo.state.toUpperCase());
+    }
+    if (geo.pincode) {
+      setPincodeText(geo.pincode);
+    }
+    setGpsLocation({
+      latitude: geo.latitude,
+      longitude: geo.longitude,
+      address: geo.address,
+    });
+  };
+
   // Photo Capture
   const handleCapturePhoto = async () => {
     try {
@@ -244,12 +271,10 @@ export function NewDoctorVisitScreen() {
           location_accuracy: 10,
           is_mock_location: false,
           remarks: remarks || `New Doctor ${newDoc.full_name} enrolled and introductory visit completed.`,
-          post_call: {
+          post_call_analysis: {
+            call_outcome: "HIGHLY_INTERESTED",
             doctor_feedback: remarks,
-            rating: rating || 5,
-            outcome: "HIGHLY_INTERESTED",
-            commitment_level: "HIGH",
-            next_action_days: 7,
+            prescription_commitment: "HIGH",
             follow_up_required: false,
           },
         } as any);
@@ -468,6 +493,14 @@ export function NewDoctorVisitScreen() {
         {currentStep === 3 && (
           <View>
             <Text style={styles.sectionHeaderTitle}>ADDRESS DETAILS</Text>
+
+            <AutoDetectLocationCard
+              latitude={gpsLocation.latitude}
+              longitude={gpsLocation.longitude}
+              detectedAddress={gpsLocation.address}
+              onLocationDetected={handleLocationDetected}
+              subtitle="Capture GPS coordinates and auto-fill doctor clinic address"
+            />
 
             <View style={styles.cardBox}>
               <View style={styles.fieldBlock}>

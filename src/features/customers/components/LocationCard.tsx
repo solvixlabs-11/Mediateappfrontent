@@ -1,14 +1,15 @@
 import React, { useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
-import { getCurrentGeoLocation } from "../../../shared/utils/location";
+import { getCurrentGeoLocation, GeoLocationResult } from "../../../shared/utils/location";
 
 interface LocationCardProps {
   latitude?: number | null;
   longitude?: number | null;
   accuracy?: number | null;
   onLocationCaptured: (coords: { latitude: number; longitude: number; accuracy?: number }) => void;
+  onAddressDetected?: (data: GeoLocationResult) => void;
   geofenceRadiusMeters?: number;
 }
 
@@ -17,19 +18,25 @@ export function LocationCard({
   longitude,
   accuracy,
   onLocationCaptured,
+  onAddressDetected,
   geofenceRadiusMeters = 200,
 }: LocationCardProps) {
   const [isCapturing, setIsCapturing] = useState(false);
+  const [detectedAddress, setDetectedAddress] = useState<string | null>(null);
 
   const handleCapture = async () => {
     setIsCapturing(true);
     try {
       const geo = await getCurrentGeoLocation();
+      setDetectedAddress(geo.address);
       onLocationCaptured({
         latitude: Number(geo.latitude.toFixed(6)),
         longitude: Number(geo.longitude.toFixed(6)),
         accuracy: geo.accuracy,
       });
+      if (onAddressDetected) {
+        onAddressDetected(geo);
+      }
     } catch {
       const capturedLat = latitude || 19.0760;
       const capturedLon = longitude || 72.8777;
@@ -41,6 +48,12 @@ export function LocationCard({
     } finally {
       setIsCapturing(false);
     }
+  };
+
+  const handleOpenMaps = () => {
+    if (!latitude || !longitude) return;
+    const url = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+    Linking.openURL(url).catch(() => {});
   };
 
   const hasCoords = latitude !== undefined && latitude !== null && longitude !== undefined && longitude !== null;
@@ -88,27 +101,59 @@ export function LocationCard({
           </View>
         )}
 
-        <TouchableOpacity
-          style={[styles.captureButton, hasCoords && styles.recaptureButton]}
-          onPress={handleCapture}
-          disabled={isCapturing}
-          activeOpacity={0.8}
-        >
-          {isCapturing ? (
-            <ActivityIndicator size="small" color="#fff" />
-          ) : (
-            <>
-              <Ionicons
-                name={hasCoords ? "refresh" : "navigate"}
-                size={16}
-                color="#fff"
-              />
-              <Text style={styles.captureButtonText}>
-                {hasCoords ? "Update Current Location" : "Capture GPS Tag"}
+        {detectedAddress && (
+          <View style={{ marginTop: spacing.xs, marginBottom: spacing.xs, flexDirection: "row", alignItems: "center", gap: 4 }}>
+            <Ionicons name="navigate-outline" size={12} color={colors.textSecondary} />
+            <Text style={{ ...typography.caption, fontSize: 11, color: colors.textSecondary, flex: 1 }} numberOfLines={2}>
+              {detectedAddress}
+            </Text>
+          </View>
+        )}
+
+        <View style={{ flexDirection: "row", gap: spacing.sm, marginTop: spacing.xs }}>
+          <TouchableOpacity
+            style={[styles.captureButton, { flex: 1 }, hasCoords && styles.recaptureButton]}
+            onPress={handleCapture}
+            disabled={isCapturing}
+            activeOpacity={0.8}
+          >
+            {isCapturing ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <>
+                <Ionicons
+                  name={hasCoords ? "refresh" : "navigate"}
+                  size={16}
+                  color="#fff"
+                />
+                <Text style={styles.captureButtonText}>
+                  {hasCoords ? "Update Location" : "Auto-Detect Location"}
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+
+          {hasCoords && (
+            <TouchableOpacity
+              style={{
+                backgroundColor: colors.navy,
+                borderRadius: radii.md,
+                paddingHorizontal: spacing.md,
+                alignItems: "center",
+                justifyContent: "center",
+                flexDirection: "row",
+                gap: 4,
+              }}
+              onPress={handleOpenMaps}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="map-outline" size={16} color="#fff" />
+              <Text style={{ ...typography.body, fontSize: 13, fontWeight: "600", color: "#fff" }}>
+                Maps
               </Text>
-            </>
+            </TouchableOpacity>
           )}
-        </TouchableOpacity>
+        </View>
       </View>
     </View>
   );

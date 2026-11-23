@@ -1,7 +1,5 @@
 import { getDatabase } from "../../../shared/services/sqlite";
-import { components } from "../../../api/schema";
-
-export type ReportResponse = components["schemas"]["ReportResponse"];
+import { ReportResponse } from "../api/reportsApi";
 
 export interface RecentExportItem {
   id?: number;

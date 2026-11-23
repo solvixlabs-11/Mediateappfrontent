@@ -17,6 +17,7 @@ import { RootStackParamList } from "../../../navigation/types";
 import { useMasterStore } from "../../masters/store";
 import { EntityPicker } from "../components/EntityPicker";
 import { LocationCard } from "../components/LocationCard";
+import { AutoDetectLocationCard } from "../../../shared/components/AutoDetectLocationCard";
 import { customersApi } from "../api/customersApi";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
 
@@ -274,9 +275,33 @@ export function CustomerFormScreen() {
           </View>
         )}
 
+        {/* Auto-Detect Location Card */}
+        <AutoDetectLocationCard
+          latitude={latitude}
+          longitude={longitude}
+          detectedAddress={address}
+          onLocationDetected={(geo) => {
+            setLatitude(geo.latitude);
+            setLongitude(geo.longitude);
+            if (geo.address) {
+              setAddress(geo.address);
+            }
+          }}
+          title="Auto-Detect Location (GPS)"
+          subtitle={`Capture GPS tag and auto-fill ${customerType === "DOCTOR" ? "clinic" : customerType === "CHEMIST" ? "shop" : "premises"} address`}
+        />
+
         {/* Full Address */}
         <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Clinic Address</Text>
+          <Text style={styles.label}>
+            {customerType === "DOCTOR"
+              ? "Clinic Address"
+              : customerType === "CHEMIST"
+              ? "Shop Address"
+              : customerType === "HOSPITAL"
+              ? "Hospital Address"
+              : "Address"}
+          </Text>
           <TextInput
             style={[styles.input, styles.textArea]}
             placeholder="Room/Shop no., Building, Road, Landmark..."
@@ -287,16 +312,6 @@ export function CustomerFormScreen() {
             numberOfLines={2}
           />
         </View>
-
-        {/* Location / Geofence Section */}
-        <LocationCard
-          latitude={latitude}
-          longitude={longitude}
-          onLocationCaptured={(coords) => {
-            setLatitude(coords.latitude);
-            setLongitude(coords.longitude);
-          }}
-        />
 
         {/* Submit Button */}
         <TouchableOpacity

@@ -218,12 +218,10 @@ export function DoctorVisitScreen() {
         location_accuracy: 10,
         is_mock_location: false,
         remarks: remarks || `Doctor call recorded with ${rating} star rating.`,
-        post_call: {
+        post_call_analysis: {
           doctor_feedback: remarks,
-          rating: rating,
-          outcome: rating >= 4 ? "HIGHLY_INTERESTED" : "INTERESTED",
-          commitment_level: rating >= 4 ? "HIGH" : "MEDIUM",
-          next_action_days: 7,
+          call_outcome: rating >= 4 ? "HIGHLY_INTERESTED" : "MODERATE",
+          prescription_commitment: rating >= 4 ? "HIGH" : "MEDIUM",
           follow_up_required: rating < 3,
         },
       };

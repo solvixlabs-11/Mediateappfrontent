@@ -257,6 +257,54 @@ export interface paths {
          */
         get: operations["get_roles_api_v1_users_roles_get"];
         put?: never;
+        /**
+         * Create a new role (Admin)
+         * @description Create a new role.
+         */
+        post: operations["create_role_api_v1_users_roles_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/roles/{role_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update role (Admin)
+         * @description Update role metadata.
+         */
+        put: operations["update_role_api_v1_users_roles__role_id__put"];
+        post?: never;
+        /**
+         * Delete role (Admin)
+         * @description Delete a role.
+         */
+        delete: operations["delete_role_api_v1_users_roles__role_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/users/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get user subscription metrics
+         * @description Get total, active, and pending user subscription counts for Employee Master.
+         */
+        get: operations["get_users_summary_api_v1_users_summary_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -456,6 +504,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/{user_id}/force-logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Force logout user by terminating all active sessions
+         * @description Terminate all active refresh tokens and sessions for an employee.
+         */
+        post: operations["force_logout_user_api_v1_users__user_id__force_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/files/upload": {
         parameters: {
             query?: never;
@@ -574,6 +642,50 @@ export interface paths {
          */
         put: operations["update_master_item_api_v1_masters__item_id__put"];
         post?: never;
+        /**
+         * Delete master item (Admin)
+         * @description Soft-delete existing master item.
+         */
+        delete: operations["delete_master_item_api_v1_masters__item_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/masters/{type}/{item_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm provisional master item
+         * @description Confirm a single provisional master item.
+         */
+        post: operations["confirm_master_item_api_v1_masters__type___item_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/masters/{type}/confirm-bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk confirm provisional master items
+         * @description Bulk confirm multiple provisional master items.
+         */
+        post: operations["confirm_master_items_bulk_api_v1_masters__type__confirm_bulk_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -604,6 +716,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/masters/states/{state_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update state (Admin)
+         * @description Update existing state.
+         */
+        put: operations["update_state_api_v1_masters_states__state_id__put"];
+        post?: never;
+        /**
+         * Delete state (Admin)
+         * @description Delete a state.
+         */
+        delete: operations["delete_state_api_v1_masters_states__state_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/masters/cities": {
         parameters: {
             query?: never;
@@ -628,6 +764,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/masters/cities/{city_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update city (Admin)
+         * @description Update existing city.
+         */
+        put: operations["update_city_api_v1_masters_cities__city_id__put"];
+        post?: never;
+        /**
+         * Delete city (Admin)
+         * @description Delete a city.
+         */
+        delete: operations["delete_city_api_v1_masters_cities__city_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/masters/areas": {
         parameters: {
             query?: never;
@@ -646,6 +806,50 @@ export interface paths {
          * @description Create an area.
          */
         post: operations["create_area_api_v1_masters_areas_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/masters/areas/{area_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update area (Admin)
+         * @description Update existing area.
+         */
+        put: operations["update_area_api_v1_masters_areas__area_id__put"];
+        post?: never;
+        /**
+         * Delete area (Admin)
+         * @description Delete an area.
+         */
+        delete: operations["delete_area_api_v1_masters_areas__area_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/territories/tree": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get hierarchical territory tree org chart
+         * @description Fetch complete hierarchical org chart tree starting from 'ALL INDIA' root.
+         */
+        get: operations["get_territory_tree_api_v1_territories_tree_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -714,7 +918,11 @@ export interface paths {
          */
         put: operations["update_territory_api_v1_territories__territory_id__put"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete territory (Admin)
+         * @description Soft-delete territory.
+         */
+        delete: operations["delete_territory_api_v1_territories__territory_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -842,7 +1050,11 @@ export interface paths {
          */
         put: operations["update_doctor_api_v1_customers_doctors__doctor_id__put"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete doctor
+         * @description Soft-delete doctor.
+         */
+        delete: operations["delete_doctor_api_v1_customers_doctors__doctor_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -890,7 +1102,11 @@ export interface paths {
          */
         put: operations["update_hospital_api_v1_customers_hospitals__hospital_id__put"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete hospital
+         * @description Soft-delete hospital.
+         */
+        delete: operations["delete_hospital_api_v1_customers_hospitals__hospital_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -958,7 +1174,11 @@ export interface paths {
          */
         put: operations["update_chemist_api_v1_customers_chemists__chemist_id__put"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete chemist
+         * @description Soft-delete chemist.
+         */
+        delete: operations["delete_chemist_api_v1_customers_chemists__chemist_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1006,7 +1226,11 @@ export interface paths {
          */
         put: operations["update_stockist_api_v1_customers_stockists__stockist_id__put"];
         post?: never;
-        delete?: never;
+        /**
+         * Delete stockist
+         * @description Soft-delete stockist.
+         */
+        delete: operations["delete_stockist_api_v1_customers_stockists__stockist_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1092,6 +1316,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/dashboard/visits-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get aggregated visits summary per field employee (Admin Inventory Section 3)
+         * @description Fetch paginated visits summary metrics with real database aggregations.
+         */
+        get: operations["get_visits_summary_api_v1_dashboard_visits_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/visits-summary/{employee_id}/metrics/{metric_key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get detailed drill-down data for a single employee metric
+         * @description Fetch paginated metric drilldown (TABLE rows, RECORD detail with map, or TIMELINE).
+         */
+        get: operations["get_metric_drilldown_api_v1_dashboard_visits_summary__employee_id__metrics__metric_key__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/dashboard/visits-summary/{employee_id}/metrics/{metric_key}/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export metric drill-down data to styled XLSX spreadsheet
+         * @description Export metric drill-down table to Excel (.xlsx) file.
+         */
+        get: operations["export_metric_drilldown_api_v1_dashboard_visits_summary__employee_id__metrics__metric_key__export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dashboard/admin/live-activity": {
         parameters: {
             query?: never;
@@ -1154,6 +1438,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/navigation/menu": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dynamic navigation menu tree filtered by user permissions
+         * @description Fetch complete hierarchical navigation tree with permissions and counts.
+         */
+        get: operations["get_navigation_menu_api_v1_navigation_menu_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/navigation/quick-cards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dynamic quick dashboard module cards
+         * @description Fetch dashboard management quick cards configured for user role.
+         */
+        get: operations["get_quick_cards_api_v1_navigation_quick_cards_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/navigation/mobile-drawer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dynamic mobile app drawer items
+         * @description Fetch dynamic mobile drawer navigation items.
+         */
+        get: operations["get_mobile_drawer_items_api_v1_navigation_mobile_drawer_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/dcr/visits": {
         parameters: {
             query?: never;
@@ -1162,8 +1506,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List DCR visits for current user
-         * @description Fetch user's DCR calls.
+         * List DCR visits for current user or team
+         * @description Fetch DCR calls.
          */
         get: operations["list_dcr_visits_api_v1_dcr_visits_get"];
         put?: never;
@@ -1390,6 +1734,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/tour-plan-locks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List active and historical tour plan locks
+         * @description Fetch tour plan cutoff locks.
+         */
+        get: operations["list_tour_plan_locks_api_v1_tour_plan_locks_get"];
+        put?: never;
+        /**
+         * Establish a cutoff lock on tour plan submissions (Admin only)
+         * @description Establish cutoff deadline lock for a given month and scope.
+         */
+        post: operations["create_tour_plan_lock_api_v1_tour_plan_locks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tour-plan-locks/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Fetch audit history of tour plan locks
+         * @description Audit history log of all lock/unlock events.
+         */
+        get: operations["get_tour_plan_lock_history_api_v1_tour_plan_locks_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/tour-plan-locks/{lock_id}/unlock": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Unlock tour plan submissions with audited reason (Admin only)
+         * @description Unlock an established tour plan lock.
+         */
+        post: operations["unlock_tour_plan_lock_api_v1_tour_plan_locks__lock_id__unlock_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/expenses": {
         parameters: {
             query?: never;
@@ -1428,6 +1836,46 @@ export interface paths {
         get: operations["get_monthly_summary_api_v1_expenses_summary_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/expenses/payout-modes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get supported reimbursement payout modes
+         * @description Return available payment modes for reimbursement settlement.
+         */
+        get: operations["get_payout_modes_api_v1_expenses_payout_modes_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/expenses/{expense_id}/payout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Process reimbursement payout for approved claim
+         * @description Settle an approved expense claim and mark as PAID with UTR reference.
+         */
+        post: operations["process_payout_api_v1_expenses__expense_id__payout_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1734,6 +2182,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/notifications/broadcast": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Broadcast announcement notification to field employees
+         * @description Broadcast an alert to field staff.
+         */
+        post: operations["broadcast_notification_api_v1_notifications_broadcast_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/reports": {
         parameters: {
             query?: never;
@@ -1742,10 +2210,30 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get reports catalog available for caller's role
-         * @description Return reports catalog with titles, groups, filter schemas, and scope info.
+         * Get reports catalog available for caller's role (Catalog v3)
+         * @description Return reports catalog with search, group, status, and role-based filtering.
          */
         get: operations["get_reports_catalog_api_v1_reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/options/{source}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get options for schema-driven dynamic filter fields
+         * @description Fetch scoped and searchable options for report filters (e.g. employees, territories).
+         */
+        get: operations["get_report_options_api_v1_reports_options__source__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1782,12 +2270,32 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Get paged JSON report with summary and metadata
-         * @description Execute dynamic report query with server-enforced scoping and return paged results.
+         * Get report definition metadata, schema, and status
+         * @description Retrieve report definition metadata and schema by key.
          */
-        get: operations["get_report_api_v1_reports__key__get"];
+        get: operations["get_report_definition_api_v1_reports__key__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/reports/{key}/run": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute report view on screen with schema-driven filters
+         * @description Run dynamic report query with server-enforced scoping and return paged results.
+         */
+        post: operations["run_report_api_v1_reports__key__run_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1802,12 +2310,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * Export report file as PDF or Excel (XLSX)
+         * Export report file as PDF or Excel (XLSX) using GET (backward compatibility)
+         * @description Stream report as PDF or Excel workbook using GET query params.
+         */
+        get: operations["export_report_get_api_v1_reports__key__export_get"];
+        put?: never;
+        /**
+         * Export report file as PDF or Excel (XLSX) using POST
          * @description Stream report as PDF or Excel workbook with audit log tracking.
          */
-        get: operations["export_report_api_v1_reports__key__export_get"];
-        put?: never;
-        post?: never;
+        post: operations["export_report_post_api_v1_reports__key__export_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1898,6 +2410,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orders/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get commercial orders KPI summary
+         * @description Fetch order stats and revenue totals.
+         */
+        get: operations["get_orders_summary_api_v1_orders_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/orders": {
         parameters: {
             query?: never;
@@ -1942,6 +2474,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/orders/{order_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update commercial order status (Admin/Manager)
+         * @description Update order fulfillment status.
+         */
+        patch: operations["update_order_status_api_v1_orders__order_id__status_patch"];
+        trace?: never;
+    };
     "/api/v1/targets": {
         parameters: {
             query?: never;
@@ -1966,6 +2518,996 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workflow/{module}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get 3-tile dynamic counts (Drafts, Applied, Received) for module
+         * @description Return dynamic counts of Drafts, Applied, and Received items scoped to the caller.
+         */
+        get: operations["get_workflow_summary_api_v1_workflow__module__summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workflow/{module}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get workflow inbox items by box (drafts, applied, received)
+         * @description Return items for the selected workflow box.
+         */
+        get: operations["list_workflow_items_api_v1_workflow__module__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get all configuration groups with their settings and metadata
+         * @description Fetch complete tree of system settings grouped by functional area.
+         */
+        get: operations["get_setting_groups_api_v1_settings_groups_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List settings with optional group or search filter
+         * @description List matching application settings.
+         */
+        get: operations["list_settings_api_v1_settings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Bulk update multiple settings in a transaction
+         * @description Transactional all-or-nothing bulk update of settings.
+         */
+        put: operations["bulk_update_settings_api_v1_settings_bulk_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/geofence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all geofence radius rules (alias)
+         * @description Fetch geofence radii for Doctor, Hospital, Chemist, Stockist.
+         */
+        get: operations["list_geofence_settings_api_v1_settings_geofence_get"];
+        /**
+         * Update geofence radius and accuracy rules
+         * @description Update geofence rules per customer type.
+         */
+        put: operations["update_geofence_settings_api_v1_settings_geofence_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/geofence/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List all geofence radius rules
+         * @description Fetch geofence radii for Doctor, Hospital, Chemist, Stockist.
+         */
+        get: operations["list_geofence_settings_api_v1_settings_geofence_rules_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Update a single setting value
+         * @description Update single setting with typed server validation and audit trail.
+         */
+        put: operations["update_setting_api_v1_settings__key__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/{key}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a provisional setting value
+         * @description Acknowledge and mark a provisional setting as confirmed.
+         */
+        post: operations["confirm_setting_api_v1_settings__key__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/settings/{key}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get change history timeline for a setting
+         * @description Fetch change audit history for a single setting.
+         */
+        get: operations["get_setting_history_api_v1_settings__key__history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/meta": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get dynamic metadata options for audit log filters
+         * @description Fetch distinct modules, actions, channels, and results from audit logs.
+         */
+        get: operations["get_audit_meta_api_v1_audit_meta_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/logs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List audit logs with filtering and pagination
+         * @description Fetch paginated system audit trail events.
+         */
+        get: operations["list_audit_logs_api_v1_audit_logs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/logs/{log_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get single audit log entry details
+         * @description Fetch complete detail of an audit event including before/after diffs.
+         */
+        get: operations["get_audit_log_api_v1_audit_logs__log_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/audit/logs/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Export audit logs to CSV/Excel
+         * @description Stream export of filtered audit logs (action itself is audited).
+         */
+        post: operations["export_audit_logs_api_v1_audit_logs_export_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/expense-limits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List expense limits with optional filters
+         * @description Fetch designation-wise daily and monthly limits.
+         */
+        get: operations["list_expense_limits_api_v1_expense_limits_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/expense-limits/matrix": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get full expense limits matrix across all designations
+         * @description Fetch matrix grid of designations x expense types.
+         */
+        get: operations["get_expense_limits_matrix_api_v1_expense_limits_matrix_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/expense-limits/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Bulk upsert expense limits matrix
+         * @description Upsert expense limits matrix.
+         */
+        put: operations["bulk_upsert_expense_limits_api_v1_expense_limits_bulk_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/expense-limits/{limit_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm provisional expense limit
+         * @description Acknowledge provisional limit as confirmed.
+         */
+        post: operations["confirm_expense_limit_api_v1_expense_limits__limit_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mappings/capabilities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get mapping wizard capabilities and constraints
+         * @description Fetch supported modes, beat readiness (beats=false), and batch constraints.
+         */
+        get: operations["get_mapping_capabilities_api_v1_mappings_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mappings/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a dry-run preview and draft mapping batch
+         * @description Preview candidate assignments, conflict resolutions, and item counts.
+         */
+        post: operations["preview_mapping_api_v1_mappings_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mappings/{batch_id}/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply a draft mapping batch in an atomic transaction
+         * @description Execute bulk assignments and record audit logs.
+         */
+        post: operations["apply_mapping_api_v1_mappings__batch_id__apply_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mappings/{batch_id}/revert": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revert an applied batch restoring prior assignments
+         * @description Undo applied batch assignments.
+         */
+        post: operations["revert_mapping_api_v1_mappings__batch_id__revert_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mappings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List past mapping batches history
+         * @description Fetch history of applied and reverted mapping batches.
+         */
+        get: operations["list_mappings_api_v1_mappings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mappings/{batch_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get mapping batch detail and assigned items
+         * @description Fetch batch details and item records.
+         */
+        get: operations["get_mapping_detail_api_v1_mappings__batch_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/company-profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get active company profile and branding
+         * @description Fetch current organization profile (Application Setting).
+         */
+        get: operations["get_company_profile_api_v1_company_profile_get"];
+        /**
+         * Update company profile and branding assets
+         * @description Update organization profile, logo, and signature (ADMIN only).
+         */
+        put: operations["update_company_profile_api_v1_company_profile_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meetings/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get workflow inbox summary tiles (Drafts, Applied, Received)
+         * @description Fetch counts for Drafts (with +), Applied, Received, and Total.
+         */
+        get: operations["get_meetings_summary_api_v1_meetings_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meetings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List meetings with workflow filters
+         * @description Fetch meetings matching filter.
+         */
+        get: operations["list_meetings_api_v1_meetings_get"];
+        put?: never;
+        /**
+         * Create meeting draft or application
+         * @description Create a new cycle meeting or review.
+         */
+        post: operations["create_meeting_api_v1_meetings_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meetings/{meeting_id}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Submit draft meeting
+         * @description Submit draft meeting.
+         */
+        post: operations["submit_meeting_api_v1_meetings__meeting_id__submit_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meetings/{meeting_id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Approve meeting
+         * @description Approve applied meeting.
+         */
+        post: operations["approve_meeting_api_v1_meetings__meeting_id__approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/meetings/{meeting_id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Reject meeting
+         * @description Reject applied meeting.
+         */
+        post: operations["reject_meeting_api_v1_meetings__meeting_id__reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/calendar/month": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get monthly calendar with per-day operational counts and events
+         * @description Fetch day-by-day counts (Doctor, Chemist, Stockist, New Customers, POB) and scheduled events.
+         */
+        get: operations["get_month_calendar_api_v1_calendar_month_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mobile-registrations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List mobile device registrations with filters and pagination */
+        get: operations["list_mobile_registrations_api_v1_mobile_registrations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mobile-registrations/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bulk approve mobile device registrations and activate accounts */
+        post: operations["bulk_approve_registrations_api_v1_mobile_registrations_approve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/mobile-registrations/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bulk reject mobile device registrations */
+        post: operations["bulk_reject_registrations_api_v1_mobile_registrations_reject_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/visits/delete-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview matching visits for bulk deletion with security token
+         * @description Generate preview and secure token for visits deletion (Admin only).
+         */
+        post: operations["preview_delete_visits_api_v1_admin_visits_delete_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/visits/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Execute transactional soft delete with side-effect rollback (Admin only)
+         * @description Soft delete up to 5,000 visits with atomic rollback of planned visits and follow-ups.
+         */
+        post: operations["execute_delete_visits_api_v1_admin_visits_delete_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/visits/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Restore soft-deleted visits within retention window (Admin only)
+         * @description Restore soft deleted visits by batch token or explicit IDs.
+         */
+        post: operations["restore_visits_api_v1_admin_visits_restore_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stock/samples/inward": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List sample inward shipments received at Head Office */
+        get: operations["list_sample_inwards_api_v1_stock_samples_inward_get"];
+        put?: never;
+        /** Record sample stock inward arrival at Head Office depot */
+        post: operations["record_sample_inward_api_v1_stock_samples_inward_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stock/samples/allocations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List monthly sample quotas allocated to representatives */
+        get: operations["list_sample_allocations_api_v1_stock_samples_allocations_get"];
+        put?: never;
+        /** Assign or update monthly sample quota for an employee */
+        post: operations["create_sample_allocation_api_v1_stock_samples_allocations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stock/samples/allocations/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bulk assign monthly sample quotas across representatives */
+        post: operations["bulk_sample_allocation_api_v1_stock_samples_allocations_bulk_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stock/samples/issues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List sample dispatches and issue orders */
+        get: operations["list_sample_issues_api_v1_stock_samples_issues_get"];
+        put?: never;
+        /** Issue samples to field representative and deduct stock */
+        post: operations["create_sample_issue_api_v1_stock_samples_issues_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stock/samples/issues/{issue_id}/acknowledge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Field staff acknowledgment of sample receipt */
+        post: operations["acknowledge_sample_issue_api_v1_stock_samples_issues__issue_id__acknowledge_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stock/samples/batches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List active sample batches with expiry status */
+        get: operations["get_sample_batches_api_v1_stock_samples_batches_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/stock/samples/balance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Product-wise sample stock balance ledger (HO vs Field) */
+        get: operations["get_sample_stock_balance_api_v1_stock_samples_balance_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/financial-years": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List financial years */
+        get: operations["list_financial_years_api_v1_financial_years_get"];
+        put?: never;
+        /** Create financial year */
+        post: operations["create_financial_year_api_v1_financial_years_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/financial-years/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get currently active financial year */
+        get: operations["get_current_financial_year_api_v1_financial_years_current_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/financial-years/{year_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get single financial year details */
+        get: operations["get_financial_year_api_v1_financial_years__year_id__get"];
+        /** Update financial year */
+        put: operations["update_financial_year_api_v1_financial_years__year_id__put"];
+        post?: never;
+        /** Delete financial year */
+        delete: operations["delete_financial_year_api_v1_financial_years__year_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/financial-years/{year_id}/set-current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set financial year as the current active fiscal year */
+        post: operations["set_current_financial_year_api_v1_financial_years__year_id__set_current_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/releases": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List product releases & what's new entries */
+        get: operations["list_releases_api_v1_releases_get"];
+        put?: never;
+        /** Create release note */
+        post: operations["create_release_api_v1_releases_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/releases/latest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get latest published release note */
+        get: operations["get_latest_release_api_v1_releases_latest_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/releases/{release_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get single release details */
+        get: operations["get_release_by_id_api_v1_releases__release_id__get"];
+        /** Update release note */
+        put: operations["update_release_api_v1_releases__release_id__put"];
+        post?: never;
+        /** Delete release note */
+        delete: operations["delete_release_api_v1_releases__release_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1979,6 +3521,128 @@ export interface components {
             /** Mr Activities */
             mr_activities: components["schemas"]["MrLiveActivityItem"][];
             pending_approvals: components["schemas"]["PendingApprovalsSummary"];
+        };
+        /** AppReleaseCreate */
+        AppReleaseCreate: {
+            /**
+             * Version
+             * @description Semantic version e.g. v2.2.0
+             */
+            version: string;
+            /**
+             * Title
+             * @description Headline of the release
+             */
+            title: string;
+            /**
+             * Release Date
+             * Format: date
+             * @description Release deployment date
+             */
+            release_date: string;
+            /**
+             * Release Type
+             * @description Release type: WEB_UPDATE, MOBILE_APK, MAJOR_RELEASE, PATCH
+             * @default WEB_UPDATE
+             */
+            release_type: string;
+            /**
+             * Summary
+             * @description Summary paragraph
+             */
+            summary: string;
+            /**
+             * Highlights
+             * @description List of key feature bullets
+             */
+            highlights?: string[];
+            /**
+             * Target Audience
+             * @description Target audience: ALL, ADMIN, MR, MANAGER
+             * @default ALL
+             */
+            target_audience: string;
+            /**
+             * Is Published
+             * @description Publish status
+             * @default true
+             */
+            is_published: boolean;
+            /**
+             * Apk Download Url
+             * @description Optional APK download link
+             */
+            apk_download_url?: string | null;
+        };
+        /** AppReleaseListResponse */
+        AppReleaseListResponse: {
+            /** Items */
+            items: components["schemas"]["AppReleaseResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /** AppReleaseResponse */
+        AppReleaseResponse: {
+            /** Id */
+            id: number;
+            /** Version */
+            version: string;
+            /** Title */
+            title: string;
+            /**
+             * Release Date
+             * Format: date
+             */
+            release_date: string;
+            /** Release Type */
+            release_type: string;
+            /** Summary */
+            summary: string;
+            /** Highlights */
+            highlights?: string[];
+            /** Target Audience */
+            target_audience: string;
+            /** Is Published */
+            is_published: boolean;
+            /** Apk Download Url */
+            apk_download_url?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** AppReleaseUpdate */
+        AppReleaseUpdate: {
+            /** Version */
+            version?: string | null;
+            /** Title */
+            title?: string | null;
+            /** Release Date */
+            release_date?: string | null;
+            /** Release Type */
+            release_type?: string | null;
+            /** Summary */
+            summary?: string | null;
+            /** Highlights */
+            highlights?: string[] | null;
+            /** Target Audience */
+            target_audience?: string | null;
+            /** Is Published */
+            is_published?: boolean | null;
+            /** Apk Download Url */
+            apk_download_url?: string | null;
         };
         /**
          * ApprovalDecisionRequest
@@ -2089,6 +3753,20 @@ export interface components {
             pincode?: string | null;
             /** Is Active */
             is_active: boolean;
+        };
+        /**
+         * AreaUpdate
+         * @description Payload to update an Area.
+         */
+        AreaUpdate: {
+            /** City Id */
+            city_id?: number | null;
+            /** Name */
+            name?: string | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /**
          * AssignManagerRequest
@@ -2222,11 +3900,100 @@ export interface components {
             remarks?: string | null;
             /** Client Uuid */
             client_uuid?: string | null;
+            /** User Name */
+            user_name?: string | null;
+            /** Employee Code */
+            employee_code?: string | null;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+        };
+        /**
+         * AuditLogListResponse
+         * @description Paginated audit logs response.
+         */
+        AuditLogListResponse: {
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Items */
+            items: components["schemas"]["AuditLogResponse"][];
+        };
+        /**
+         * AuditLogResponse
+         * @description Single audit log entry.
+         */
+        AuditLogResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id?: number | null;
+            /** User Name */
+            user_name?: string | null;
+            /** Module */
+            module: string;
+            /** Action */
+            action: string;
+            /** Entity Type */
+            entity_type?: string | null;
+            /** Entity Id */
+            entity_id?: string | null;
+            /** Channel */
+            channel: string;
+            /** Request Id */
+            request_id?: string | null;
+            /** Result */
+            result: string;
+            /** Summary */
+            summary?: string | null;
+            /** Details */
+            details?: string | null;
+            /** Before Json */
+            before_json?: string | null;
+            /** After Json */
+            after_json?: string | null;
+            /** Ip Address */
+            ip_address?: string | null;
+            /** User Agent */
+            user_agent?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * AuditMetaOption
+         * @description Code and label item for dynamic filters.
+         */
+        AuditMetaOption: {
+            /** Code */
+            code: string;
+            /** Label */
+            label: string;
+        };
+        /**
+         * AuditMetaResponse
+         * @description Dynamic metadata options for audit log filters.
+         */
+        AuditMetaResponse: {
+            /** Modules */
+            modules: components["schemas"]["AuditMetaOption"][];
+            /** Actions */
+            actions: components["schemas"]["AuditMetaOption"][];
+            /** Channels */
+            channels: components["schemas"]["AuditMetaOption"][];
+            /** Results */
+            results: components["schemas"]["AuditMetaOption"][];
+            /** Users */
+            users: {
+                [key: string]: string | number;
+            }[];
         };
         /**
          * AuthConfigResponse
@@ -2241,6 +4008,12 @@ export interface components {
             environment: string;
             /** Roles */
             roles: string[];
+            /** Company Name */
+            company_name?: string | null;
+            /** Company Code */
+            company_code?: string | null;
+            /** Logo Url */
+            logo_url?: string | null;
             /**
              * Demo Accounts
              * @default []
@@ -2256,6 +4029,102 @@ export interface components {
         Body_upload_file_api_v1_files_upload_post: {
             /** File */
             file: string;
+        };
+        /**
+         * CalendarDayCounts
+         * @description Daily operational metric counts for calendar cells.
+         */
+        CalendarDayCounts: {
+            /**
+             * Doctor
+             * @default 0
+             */
+            doctor: number;
+            /**
+             * Chemist
+             * @default 0
+             */
+            chemist: number;
+            /**
+             * Stockist
+             * @default 0
+             */
+            stockist: number;
+            /**
+             * New Doctor
+             * @default 0
+             */
+            new_doctor: number;
+            /**
+             * New Chemist
+             * @default 0
+             */
+            new_chemist: number;
+            /**
+             * New Stockist
+             * @default 0
+             */
+            new_stockist: number;
+            /** Total Pob */
+            total_pob?: number | null;
+        };
+        /**
+         * CalendarDayData
+         * @description Single calendar day grid cell containing counts and events.
+         */
+        CalendarDayData: {
+            /** Date */
+            date: string;
+            /** Day */
+            day: number;
+            /** Weekday */
+            weekday: number;
+            /**
+             * Is Today
+             * @default false
+             */
+            is_today: boolean;
+            counts: components["schemas"]["CalendarDayCounts"];
+            /**
+             * Events
+             * @default []
+             */
+            events: components["schemas"]["CalendarDayEvent"][];
+        };
+        /**
+         * CalendarDayEvent
+         * @description Individual event scheduled on a day.
+         */
+        CalendarDayEvent: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Event Type */
+            event_type: string;
+            /** Status */
+            status?: string | null;
+            /** Time */
+            time?: string | null;
+            /** Description */
+            description?: string | null;
+        };
+        /**
+         * CalendarMonthResponse
+         * @description Monthly calendar data with daily operational cells and month totals.
+         */
+        CalendarMonthResponse: {
+            /** Employee Id */
+            employee_id: number;
+            /** Employee Name */
+            employee_name: string;
+            /** Year */
+            year: number;
+            /** Month */
+            month: number;
+            /** Days */
+            days: components["schemas"]["CalendarDayData"][];
+            monthly_totals: components["schemas"]["CalendarDayCounts"];
         };
         /**
          * ChangePasswordRequest
@@ -2311,6 +4180,12 @@ export interface components {
             code: string;
             /** Shop Name */
             shop_name: string;
+            /** Name */
+            name?: string | null;
+            /** Area Name */
+            area_name?: string | null;
+            /** City Name */
+            city_name?: string | null;
             /** Contact Person */
             contact_person?: string | null;
             /** Phone */
@@ -2400,6 +4275,97 @@ export interface components {
             code?: string | null;
             /** Is Active */
             is_active: boolean;
+        };
+        /**
+         * CityUpdate
+         * @description Payload to update a City.
+         */
+        CityUpdate: {
+            /** State Id */
+            state_id?: number | null;
+            /** Name */
+            name?: string | null;
+            /** Code */
+            code?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
+         * CompanyProfileResponse
+         * @description Company profile overview response.
+         */
+        CompanyProfileResponse: {
+            /** Id */
+            id: number;
+            /** Company Name */
+            company_name: string;
+            /** Company Code */
+            company_code: string;
+            /** Area */
+            area?: string | null;
+            /** Address */
+            address?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Phone No */
+            phone_no?: string | null;
+            /** Mobile No */
+            mobile_no?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Logo File Id */
+            logo_file_id?: number | null;
+            /** Signature File Id */
+            signature_file_id?: number | null;
+            /** Logo Url */
+            logo_url?: string | null;
+            /** Signature Url */
+            signature_url?: string | null;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * CompanyProfileUpdateRequest
+         * @description Payload to update company profile.
+         */
+        CompanyProfileUpdateRequest: {
+            /** Company Name */
+            company_name: string;
+            /** Company Code */
+            company_code: string;
+            /** Area */
+            area?: string | null;
+            /** Address */
+            address?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** Phone No */
+            phone_no?: string | null;
+            /** Mobile No */
+            mobile_no?: string | null;
+            /** Email */
+            email?: string | null;
+            /** Website */
+            website?: string | null;
+            /** Logo File Id */
+            logo_file_id?: number | null;
+            /** Signature File Id */
+            signature_file_id?: number | null;
         };
         /** CustomerCoverageReportItem */
         CustomerCoverageReportItem: {
@@ -2671,6 +4637,10 @@ export interface components {
             status: string;
             /** Client Uuid */
             client_uuid?: string | null;
+            /** User Name */
+            user_name?: string | null;
+            /** Employee Code */
+            employee_code?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -2682,6 +4652,106 @@ export interface components {
              * @default []
              */
             product_details: components["schemas"]["DcrProductDetailResponse"][];
+        };
+        /**
+         * DeleteVisitsExecuteRequest
+         * @description Payload to execute bulk soft delete with security validation.
+         */
+        DeleteVisitsExecuteRequest: {
+            /**
+             * Preview Token
+             * @description Active token generated from delete-preview
+             */
+            preview_token: string;
+            /**
+             * Reason
+             * @description Audited business justification for deletion
+             */
+            reason: string;
+            /**
+             * Confirm Text
+             * @description Optional safety phrase confirmation
+             */
+            confirm_text?: string | null;
+        };
+        /**
+         * DeleteVisitsExecuteResponse
+         * @description Execution summary of deleted visits and side effect rollbacks.
+         */
+        DeleteVisitsExecuteResponse: {
+            /** Deleted Count */
+            deleted_count: number;
+            /** Planned Visits Reverted */
+            planned_visits_reverted: number;
+            /** Follow Ups Cancelled */
+            follow_ups_cancelled: number;
+            /** Deletion Token */
+            deletion_token: string;
+            /** Message */
+            message: string;
+        };
+        /**
+         * DeleteVisitsPreviewRequest
+         * @description Filter parameters to preview visits targeted for bulk deletion.
+         */
+        DeleteVisitsPreviewRequest: {
+            /**
+             * Employee Ids
+             * @description Employee IDs to delete visits for
+             */
+            employee_ids?: number[] | null;
+            /**
+             * City Ids
+             * @description City IDs
+             */
+            city_ids?: number[] | null;
+            /**
+             * Area Ids
+             * @description Area IDs
+             */
+            area_ids?: number[] | null;
+            /**
+             * Start Date
+             * @description Start date (inclusive)
+             */
+            start_date?: string | null;
+            /**
+             * End Date
+             * @description End date (inclusive)
+             */
+            end_date?: string | null;
+            /**
+             * Customer Type
+             * @description DOCTOR, CHEMIST, STOCKIST, HOSPITAL, or ALL
+             */
+            customer_type?: string | null;
+            /**
+             * Visit Type
+             * @description INDEPENDENT, JOINT_WITH_MANAGER, etc.
+             */
+            visit_type?: string | null;
+        };
+        /**
+         * DeleteVisitsPreviewResponse
+         * @description Response containing matching count, preview token, and sample records.
+         */
+        DeleteVisitsPreviewResponse: {
+            /** Total Matching Visits */
+            total_matching_visits: number;
+            /** Preview Token */
+            preview_token: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Max Limit Allowed
+             * @default 5000
+             */
+            max_limit_allowed: number;
+            /** Sample Visits */
+            sample_visits: components["schemas"]["VisitSampleItem"][];
         };
         /**
          * DemoAccount
@@ -2784,6 +4854,12 @@ export interface components {
             code: string;
             /** Full Name */
             full_name: string;
+            /** Name */
+            name?: string | null;
+            /** Area Name */
+            area_name?: string | null;
+            /** City Name */
+            city_name?: string | null;
             /** Qualification */
             qualification?: string | null;
             /** Specialization */
@@ -2864,6 +4940,62 @@ export interface components {
             is_active?: boolean | null;
         };
         /**
+         * EmployeeVisitSummaryItem
+         * @description Dynamic visits summary card metrics per employee (Admin Inventory Section 3.2).
+         */
+        EmployeeVisitSummaryItem: {
+            /** Id */
+            id: string;
+            /** Employee Id */
+            employee_id: string;
+            /** Employee Code */
+            employee_code: string;
+            /** Employee Name */
+            employee_name: string;
+            /** Photo Url */
+            photo_url?: string | null;
+            /** Hq Name */
+            hq_name: string;
+            /** Hq Code */
+            hq_code: string;
+            /** Division Name */
+            division_name?: string | null;
+            /** Chemist Visits */
+            chemist_visits?: number | null;
+            /** New Chemist Visits */
+            new_chemist_visits?: number | null;
+            /** Doctor Visits */
+            doctor_visits?: number | null;
+            /** New Doctor Visits */
+            new_doctor_visits?: number | null;
+            /** Stockist Visits */
+            stockist_visits?: number | null;
+            /** New Stockist Visits */
+            new_stockist_visits?: number | null;
+            /** Doctor Call Average */
+            doctor_call_average?: number | null;
+            /** Missing Doctor */
+            missing_doctor?: number | null;
+            /** Punch In Time */
+            punch_in_time?: string | null;
+            /** First Call Time */
+            first_call_time?: string | null;
+            /** Last Call Time */
+            last_call_time?: string | null;
+            /** Punch Out Time */
+            punch_out_time?: string | null;
+            /** Morning Calls */
+            morning_calls?: number | null;
+            /** Evening Calls */
+            evening_calls?: number | null;
+            /** Work Duration Minutes */
+            work_duration_minutes?: number | null;
+            /** Total Pob */
+            total_pob?: number | null;
+            /** Metrics */
+            metrics?: components["schemas"]["MetricCardRowItem"][];
+        };
+        /**
          * ExpenseCreateRequest
          * @description Payload to log a daily field expense claim.
          */
@@ -2893,6 +5025,151 @@ export interface components {
             receipt_file_id?: number | null;
             /** Client Uuid */
             client_uuid?: string | null;
+        };
+        /**
+         * ExpenseLimitBulkItem
+         * @description Single item in bulk expense limits upsert.
+         */
+        ExpenseLimitBulkItem: {
+            /** Designation Code */
+            designation_code: string;
+            /** Expense Type Code */
+            expense_type_code: string;
+            /**
+             * Daily Limit
+             * @description Daily limit in INR
+             */
+            daily_limit: number;
+            /**
+             * Monthly Limit
+             * @description Monthly limit in INR
+             */
+            monthly_limit: number;
+            /** Effective From */
+            effective_from?: string | null;
+            /** Is Provisional */
+            is_provisional?: boolean | null;
+        };
+        /**
+         * ExpenseLimitBulkUpsertRequest
+         * @description Payload to upsert matrix of expense limits.
+         */
+        ExpenseLimitBulkUpsertRequest: {
+            /** Items */
+            items: components["schemas"]["ExpenseLimitBulkItem"][];
+            /** Reason */
+            reason?: string | null;
+        };
+        /**
+         * ExpenseLimitMatrixCell
+         * @description Limit details for a single designation x expense type cell.
+         */
+        ExpenseLimitMatrixCell: {
+            /** Id */
+            id?: number | null;
+            /** Daily Limit */
+            daily_limit: number;
+            /** Monthly Limit */
+            monthly_limit: number;
+            /**
+             * Is Provisional
+             * @default false
+             */
+            is_provisional: boolean;
+        };
+        /**
+         * ExpenseLimitMatrixResponse
+         * @description Matrix response of all designations x expense types.
+         */
+        ExpenseLimitMatrixResponse: {
+            /** Designations */
+            designations: {
+                [key: string]: string;
+            }[];
+            /** Expense Types */
+            expense_types: {
+                [key: string]: string;
+            }[];
+            /** Rows */
+            rows: components["schemas"]["ExpenseLimitMatrixRow"][];
+        };
+        /**
+         * ExpenseLimitMatrixRow
+         * @description Matrix row for a designation.
+         */
+        ExpenseLimitMatrixRow: {
+            /** Designation Code */
+            designation_code: string;
+            /** Designation Name */
+            designation_name: string;
+            /** Limits */
+            limits: {
+                [key: string]: components["schemas"]["ExpenseLimitMatrixCell"];
+            };
+        };
+        /**
+         * ExpenseLimitResponse
+         * @description Designation expense limit response.
+         */
+        ExpenseLimitResponse: {
+            /** Id */
+            id: number;
+            /** Designation Id */
+            designation_id?: number | null;
+            /** Designation Code */
+            designation_code: string;
+            /** Expense Type Id */
+            expense_type_id?: number | null;
+            /** Expense Type Code */
+            expense_type_code: string;
+            /** Daily Limit */
+            daily_limit: number;
+            /** Monthly Limit */
+            monthly_limit: number;
+            /**
+             * Effective From
+             * Format: date
+             */
+            effective_from: string;
+            /**
+             * Is Provisional
+             * @default false
+             */
+            is_provisional: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * ExpensePayoutRequest
+         * @description Payload to settle/pay out an approved expense claim.
+         */
+        ExpensePayoutRequest: {
+            /**
+             * Payment Date
+             * Format: date
+             */
+            payment_date?: string;
+            /**
+             * Reference No
+             * @description UTR / Bank transaction reference
+             */
+            reference_no: string;
+            /**
+             * Payment Mode
+             * @description NEFT, RTGS, UPI, CHEQUE, CASH
+             * @default NEFT
+             */
+            payment_mode: string;
+            /** Remarks */
+            remarks?: string | null;
+            /**
+             * Idempotency Key
+             * @description Client UUID for duplicate protection
+             */
+            idempotency_key?: string | null;
         };
         /**
          * ExpenseResponse
@@ -2961,6 +5238,113 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /** FinancialYearCreate */
+        FinancialYearCreate: {
+            /**
+             * Name
+             * @description Display name e.g. FY 2026-2027
+             */
+            name: string;
+            /**
+             * Code
+             * @description Code e.g. 2026-2027
+             */
+            code: string;
+            /**
+             * Start Date
+             * Format: date
+             * @description Start date of fiscal year e.g. 2026-04-01
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             * @description End date of fiscal year e.g. 2027-03-31
+             */
+            end_date: string;
+            /**
+             * Is Current
+             * @description Flag indicating active current fiscal year
+             * @default false
+             */
+            is_current: boolean;
+            /**
+             * Is Active
+             * @description Active status
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Description
+             * @description Notes / description
+             */
+            description?: string | null;
+        };
+        /** FinancialYearListResponse */
+        FinancialYearListResponse: {
+            /** Items */
+            items: components["schemas"]["FinancialYearResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /** FinancialYearResponse */
+        FinancialYearResponse: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Code */
+            code: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** Is Current */
+            is_current: boolean;
+            /** Is Active */
+            is_active: boolean;
+            /** Description */
+            description?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /** FinancialYearUpdate */
+        FinancialYearUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Code */
+            code?: string | null;
+            /** Start Date */
+            start_date?: string | null;
+            /** End Date */
+            end_date?: string | null;
+            /** Is Current */
+            is_current?: boolean | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Description */
+            description?: string | null;
         };
         /**
          * FollowUpCreate
@@ -3040,11 +5424,87 @@ export interface components {
             completed_at?: string | null;
             /** Client Uuid */
             client_uuid?: string | null;
+            /** User Name */
+            user_name?: string | null;
+            /** Employee Code */
+            employee_code?: string | null;
             /**
              * Created At
              * Format: date-time
              */
             created_at: string;
+        };
+        /**
+         * ForceLogoutResponse
+         * @description Result of terminating user sessions.
+         */
+        ForceLogoutResponse: {
+            /** Success */
+            success: boolean;
+            /** Message */
+            message: string;
+            /** User Id */
+            user_id: number;
+        };
+        /**
+         * GeofenceBulkUpdateRequest
+         * @description Payload to update all geofence settings.
+         */
+        GeofenceBulkUpdateRequest: {
+            /** Items */
+            items: components["schemas"]["GeofenceSettingUpdateItem"][];
+            /** Reason */
+            reason?: string | null;
+        };
+        /**
+         * GeofenceSettingResponse
+         * @description Geofence rule for a customer type.
+         */
+        GeofenceSettingResponse: {
+            /** Id */
+            id: number;
+            /** Entity Type */
+            entity_type: string;
+            /** Radius M */
+            radius_m: number;
+            /** Min Accuracy M */
+            min_accuracy_m: number;
+            /**
+             * Is Provisional
+             * @default false
+             */
+            is_provisional: boolean;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * GeofenceSettingUpdateItem
+         * @description Single geofence rule update item.
+         */
+        GeofenceSettingUpdateItem: {
+            /** Entity Type */
+            entity_type: string;
+            /**
+             * Radius M
+             * @description Radius in meters (10 to 5000)
+             */
+            radius_m: number;
+            /**
+             * Min Accuracy M
+             * @description Min GPS accuracy in meters
+             * @default 50
+             */
+            min_accuracy_m: number;
+            /** Is Provisional */
+            is_provisional?: boolean | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -3142,6 +5602,10 @@ export interface components {
             code: string;
             /** Type */
             type: string;
+            /** Area Name */
+            area_name?: string | null;
+            /** City Name */
+            city_name?: string | null;
             /** Contact Person */
             contact_person?: string | null;
             /** Phone */
@@ -3542,18 +6006,294 @@ export interface components {
             phone?: string | null;
         };
         /**
+         * MappingBatchDetailResponse
+         * @description Detailed view of a batch with its applied items.
+         */
+        MappingBatchDetailResponse: {
+            batch: components["schemas"]["MappingBatchResponse"];
+            /** Items */
+            items: components["schemas"]["MappingBatchItemResponse"][];
+            /** Total Items */
+            total_items: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /**
+         * MappingBatchItemResponse
+         * @description Record of individual assignment item in a batch.
+         */
+        MappingBatchItemResponse: {
+            /** Id */
+            id: number;
+            /** Batch Id */
+            batch_id: number;
+            /** Action */
+            action: string;
+            /** Employee Id */
+            employee_id: number;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Customer Type */
+            customer_type?: string | null;
+            /** Customer Id */
+            customer_id?: number | null;
+            /** Before State */
+            before_state?: string | null;
+            /** After State */
+            after_state?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * MappingBatchResponse
+         * @description Summary of a mapping batch execution.
+         */
+        MappingBatchResponse: {
+            /** Id */
+            id: number;
+            /** Mode */
+            mode: string;
+            /** Status */
+            status: string;
+            /** Target Employee Id */
+            target_employee_id?: number | null;
+            /** Target Employee Name */
+            target_employee_name?: string | null;
+            /** Conflict Policy */
+            conflict_policy: string;
+            /** Counts */
+            counts?: {
+                [key: string]: number;
+            } | null;
+            /** Applied At */
+            applied_at?: string | null;
+            /** Reverted At */
+            reverted_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * MappingCapabilitiesResponse
+         * @description Wizard capabilities and system constraints.
+         */
+        MappingCapabilitiesResponse: {
+            /**
+             * Beats
+             * @default false
+             */
+            beats: boolean;
+            /**
+             * Beats Reason
+             * @default Waiting for Std Route Chart design
+             */
+            beats_reason: string;
+            /**
+             * Max Items
+             * @default 20000
+             */
+            max_items: number;
+            /**
+             * Supported Modes
+             * @default [
+             *       "TERRITORY",
+             *       "CUSTOMER"
+             *     ]
+             */
+            supported_modes: string[];
+            /**
+             * Conflict Policies
+             * @default [
+             *       "SKIP",
+             *       "REPLACE",
+             *       "ADD"
+             *     ]
+             */
+            conflict_policies: string[];
+        };
+        /**
+         * MappingConflictItem
+         * @description Conflict information for an item already assigned elsewhere.
+         */
+        MappingConflictItem: {
+            /** Entity Type */
+            entity_type: string;
+            /** Entity Id */
+            entity_id: number;
+            /** Entity Name */
+            entity_name: string;
+            /** Current Employee Id */
+            current_employee_id?: number | null;
+            /** Current Employee Name */
+            current_employee_name?: string | null;
+            /** Resolution */
+            resolution: string;
+        };
+        /**
+         * MappingPreviewRequest
+         * @description Payload to initiate a dry-run mapping preview.
+         */
+        MappingPreviewRequest: {
+            /**
+             * Mode
+             * @description 'TERRITORY' or 'CUSTOMER'
+             */
+            mode: string;
+            /**
+             * Target Employee Id
+             * @description Target employee ID receiving assignments
+             */
+            target_employee_id: number;
+            /**
+             * Conflict Policy
+             * @default SKIP
+             */
+            conflict_policy: string;
+            /** Territory Ids */
+            territory_ids?: number[];
+            /**
+             * Customer Type
+             * @description DOCTOR, CHEMIST, STOCKIST, HOSPITAL
+             */
+            customer_type?: string | null;
+            /** Customer Ids */
+            customer_ids?: number[];
+            /** Filter State Id */
+            filter_state_id?: number | null;
+            /** Filter City Id */
+            filter_city_id?: number | null;
+        };
+        /**
+         * MappingPreviewResponse
+         * @description Dry-run preview result before applying changes.
+         */
+        MappingPreviewResponse: {
+            /** Batch Id */
+            batch_id: number;
+            /** Mode */
+            mode: string;
+            /** Target Employee Id */
+            target_employee_id: number;
+            /** Target Employee Name */
+            target_employee_name?: string | null;
+            /** Total Candidate Items */
+            total_candidate_items: number;
+            /** New Assignments Count */
+            new_assignments_count: number;
+            /** Conflicts Count */
+            conflicts_count: number;
+            /** Conflicts Sample */
+            conflicts_sample: components["schemas"]["MappingConflictItem"][];
+            /** Sample Preview */
+            sample_preview: {
+                [key: string]: unknown;
+            }[];
+        };
+        /**
          * MasterBulkDropdownsResponse
          * @description Combined masters response for offline cache & dropdowns.
          */
         MasterBulkDropdownsResponse: {
-            /** Specializations */
+            /**
+             * Specializations
+             * @default []
+             */
             specializations: components["schemas"]["MasterItemResponse"][];
-            /** Categories */
+            /**
+             * Categories
+             * @default []
+             */
             categories: components["schemas"]["MasterItemResponse"][];
-            /** Priorities */
+            /**
+             * Priorities
+             * @default []
+             */
             priorities: components["schemas"]["MasterItemResponse"][];
-            /** States */
+            /**
+             * States
+             * @default []
+             */
             states: components["schemas"]["StateResponse"][];
+            /**
+             * Qualifications
+             * @default []
+             */
+            qualifications: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Doctor Types
+             * @default []
+             */
+            doctor_types: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Store Types
+             * @default []
+             */
+            store_types: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Distributor Types
+             * @default []
+             */
+            distributor_types: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Credit Terms
+             * @default []
+             */
+            credit_terms: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Expense Types
+             * @default []
+             */
+            expense_types: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Zones
+             * @default []
+             */
+            zones: components["schemas"]["MasterItemResponse"][];
+            /**
+             * City Tiers
+             * @default []
+             */
+            city_tiers: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Hospital Types
+             * @default []
+             */
+            hospital_types: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Divisions
+             * @default []
+             */
+            divisions: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Designations
+             * @default []
+             */
+            designations: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Customer Types
+             * @default []
+             */
+            customer_types: components["schemas"]["MasterItemResponse"][];
+            /**
+             * Approval Statuses
+             * @default []
+             */
+            approval_statuses: components["schemas"]["MasterItemResponse"][];
+        };
+        /**
+         * MasterConfirmBulkRequest
+         * @description Payload to bulk confirm provisional master items.
+         */
+        MasterConfirmBulkRequest: {
+            /** Item Ids */
+            item_ids: number[];
         };
         /**
          * MasterItemCreate
@@ -3564,12 +6304,12 @@ export interface components {
              * Type
              * @description e.g. SPECIALIZATION, CUSTOMER_CATEGORY
              */
-            type: string;
+            type?: string | null;
             /**
              * Code
              * @description Unique code within type
              */
-            code: string;
+            code?: string | null;
             /** Name */
             name: string;
             /** Description */
@@ -3579,6 +6319,16 @@ export interface components {
              * @default 0
              */
             sort_order: number;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Is Provisional
+             * @default false
+             */
+            is_provisional: boolean;
         };
         /**
          * MasterItemResponse
@@ -3600,6 +6350,11 @@ export interface components {
             /** Is Active */
             is_active: boolean;
             /**
+             * Is Provisional
+             * @default false
+             */
+            is_provisional: boolean;
+            /**
              * Created At
              * Format: date-time
              */
@@ -3618,6 +6373,103 @@ export interface components {
             sort_order?: number | null;
             /** Is Active */
             is_active?: boolean | null;
+            /** Is Provisional */
+            is_provisional?: boolean | null;
+        };
+        /**
+         * MeetingCreateRequest
+         * @description Payload to create a meeting (Draft or Applied).
+         */
+        MeetingCreateRequest: {
+            /** Agenda */
+            agenda: string;
+            /**
+             * Meeting Type
+             * @default CYCLE_MEETING
+             */
+            meeting_type: string;
+            /**
+             * Start Date
+             * Format: date-time
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date-time
+             */
+            end_date: string;
+            /** Organiser Id */
+            organiser_id?: number | null;
+            /** Location */
+            location?: string | null;
+            /** Remarks */
+            remarks?: string | null;
+            /**
+             * Status
+             * @description DRAFT or APPLIED
+             * @default DRAFT
+             */
+            status: string;
+        };
+        /**
+         * MeetingResponse
+         * @description Single meeting response.
+         */
+        MeetingResponse: {
+            /** Id */
+            id: number;
+            /** Agenda */
+            agenda: string;
+            /** Meeting Type */
+            meeting_type: string;
+            /**
+             * Start Date
+             * Format: date-time
+             */
+            start_date: string;
+            /**
+             * End Date
+             * Format: date-time
+             */
+            end_date: string;
+            /** Created By Id */
+            created_by_id: number;
+            /** Created By Name */
+            created_by_name?: string | null;
+            /** Organiser Id */
+            organiser_id: number;
+            /** Organiser Name */
+            organiser_name?: string | null;
+            /** Location */
+            location?: string | null;
+            /** Status */
+            status: string;
+            /** Remarks */
+            remarks?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * MeetingSummaryResponse
+         * @description 3-Tile workflow summary counts for meetings.
+         */
+        MeetingSummaryResponse: {
+            /** Drafts */
+            drafts: number;
+            /** Applied */
+            applied: number;
+            /** Received */
+            received: number;
+            /** Total */
+            total: number;
         };
         /**
          * MessageResponse
@@ -3631,6 +6483,332 @@ export interface components {
              * @default true
              */
             success: boolean;
+        };
+        /**
+         * MetricCardRowItem
+         * @description Dynamic metric row definition inside employee card.
+         */
+        MetricCardRowItem: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Value */
+            value?: unknown;
+            /**
+             * Formatted Value
+             * @default -
+             */
+            formatted_value: string;
+            /**
+             * Kind
+             * @default TABLE
+             */
+            kind: string;
+            /**
+             * Color Group
+             * @default primary
+             */
+            color_group: string;
+            /**
+             * Status
+             * @default AVAILABLE
+             */
+            status: string;
+            /** Unavailable Reason */
+            unavailable_reason?: string | null;
+        };
+        /**
+         * MetricColumnItem
+         * @description Table column metadata for dynamic metric tables.
+         */
+        MetricColumnItem: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /**
+             * Type
+             * @default string
+             */
+            type: string;
+            /**
+             * Align
+             * @default left
+             */
+            align: string | null;
+        };
+        /**
+         * MetricDetailResponse
+         * @description Universal drilldown detail response.
+         */
+        MetricDetailResponse: {
+            meta: components["schemas"]["MetricMeta"];
+            /** Rows */
+            rows?: {
+                [key: string]: unknown;
+            }[];
+            record?: components["schemas"]["MetricRecordData"] | null;
+            /** Events */
+            events?: components["schemas"]["MetricTimelineEvent"][];
+            /**
+             * Total
+             * @default 0
+             */
+            total: number;
+            /**
+             * Page
+             * @default 1
+             */
+            page: number;
+            /**
+             * Page Size
+             * @default 20
+             */
+            page_size: number;
+        };
+        /**
+         * MetricMeta
+         * @description Metadata describing the metric drilldown.
+         */
+        MetricMeta: {
+            /** Title */
+            title: string;
+            /** Kind */
+            kind: string;
+            /**
+             * Status
+             * @default AVAILABLE
+             */
+            status: string;
+            /** Unavailable Reason */
+            unavailable_reason?: string | null;
+            /** Columns */
+            columns?: components["schemas"]["MetricColumnItem"][];
+            /** Filters */
+            filters?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Can Export
+             * @default true
+             */
+            can_export: boolean;
+            /** Employee */
+            employee?: {
+                [key: string]: unknown;
+            };
+            /** Generated At */
+            generated_at: string;
+            /** Data As Of */
+            data_as_of: string;
+        };
+        /**
+         * MetricRecordData
+         * @description Structured detail for a single RECORD drill-down view.
+         */
+        MetricRecordData: {
+            /** Title */
+            title?: string | null;
+            /** Fields */
+            fields?: components["schemas"]["MetricRecordField"][];
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Accuracy */
+            accuracy?: number | null;
+            /** Address */
+            address?: string | null;
+            /**
+             * Map Pin
+             * @default false
+             */
+            map_pin: boolean;
+            /**
+             * Mock Flag
+             * @default false
+             */
+            mock_flag: boolean;
+        };
+        /**
+         * MetricRecordField
+         * @description Key-value field definition for RECORD view.
+         */
+        MetricRecordField: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Value */
+            value?: unknown;
+            /**
+             * Formatted Value
+             * @default -
+             */
+            formatted_value: string;
+        };
+        /**
+         * MetricTimelineEvent
+         * @description Timeline event definition for TIMELINE view.
+         */
+        MetricTimelineEvent: {
+            /** Time */
+            time: string;
+            /** Title */
+            title: string;
+            /** Subtitle */
+            subtitle?: string | null;
+            /** Type */
+            type: string;
+            /** Status */
+            status?: string | null;
+            /** Duration Minutes */
+            duration_minutes?: number | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Address */
+            address?: string | null;
+            /**
+             * Verified
+             * @default false
+             */
+            verified: boolean;
+        };
+        /**
+         * MobileDrawerItem
+         * @description Drawer menu item for mobile application.
+         */
+        MobileDrawerItem: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Icon */
+            icon: string;
+            /** Route */
+            route: string;
+            /** Badge */
+            badge?: string | null;
+        };
+        /**
+         * MobileRegistrationBulkActionRequest
+         * @description Payload to bulk approve or reject registrations.
+         */
+        MobileRegistrationBulkActionRequest: {
+            /**
+             * Ids
+             * @description List of registration IDs
+             */
+            ids: number[];
+            /**
+             * Comment
+             * @description Approval or rejection notes
+             */
+            comment?: string | null;
+        };
+        /**
+         * MobileRegistrationBulkActionResponse
+         * @description Summary of bulk action outcomes.
+         */
+        MobileRegistrationBulkActionResponse: {
+            /** Total Processed */
+            total_processed: number;
+            /** Success Count */
+            success_count: number;
+            /** Failure Count */
+            failure_count: number;
+            /** Results */
+            results: components["schemas"]["MobileRegistrationRowResult"][];
+        };
+        /**
+         * MobileRegistrationListResponse
+         * @description Paginated mobile registration response.
+         */
+        MobileRegistrationListResponse: {
+            /** Items */
+            items: components["schemas"]["MobileRegistrationResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+            /** Pending Count */
+            pending_count: number;
+        };
+        /**
+         * MobileRegistrationResponse
+         * @description Mobile registration single item response.
+         */
+        MobileRegistrationResponse: {
+            /** Id */
+            id: number;
+            /** Registration Code */
+            registration_code: string;
+            /** Employee Id */
+            employee_id: number;
+            /** Employee Name */
+            employee_name?: string | null;
+            /** Employee Email */
+            employee_email?: string | null;
+            /** Designation */
+            designation?: string | null;
+            /** Territory */
+            territory?: string | null;
+            /** City */
+            city?: string | null;
+            /** State */
+            state?: string | null;
+            /** Device Id Hash */
+            device_id_hash?: string | null;
+            /** Device Model */
+            device_model?: string | null;
+            /** App Version */
+            app_version?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Requested At
+             * Format: date-time
+             */
+            requested_at: string;
+            /** Decided By Id */
+            decided_by_id?: number | null;
+            /** Decided By Name */
+            decided_by_name?: string | null;
+            /** Decided At */
+            decided_at?: string | null;
+            /** Comment */
+            comment?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * MobileRegistrationRowResult
+         * @description Per-row outcome for bulk action.
+         */
+        MobileRegistrationRowResult: {
+            /** Id */
+            id: number;
+            /** Success */
+            success: boolean;
+            /** Status */
+            status: string;
+            /** Message */
+            message?: string | null;
         };
         /**
          * MonthlyExpenseSummaryResponse
@@ -3777,6 +6955,89 @@ export interface components {
             longitude?: number | null;
         };
         /**
+         * NavigationGroup
+         * @description Main navigation category group.
+         */
+        NavigationGroup: {
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Iconname */
+            iconName: string;
+            /** Count */
+            count: number;
+            /**
+             * Subgroups
+             * @default []
+             */
+            subgroups: components["schemas"]["NavigationSubgroup"][];
+            /**
+             * Items
+             * @default []
+             */
+            items: components["schemas"]["NavigationItem"][];
+        };
+        /**
+         * NavigationItem
+         * @description Single menu navigation item.
+         */
+        NavigationItem: {
+            /** Id */
+            id: number;
+            /** Key */
+            key: string;
+            /** Label */
+            label: string;
+            /** Path */
+            path: string;
+            /** Group */
+            group: string;
+            /** Grouplabel */
+            groupLabel: string;
+            /** Subgroup */
+            subgroup?: string | null;
+            /** Requiredpermission */
+            requiredPermission?: string | null;
+            /** Status */
+            status: string;
+            /** Tier */
+            tier: string;
+            /** Ourapp */
+            ourApp: string;
+            /** Purpose */
+            purpose: string;
+            /**
+             * Ispermitted
+             * @default true
+             */
+            isPermitted: boolean;
+        };
+        /**
+         * NavigationMenuResponse
+         * @description Full navigation hierarchy response.
+         */
+        NavigationMenuResponse: {
+            /** Totalitems */
+            totalItems: number;
+            /** Permitteditems */
+            permittedItems: number;
+            /** Groups */
+            groups: components["schemas"]["NavigationGroup"][];
+            /** Allitems */
+            allItems: components["schemas"]["NavigationItem"][];
+        };
+        /**
+         * NavigationSubgroup
+         * @description Subgroup container inside a main navigation group.
+         */
+        NavigationSubgroup: {
+            /** Name */
+            name: string;
+            /** Items */
+            items: components["schemas"]["NavigationItem"][];
+        };
+        /**
          * NearbyCustomerItem
          * @description Customer found nearby using Haversine calculation.
          */
@@ -3804,6 +7065,27 @@ export interface components {
             distance_meters: number;
             /** In Geofence */
             in_geofence: boolean;
+        };
+        /**
+         * NotificationBroadcastRequest
+         * @description Payload to broadcast an announcement to multiple employees.
+         */
+        NotificationBroadcastRequest: {
+            /** Title */
+            title: string;
+            /** Body */
+            body: string;
+            /**
+             * Notification Type
+             * @default ANNOUNCEMENT
+             */
+            notification_type: string;
+            /**
+             * Target Role
+             * @description 'ALL', 'MR', 'MANAGER', 'ADMIN'
+             * @default ALL
+             */
+            target_role: string;
         };
         /**
          * NotificationCreate
@@ -3978,6 +7260,45 @@ export interface components {
             updated_at: string;
         };
         /**
+         * OrderStatusUpdateRequest
+         * @description Payload to update order status.
+         */
+        OrderStatusUpdateRequest: {
+            /**
+             * Status
+             * @description SUBMITTED, CONFIRMED, DISPATCHED, DELIVERED, CANCELLED
+             */
+            status: string;
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * OrdersSummaryResponse
+         * @description Aggregate KPI metrics for commercial orders.
+         */
+        OrdersSummaryResponse: {
+            /** Total Orders */
+            total_orders: number;
+            /** Total Amount */
+            total_amount: number;
+            /** Chemist Orders Count */
+            chemist_orders_count: number;
+            /** Chemist Orders Amount */
+            chemist_orders_amount: number;
+            /** Stockist Orders Count */
+            stockist_orders_count: number;
+            /** Stockist Orders Amount */
+            stockist_orders_amount: number;
+            /** Submitted Count */
+            submitted_count: number;
+            /** Confirmed Count */
+            confirmed_count: number;
+            /** Dispatched Count */
+            dispatched_count: number;
+            /** Delivered Count */
+            delivered_count: number;
+        };
+        /**
          * PendingApprovalsSummary
          * @description Summary of pending approval requests categorized by entity type.
          */
@@ -4076,6 +7397,10 @@ export interface components {
             notes?: string | null;
             /** Client Uuid */
             client_uuid?: string | null;
+            /** User Name */
+            user_name?: string | null;
+            /** Employee Code */
+            employee_code?: string | null;
             /**
              * Created At
              * Format: date-time
@@ -4217,6 +7542,32 @@ export interface components {
             profile_picture_file_id?: number | null;
         };
         /**
+         * QuickCardItem
+         * @description Quick management module card for web dashboard.
+         */
+        QuickCardItem: {
+            /** Id */
+            id: string;
+            /** Title */
+            title: string;
+            /** Subtitle */
+            subtitle: string;
+            /** Description */
+            description: string;
+            /** Path */
+            path: string;
+            /** Icon */
+            icon: string;
+            /** Color */
+            color: string;
+            /** Bgcolor */
+            bgColor: string;
+            /** Buttontext */
+            buttonText: string;
+            /** Requiredpermission */
+            requiredPermission?: string | null;
+        };
+        /**
          * ReadinessComponent
          * @description Component readiness status.
          */
@@ -4278,52 +7629,26 @@ export interface components {
             role_code: string;
         };
         /**
-         * ReportCatalogItem
-         * @description Metadata item in the reports catalog.
+         * ReportCatalogV3Response
+         * @description Schema for reports catalog list response.
          */
-        ReportCatalogItem: {
-            /** Key */
-            key: string;
-            /** Title */
-            title: string;
-            /** Group */
-            group: string;
-            /** Description */
-            description: string;
-            filter_schema: components["schemas"]["ReportFilterSchema"];
-            /** Available Formats */
-            available_formats?: string[];
+        ReportCatalogV3Response: {
+            /** Items */
+            items: components["schemas"]["ReportDefinitionItem"][];
+            /** Total */
+            total: number;
             /**
-             * Status
-             * @default NOW
+             * Page
+             * @default 1
              */
-            status: string;
+            page: number;
             /**
-             * Is Ready
-             * @default true
+             * Page Size
+             * @default 20
              */
-            is_ready: boolean;
-            /** Coming Soon Reason */
-            coming_soon_reason?: string | null;
-            /** Report Number */
-            report_number?: number | null;
-        };
-        /**
-         * ReportCatalogResponse
-         * @description List of accessible reports for caller's role.
-         */
-        ReportCatalogResponse: {
-            /**
-             * Role
-             * @default
-             */
-            role: string;
+            page_size: number;
             /** Groups */
             groups?: string[];
-            /** Reports */
-            reports: components["schemas"]["ReportCatalogItem"][];
-            /** Scope Label */
-            scope_label: string;
         };
         /**
          * ReportColumn
@@ -4346,150 +7671,89 @@ export interface components {
             align: string;
         };
         /**
-         * ReportFilterSchema
-         * @description Declarative filter options supported by a specific report.
+         * ReportDefinitionItem
+         * @description Schema for individual report catalog entry in v3.
          */
-        ReportFilterSchema: {
-            /**
-             * Date Range
-             * @default true
-             */
-            date_range: boolean;
-            /**
-             * Mr Picker
-             * @default true
-             */
-            mr_picker: boolean;
-            /**
-             * Manager Picker
-             * @default false
-             */
-            manager_picker: boolean;
-            /**
-             * Territory Picker
-             * @default false
-             */
-            territory_picker: boolean;
-            /**
-             * Customer Type Picker
-             * @default false
-             */
-            customer_type_picker: boolean;
-            /**
-             * Status Picker
-             * @default false
-             */
-            status_picker: boolean;
-            /** Status Options */
-            status_options?: string[];
-            /**
-             * Specialization Picker
-             * @default false
-             */
-            specialization_picker: boolean;
-            /**
-             * Category Picker
-             * @default false
-             */
-            category_picker: boolean;
-            /** Category Options */
-            category_options?: string[];
-            /**
-             * Active Picker
-             * @default false
-             */
-            active_picker: boolean;
-            /**
-             * Work Type Picker
-             * @default false
-             */
-            work_type_picker: boolean;
-            /**
-             * Visit Type Picker
-             * @default false
-             */
-            visit_type_picker: boolean;
-            /**
-             * Verified Picker
-             * @default false
-             */
-            verified_picker: boolean;
-            /**
-             * Deviation Type Picker
-             * @default false
-             */
-            deviation_type_picker: boolean;
-            /**
-             * Days Not Seen Picker
-             * @default false
-             */
-            days_not_seen_picker: boolean;
-        };
-        /**
-         * ReportMeta
-         * @description Header metadata for a report generation result.
-         */
-        ReportMeta: {
+        ReportDefinitionItem: {
             /** Key */
             key: string;
-            /**
-             * Report Key
-             * @default
-             */
-            report_key: string;
-            /** Title */
-            title: string;
+            /** Name */
+            name: string;
             /** Group */
             group: string;
-            /** Filters */
-            filters: {
-                [key: string]: unknown;
-            };
-            /** Scope Label */
-            scope_label: string;
+            /** Description */
+            description?: string | null;
             /**
-             * User Scope
-             * @default
-             */
-            user_scope: string;
-            /** Generated At */
-            generated_at: string;
-            /** Columns */
-            columns?: components["schemas"]["ReportColumn"][];
-            /**
-             * Total Records
+             * Sort Order
              * @default 0
              */
-            total_records: number;
+            sort_order: number;
             /**
-             * Landscape
-             * @default false
+             * Status
+             * @default AVAILABLE
              */
-            landscape: boolean;
+            status: string;
+            /** Unavailable Reason */
+            unavailable_reason?: string | null;
+            /** Formats */
+            formats?: string[];
+            /** Filter Schema */
+            filter_schema?: {
+                [key: string]: unknown;
+            };
+            /** Allowed Roles */
+            allowed_roles?: string[];
+            /** Data As Of Source */
+            data_as_of_source?: string | null;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
         };
         /**
-         * ReportResponse
-         * @description Standard JSON response for a paged report.
+         * ReportExportRequest
+         * @description Request payload to export report as XLSX or PDF.
          */
-        ReportResponse: {
-            meta: components["schemas"]["ReportMeta"];
-            /** Columns */
-            columns?: components["schemas"]["ReportColumn"][];
-            /** Summary */
-            summary: {
+        ReportExportRequest: {
+            /** Filters */
+            filters?: {
                 [key: string]: unknown;
             };
-            /** Items */
-            items: {
-                [key: string]: unknown;
-            }[];
+        };
+        /**
+         * ReportOptionItem
+         * @description Single item for schema-driven dynamic filter dropdown options.
+         */
+        ReportOptionItem: {
+            /** Value */
+            value: unknown;
+            /** Label */
+            label: string;
+            /** Parent Id */
+            parent_id?: unknown | null;
+        };
+        /**
+         * ReportOptionsResponse
+         * @description Response containing filter dropdown options.
+         */
+        ReportOptionsResponse: {
+            /** Source */
+            source: string;
+            /** Options */
+            options: components["schemas"]["ReportOptionItem"][];
             /** Total */
             total: number;
-            /**
-             * Total Records
-             * @default 0
-             */
-            total_records: number;
+        };
+        /**
+         * ReportRunRequest
+         * @description Request payload to execute a report view on screen.
+         */
+        ReportRunRequest: {
+            /** Filters */
+            filters?: {
+                [key: string]: unknown;
+            };
             /**
              * Page
              * @default 1
@@ -4500,11 +7764,42 @@ export interface components {
              * @default 50
              */
             page_size: number;
+            /** Sort */
+            sort?: {
+                [key: string]: unknown;
+            } | null;
+        };
+        /**
+         * ReportRunResponse
+         * @description Response returned when executing a report.
+         */
+        ReportRunResponse: {
+            /** Meta */
+            meta: {
+                [key: string]: unknown;
+            };
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /** Columns */
+            columns: components["schemas"]["ReportColumn"][];
+            /** Rows */
+            rows: {
+                [key: string]: unknown;
+            }[];
+            /** Total */
+            total: number;
             /**
-             * Total Pages
+             * Page
              * @default 1
              */
-            total_pages: number;
+            page: number;
+            /**
+             * Page Size
+             * @default 50
+             */
+            page_size: number;
         };
         /** ReportsDashboardResponse */
         ReportsDashboardResponse: {
@@ -4573,6 +7868,53 @@ export interface components {
             active_mrs_count: number;
         };
         /**
+         * RestoreVisitsRequest
+         * @description Payload to restore previously soft-deleted visits.
+         */
+        RestoreVisitsRequest: {
+            /**
+             * Deletion Token
+             * @description Token of the deletion batch
+             */
+            deletion_token?: string | null;
+            /**
+             * Visit Ids
+             * @description Explicit visit IDs to restore
+             */
+            visit_ids?: number[] | null;
+            /**
+             * Reason
+             * @description Reason for restoration
+             */
+            reason?: string | null;
+        };
+        /**
+         * RestoreVisitsResponse
+         * @description Execution summary of restored visits.
+         */
+        RestoreVisitsResponse: {
+            /** Restored Count */
+            restored_count: number;
+            /** Planned Visits Restored */
+            planned_visits_restored: number;
+            /** Follow Ups Restored */
+            follow_ups_restored: number;
+            /** Message */
+            message: string;
+        };
+        /**
+         * RoleCreate
+         * @description Payload to create a new role.
+         */
+        RoleCreate: {
+            /** Name */
+            name: string;
+            /** Code */
+            code?: string | null;
+            /** Description */
+            description?: string | null;
+        };
+        /**
          * RoleResponse
          * @description Role summary response.
          */
@@ -4585,6 +7927,545 @@ export interface components {
             name: string;
             /** Description */
             description?: string | null;
+        };
+        /**
+         * RoleUpdate
+         * @description Payload to update an existing role.
+         */
+        RoleUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Description */
+            description?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
+        };
+        /**
+         * SampleAllocationBulkCreate
+         * @description Bulk monthly sample allocation payload.
+         */
+        SampleAllocationBulkCreate: {
+            /** Month */
+            month: number;
+            /** Year */
+            year: number;
+            /** Allocations */
+            allocations: components["schemas"]["SampleAllocationBulkItem"][];
+        };
+        /** SampleAllocationBulkItem */
+        SampleAllocationBulkItem: {
+            /** User Id */
+            user_id: number;
+            /** Product Id */
+            product_id: number;
+            /** Allocated Quantity */
+            allocated_quantity: number;
+        };
+        /**
+         * SampleAllocationCreate
+         * @description Payload to create or update monthly sample quota for an employee.
+         */
+        SampleAllocationCreate: {
+            /**
+             * User Id
+             * @description Target field representative user ID
+             */
+            user_id: number;
+            /**
+             * Product Id
+             * @description Product ID
+             */
+            product_id: number;
+            /**
+             * Month
+             * @description Allocation calendar month
+             */
+            month: number;
+            /**
+             * Year
+             * @description Allocation calendar year
+             */
+            year: number;
+            /**
+             * Allocated Quantity
+             * @description Target quota in units
+             */
+            allocated_quantity: number;
+        };
+        /**
+         * SampleAllocationListResponse
+         * @description Paginated list of sample allocations.
+         */
+        SampleAllocationListResponse: {
+            /** Items */
+            items: components["schemas"]["SampleAllocationResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /**
+         * SampleAllocationResponse
+         * @description Sample monthly allocation output.
+         */
+        SampleAllocationResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name?: string | null;
+            /** Employee Code */
+            employee_code?: string | null;
+            /** Product Id */
+            product_id: number;
+            /** Product Name */
+            product_name?: string | null;
+            /** Product Code */
+            product_code?: string | null;
+            /** Month */
+            month: number;
+            /** Year */
+            year: number;
+            /** Allocated Quantity */
+            allocated_quantity: number;
+            /** Issued Quantity */
+            issued_quantity: number;
+            /** Distributed Quantity */
+            distributed_quantity: number;
+            /** Balance Quantity */
+            balance_quantity: number;
+            /** Allocated By Name */
+            allocated_by_name?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * SampleBatchResponse
+         * @description Available batch inventory at Head Office depot.
+         */
+        SampleBatchResponse: {
+            /** Id */
+            id: number;
+            /** Product Id */
+            product_id: number;
+            /** Product Name */
+            product_name?: string | null;
+            /** Batch Number */
+            batch_number: string;
+            /** Mfg Date */
+            mfg_date?: string | null;
+            /**
+             * Expiry Date
+             * Format: date
+             */
+            expiry_date: string;
+            /** Quantity Received */
+            quantity_received: number;
+            /** Quantity Allocated */
+            quantity_allocated: number;
+            /** Quantity Issued */
+            quantity_issued: number;
+            /** Quantity Balance */
+            quantity_balance: number;
+            /** Days To Expiry */
+            days_to_expiry: number;
+            /** Expiry Status */
+            expiry_status: string;
+        };
+        /**
+         * SampleInwardCreate
+         * @description Payload to record new promotional sample stock inward at HO.
+         */
+        SampleInwardCreate: {
+            /**
+             * Challan Number
+             * @description Supplier or manufacturing inward challan/invoice number
+             */
+            challan_number: string;
+            /**
+             * Inward Date
+             * Format: date
+             * @description Date of physical arrival at depot
+             */
+            inward_date: string;
+            /**
+             * Product Id
+             * @description Target pharmaceutical product ID
+             */
+            product_id: number;
+            /**
+             * Batch Number
+             * @description Batch number
+             */
+            batch_number: string;
+            /**
+             * Mfg Date
+             * @description Manufacturing date
+             */
+            mfg_date?: string | null;
+            /**
+             * Expiry Date
+             * Format: date
+             * @description Expiry date (must be in future)
+             */
+            expiry_date: string;
+            /**
+             * Quantity
+             * @description Quantity inwarded in packs/units
+             */
+            quantity: number;
+            /**
+             * Unit Cost
+             * @description Unit cost per sample
+             * @default 0
+             */
+            unit_cost: number;
+            /**
+             * Supplier Name
+             * @description Supplier / Manufacturing unit name
+             */
+            supplier_name?: string | null;
+            /**
+             * Remarks
+             * @description Inspection or warehouse remarks
+             */
+            remarks?: string | null;
+        };
+        /**
+         * SampleInwardListResponse
+         * @description Paginated list of sample inward records.
+         */
+        SampleInwardListResponse: {
+            /** Items */
+            items: components["schemas"]["SampleInwardResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /**
+         * SampleInwardResponse
+         * @description Sample inward record output.
+         */
+        SampleInwardResponse: {
+            /** Id */
+            id: number;
+            /** Challan Number */
+            challan_number: string;
+            /**
+             * Inward Date
+             * Format: date
+             */
+            inward_date: string;
+            /** Product Id */
+            product_id: number;
+            /** Product Name */
+            product_name?: string | null;
+            /** Product Code */
+            product_code?: string | null;
+            /** Batch Number */
+            batch_number: string;
+            /** Mfg Date */
+            mfg_date?: string | null;
+            /**
+             * Expiry Date
+             * Format: date
+             */
+            expiry_date: string;
+            /** Quantity */
+            quantity: number;
+            /** Unit Cost */
+            unit_cost: number;
+            /** Supplier Name */
+            supplier_name?: string | null;
+            /** Remarks */
+            remarks?: string | null;
+            /** Received By Id */
+            received_by_id?: number | null;
+            /** Received By Name */
+            received_by_name?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * SampleIssueAcknowledgeRequest
+         * @description Field representative acknowledgment of receipt.
+         */
+        SampleIssueAcknowledgeRequest: {
+            /**
+             * Received Date
+             * Format: date
+             * @description Date samples physically received
+             */
+            received_date: string;
+            /**
+             * Remarks
+             * @description Condition on arrival notes
+             */
+            remarks?: string | null;
+        };
+        /**
+         * SampleIssueCreate
+         * @description Payload to physically issue samples to field representative.
+         */
+        SampleIssueCreate: {
+            /**
+             * User Id
+             * @description Field representative recipient user ID
+             */
+            user_id: number;
+            /**
+             * Product Id
+             * @description Product ID
+             */
+            product_id: number;
+            /**
+             * Batch Number
+             * @description Selected available stock batch number
+             */
+            batch_number: string;
+            /**
+             * Quantity
+             * @description Quantity to dispatch
+             */
+            quantity: number;
+            /**
+             * Dispatch Mode
+             * @description HANDOVER, COURIER, DEPOT_PICKUP
+             * @default COURIER
+             */
+            dispatch_mode: string;
+            /**
+             * Tracking Reference
+             * @description Courier docket / tracking number
+             */
+            tracking_reference?: string | null;
+            /**
+             * Remarks
+             * @description Dispatch instructions or notes
+             */
+            remarks?: string | null;
+        };
+        /**
+         * SampleIssueListResponse
+         * @description Paginated list of sample issue dispatches.
+         */
+        SampleIssueListResponse: {
+            /** Items */
+            items: components["schemas"]["SampleIssueResponse"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Total Pages */
+            total_pages: number;
+        };
+        /**
+         * SampleIssueResponse
+         * @description Sample dispatch / issue record output.
+         */
+        SampleIssueResponse: {
+            /** Id */
+            id: number;
+            /** Issue Number */
+            issue_number: string;
+            /**
+             * Issue Date
+             * Format: date
+             */
+            issue_date: string;
+            /** User Id */
+            user_id: number;
+            /** User Name */
+            user_name?: string | null;
+            /** Employee Code */
+            employee_code?: string | null;
+            /** Product Id */
+            product_id: number;
+            /** Product Name */
+            product_name?: string | null;
+            /** Product Code */
+            product_code?: string | null;
+            /** Batch Number */
+            batch_number: string;
+            /** Quantity */
+            quantity: number;
+            /** Dispatch Mode */
+            dispatch_mode: string;
+            /** Tracking Reference */
+            tracking_reference?: string | null;
+            /** Status */
+            status: string;
+            /** Received Date */
+            received_date?: string | null;
+            /** Remarks */
+            remarks?: string | null;
+            /** Issued By Name */
+            issued_by_name?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * SampleStockBalanceResponse
+         * @description High-level sample stock balance report item.
+         */
+        SampleStockBalanceResponse: {
+            /** Product Id */
+            product_id: number;
+            /** Product Name */
+            product_name: string;
+            /** Product Code */
+            product_code: string;
+            /** Category */
+            category: string;
+            /** Packaging */
+            packaging: string;
+            /** Ho Balance */
+            ho_balance: number;
+            /** Total Allocated */
+            total_allocated: number;
+            /** Total Issued */
+            total_issued: number;
+            /** Total Sampled Dcr */
+            total_sampled_dcr: number;
+            /** Mr Holding Balance */
+            mr_holding_balance: number;
+            /** Active Batches Count */
+            active_batches_count: number;
+        };
+        /**
+         * SettingBulkItem
+         * @description Single item in bulk settings update.
+         */
+        SettingBulkItem: {
+            /** Key */
+            key: string;
+            /** Value */
+            value: string;
+        };
+        /**
+         * SettingBulkUpdateRequest
+         * @description Payload to update multiple settings in a transaction.
+         */
+        SettingBulkUpdateRequest: {
+            /** Settings */
+            settings: components["schemas"]["SettingBulkItem"][];
+            /** Reason */
+            reason?: string | null;
+        };
+        /**
+         * SettingGroupResponse
+         * @description Group of settings with group metadata.
+         */
+        SettingGroupResponse: {
+            /** Group */
+            group: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /** Settings */
+            settings: components["schemas"]["SettingResponse"][];
+        };
+        /**
+         * SettingHistoryResponse
+         * @description Historical change record for a setting.
+         */
+        SettingHistoryResponse: {
+            /** Id */
+            id: number;
+            /** Key */
+            key: string;
+            /** Old Value */
+            old_value?: string | null;
+            /** New Value */
+            new_value: string;
+            /** Changed By */
+            changed_by?: number | null;
+            /** Change Summary */
+            change_summary?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /**
+         * SettingResponse
+         * @description Single application setting response.
+         */
+        SettingResponse: {
+            /** Id */
+            id: number;
+            /** Key */
+            key: string;
+            /** Group */
+            group: string;
+            /** Value */
+            value: string;
+            /** Value Type */
+            value_type: string;
+            /** Unit */
+            unit?: string | null;
+            /** Min Value */
+            min_value?: number | null;
+            /** Max Value */
+            max_value?: number | null;
+            /** Allowed Options */
+            allowed_options?: string[] | null;
+            /** Help Text */
+            help_text?: string | null;
+            /**
+             * Is Provisional
+             * @default false
+             */
+            is_provisional: boolean;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * SettingUpdateRequest
+         * @description Payload to update a single setting.
+         */
+        SettingUpdateRequest: {
+            /**
+             * Value
+             * @description New setting value as string
+             */
+            value: string;
+            /**
+             * Reason
+             * @description Audit reason for change
+             */
+            reason?: string | null;
         };
         /**
          * StateCreate
@@ -4609,6 +8490,18 @@ export interface components {
             code: string;
             /** Is Active */
             is_active: boolean;
+        };
+        /**
+         * StateUpdate
+         * @description Payload to update a State.
+         */
+        StateUpdate: {
+            /** Name */
+            name?: string | null;
+            /** Code */
+            code?: string | null;
+            /** Is Active */
+            is_active?: boolean | null;
         };
         /**
          * StockistCreate
@@ -4656,6 +8549,12 @@ export interface components {
             code: string;
             /** Agency Name */
             agency_name: string;
+            /** Name */
+            name?: string | null;
+            /** Area Name */
+            area_name?: string | null;
+            /** City Name */
+            city_name?: string | null;
             /** Contact Person */
             contact_person?: string | null;
             /** Phone */
@@ -4984,12 +8883,8 @@ export interface components {
             id: number;
             /** User Id */
             user_id: number;
-            /** User Name */
-            user_name: string;
             /** Territory Id */
             territory_id: number;
-            /** Territory Name */
-            territory_name: string;
             /**
              * Assigned At
              * Format: date-time
@@ -4997,8 +8892,6 @@ export interface components {
             assigned_at: string;
             /** Unassigned At */
             unassigned_at?: string | null;
-            /** Is Active */
-            is_active: boolean;
         };
         /**
          * TerritoryCreate
@@ -5009,7 +8902,10 @@ export interface components {
             name: string;
             /** Code */
             code: string;
-            /** Headquarters */
+            /**
+             * Headquarters
+             * @default
+             */
             headquarters: string;
             /** State Id */
             state_id?: number | null;
@@ -5047,6 +8943,44 @@ export interface components {
              * Format: date-time
              */
             created_at: string;
+        };
+        /**
+         * TerritoryTreeNode
+         * @description Hierarchical territory org chart node.
+         */
+        TerritoryTreeNode: {
+            /** Id */
+            id: number | string;
+            /** Code */
+            code: string;
+            /** Name */
+            name: string;
+            /** Headquarters */
+            headquarters?: string | null;
+            /**
+             * Level
+             * @default TERRITORY
+             */
+            level: string;
+            /**
+             * Is Active
+             * @default true
+             */
+            is_active: boolean;
+            /**
+             * Children
+             * @default []
+             */
+            children: components["schemas"]["TerritoryTreeNode"][];
+        };
+        /**
+         * TerritoryTreeResponse
+         * @description Complete territory hierarchy tree with total nodes count.
+         */
+        TerritoryTreeResponse: {
+            /** Total Count */
+            total_count: number;
+            root: components["schemas"]["TerritoryTreeNode"];
         };
         /**
          * TerritoryUpdate
@@ -5088,6 +9022,110 @@ export interface components {
             user: components["schemas"]["UserSummary"];
         };
         /**
+         * TourPlanLockCreateRequest
+         * @description Payload to establish a cutoff lock on tour plans.
+         */
+        TourPlanLockCreateRequest: {
+            /**
+             * Scope
+             * @description Lock scope: ALL, TERRITORY, or EMPLOYEE
+             * @default ALL
+             */
+            scope: string;
+            /**
+             * Scope Id
+             * @description Target territory ID or employee ID
+             */
+            scope_id?: number | null;
+            /**
+             * Month
+             * @description Target month (1-12)
+             */
+            month: number;
+            /**
+             * Year
+             * @description Target calendar year
+             */
+            year: number;
+            /**
+             * Financial Year
+             * @description e.g. 2026-2027
+             * @default 2026-2027
+             */
+            financial_year: string;
+            /**
+             * Cutoff Date
+             * Format: date
+             * @description Cutoff submission deadline date
+             */
+            cutoff_date: string;
+            /**
+             * Reason
+             * @description Reason for establishing lock
+             */
+            reason?: string | null;
+        };
+        /**
+         * TourPlanLockResponse
+         * @description Tour plan cutoff lock response.
+         */
+        TourPlanLockResponse: {
+            /** Id */
+            id: number;
+            /** Scope */
+            scope: string;
+            /** Scope Id */
+            scope_id?: number | null;
+            /** Scope Name */
+            scope_name?: string | null;
+            /** Month */
+            month: number;
+            /** Year */
+            year: number;
+            /** Financial Year */
+            financial_year: string;
+            /**
+             * Cutoff Date
+             * Format: date
+             */
+            cutoff_date: string;
+            /** Status */
+            status: string;
+            /** Reason */
+            reason?: string | null;
+            /** Created By Id */
+            created_by_id: number;
+            /** Created By Name */
+            created_by_name?: string | null;
+            /** Unlocked By Id */
+            unlocked_by_id?: number | null;
+            /** Unlocked By Name */
+            unlocked_by_name?: string | null;
+            /** Unlocked At */
+            unlocked_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
+         * TourPlanUnlockRequest
+         * @description Payload to unlock tour plan submissions.
+         */
+        TourPlanUnlockRequest: {
+            /**
+             * Reason
+             * @description Audited business justification for unlocking
+             */
+            reason: string;
+        };
+        /**
          * TourProgramCreateRequest
          * @description Payload to submit a new tour program.
          */
@@ -5119,6 +9157,11 @@ export interface components {
              * @description Key tour targets and customer visits
              */
             objectives?: string | null;
+            /**
+             * Admin Override Reason
+             * @description Admin justification to override an active cutoff lock
+             */
+            admin_override_reason?: string | null;
         };
         /**
          * TourProgramResponse
@@ -5171,11 +9214,8 @@ export interface components {
          * @description Create new user account.
          */
         UserCreate: {
-            /**
-             * Email
-             * Format: email
-             */
-            email: string;
+            /** Email */
+            email?: string | null;
             /** Full Name */
             full_name: string;
             /** Phone */
@@ -5183,11 +9223,13 @@ export interface components {
             /**
              * Role Code
              * @description Role code: ADMIN, MANAGER, or MR
+             * @default MR
              */
             role_code: string;
             /**
              * Password
              * @description Initial password
+             * @default Secret@123
              */
             password: string;
             /**
@@ -5200,6 +9242,99 @@ export interface components {
              * @description Assigned Manager ID if creating an MR
              */
             manager_id?: number | null;
+            /** Reg Code */
+            reg_code?: string | null;
+            /** Dob */
+            dob?: string | null;
+            /** Doj */
+            doj?: string | null;
+            /**
+             * Delay Days
+             * @default 0
+             */
+            delay_days: number;
+            /** Alt Phone */
+            alt_phone?: string | null;
+            /** Aadhar No */
+            aadhar_no?: string | null;
+            /** Pan No */
+            pan_no?: string | null;
+            /** Driving License */
+            driving_license?: string | null;
+            /** Uan No */
+            uan_no?: string | null;
+            /** Esic No */
+            esic_no?: string | null;
+            /** Contact Person Name */
+            contact_person_name?: string | null;
+            /** Address Line1 */
+            address_line1?: string | null;
+            /** Address Line2 */
+            address_line2?: string | null;
+            /** Address Line3 */
+            address_line3?: string | null;
+            /** Area Name */
+            area_name?: string | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** City */
+            city?: string | null;
+            /** District */
+            district?: string | null;
+            /** State Code */
+            state_code?: string | null;
+            /** State */
+            state?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Bank Account No */
+            bank_account_no?: string | null;
+            /** Bank Beneficiary Name */
+            bank_beneficiary_name?: string | null;
+            /** Bank Branch */
+            bank_branch?: string | null;
+            /**
+             * Hq Allowance
+             * @default 0
+             */
+            hq_allowance: number | null;
+            /**
+             * Ex Allowance
+             * @default 0
+             */
+            ex_allowance: number | null;
+            /**
+             * Os Allowance
+             * @default 0
+             */
+            os_allowance: number | null;
+            /**
+             * Salary
+             * @default 0
+             */
+            salary: number | null;
+            /**
+             * Mobile Exp
+             * @default 0
+             */
+            mobile_exp: number | null;
+            /**
+             * Internet Exp
+             * @default 0
+             */
+            internet_exp: number | null;
+            /**
+             * Per Km Rate
+             * @default 0
+             */
+            per_km_rate: number | null;
+            /**
+             * Minimum Km
+             * @default 0
+             */
+            minimum_km: number | null;
         };
         /**
          * UserListResponse
@@ -5228,6 +9363,18 @@ export interface components {
             email: string;
             /** Full Name */
             full_name: string;
+            /** Employee Code */
+            employee_code?: string | null;
+            /** Reg Code */
+            reg_code?: string | null;
+            /** Territory Name */
+            territory_name?: string | null;
+            /** Hq Name */
+            hq_name?: string | null;
+            /** City Name */
+            city_name?: string | null;
+            /** State Name */
+            state_name?: string | null;
             /** Phone */
             phone?: string | null;
             /** Role Id */
@@ -5248,6 +9395,12 @@ export interface components {
             /** Profile Picture Url */
             profile_picture_url?: string | null;
             current_manager?: components["schemas"]["ManagerSummary"] | null;
+            /** Resignation Date */
+            resignation_date?: string | null;
+            /** Profile */
+            profile?: {
+                [key: string]: unknown;
+            } | null;
             /**
              * Created At
              * Format: date-time
@@ -5296,6 +9449,18 @@ export interface components {
             permissions: string[];
         };
         /**
+         * UserSummaryResponse
+         * @description Employee Subscriptions summary response.
+         */
+        UserSummaryResponse: {
+            /** Total Subscriptions */
+            total_subscriptions: number;
+            /** Pending Subscriptions */
+            pending_subscriptions: number;
+            /** Active Subscriptions */
+            active_subscriptions: number;
+        };
+        /**
          * UserUpdate
          * @description Update user account attributes.
          */
@@ -5310,6 +9475,72 @@ export interface components {
             password?: string | null;
             /** Profile Picture File Id */
             profile_picture_file_id?: number | null;
+            /** Reg Code */
+            reg_code?: string | null;
+            /** Dob */
+            dob?: string | null;
+            /** Doj */
+            doj?: string | null;
+            /** Delay Days */
+            delay_days?: number | null;
+            /** Alt Phone */
+            alt_phone?: string | null;
+            /** Aadhar No */
+            aadhar_no?: string | null;
+            /** Pan No */
+            pan_no?: string | null;
+            /** Driving License */
+            driving_license?: string | null;
+            /** Uan No */
+            uan_no?: string | null;
+            /** Esic No */
+            esic_no?: string | null;
+            /** Contact Person Name */
+            contact_person_name?: string | null;
+            /** Address Line1 */
+            address_line1?: string | null;
+            /** Address Line2 */
+            address_line2?: string | null;
+            /** Address Line3 */
+            address_line3?: string | null;
+            /** Area Name */
+            area_name?: string | null;
+            /** Pincode */
+            pincode?: string | null;
+            /** City */
+            city?: string | null;
+            /** District */
+            district?: string | null;
+            /** State Code */
+            state_code?: string | null;
+            /** State */
+            state?: string | null;
+            /** Latitude */
+            latitude?: number | null;
+            /** Longitude */
+            longitude?: number | null;
+            /** Bank Account No */
+            bank_account_no?: string | null;
+            /** Bank Beneficiary Name */
+            bank_beneficiary_name?: string | null;
+            /** Bank Branch */
+            bank_branch?: string | null;
+            /** Hq Allowance */
+            hq_allowance?: number | null;
+            /** Ex Allowance */
+            ex_allowance?: number | null;
+            /** Os Allowance */
+            os_allowance?: number | null;
+            /** Salary */
+            salary?: number | null;
+            /** Mobile Exp */
+            mobile_exp?: number | null;
+            /** Internet Exp */
+            internet_exp?: number | null;
+            /** Per Km Rate */
+            per_km_rate?: number | null;
+            /** Minimum Km */
+            minimum_km?: number | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -5323,6 +9554,48 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /**
+         * VisitSampleItem
+         * @description Summary of a visit in the deletion preview sample.
+         */
+        VisitSampleItem: {
+            /** Id */
+            id: number;
+            /**
+             * Dcr Date
+             * Format: date
+             */
+            dcr_date: string;
+            /** Customer Type */
+            customer_type: string;
+            /** Customer Name */
+            customer_name?: string | null;
+            /** Employee Id */
+            employee_id: number;
+            /** Employee Name */
+            employee_name?: string | null;
+            /** City */
+            city?: string | null;
+            /**
+             * Pob Amount
+             * @default 0
+             */
+            pob_amount: number;
+        };
+        /**
+         * VisitsSummaryResponse
+         * @description Paginated Visits Summary response.
+         */
+        VisitsSummaryResponse: {
+            /** Items */
+            items: components["schemas"]["EmployeeVisitSummaryItem"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
         };
         /**
          * VisualAidCreate
@@ -5340,6 +9613,63 @@ export interface components {
             slide_order: number;
             /** Key Talk Points */
             key_talk_points?: string | null;
+        };
+        /**
+         * WorkflowItemResponse
+         * @description Single item in the workflow inbox table.
+         */
+        WorkflowItemResponse: {
+            /** Id */
+            id: number;
+            /** Module */
+            module: string;
+            /** Entity Type */
+            entity_type: string;
+            /** Entity Id */
+            entity_id: number;
+            /** Approval Request Id */
+            approval_request_id?: number | null;
+            /** Title */
+            title: string;
+            /** Requester Id */
+            requester_id: number;
+            /** Requester Name */
+            requester_name: string;
+            /** Requester Email */
+            requester_email?: string | null;
+            /** Details */
+            details?: string | null;
+            /** Status */
+            status: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Actions
+             * @default []
+             */
+            actions: string[];
+        };
+        /**
+         * WorkflowSummaryResponse
+         * @description Dynamic counts for the three workflow tiles (Drafts, Applied, Received).
+         */
+        WorkflowSummaryResponse: {
+            /** Module */
+            module: string;
+            /** Drafts */
+            drafts: number;
+            /** Applied */
+            applied: number;
+            /** Received */
+            received: number;
         };
     };
     responses: never;
@@ -5671,6 +10001,127 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RoleResponse"][];
+                };
+            };
+        };
+    };
+    create_role_api_v1_users_roles_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_role_api_v1_users_roles__role_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RoleUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_role_api_v1_users_roles__role_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                role_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_users_summary_api_v1_users_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserSummaryResponse"];
                 };
             };
         };
@@ -6028,6 +10479,37 @@ export interface operations {
             };
         };
     };
+    force_logout_user_api_v1_users__user_id__force_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ForceLogoutResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     upload_file_api_v1_files_upload_post: {
         parameters: {
             query?: never;
@@ -6179,7 +10661,10 @@ export interface operations {
     };
     create_master_item_api_v1_masters_post: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Optional fallback type query param */
+                type?: string | null;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -6245,6 +10730,106 @@ export interface operations {
             };
         };
     };
+    delete_master_item_api_v1_masters__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_master_item_api_v1_masters__type___item_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                type: string;
+                item_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MasterItemResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_master_items_bulk_api_v1_masters__type__confirm_bulk_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                type: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MasterConfirmBulkRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MasterItemResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_states_api_v1_masters_states_get: {
         parameters: {
             query?: {
@@ -6296,6 +10881,74 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_state_api_v1_masters_states__state_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                state_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StateUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_state_api_v1_masters_states__state_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                state_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -6374,6 +11027,74 @@ export interface operations {
             };
         };
     };
+    update_city_api_v1_masters_cities__city_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                city_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CityUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CityResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_city_api_v1_masters_cities__city_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                city_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_areas_api_v1_masters_areas_get: {
         parameters: {
             query?: {
@@ -6426,6 +11147,106 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AreaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_area_api_v1_masters_areas__area_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                area_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AreaUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AreaResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_area_api_v1_masters_areas__area_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                area_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_territory_tree_api_v1_territories_tree_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by status: active | all */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TerritoryTreeResponse"];
                 };
             };
             /** @description Validation Error */
@@ -6580,6 +11401,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["TerritoryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_territory_api_v1_territories__territory_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                territory_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -6869,6 +11723,39 @@ export interface operations {
             };
         };
     };
+    delete_doctor_api_v1_customers_doctors__doctor_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                doctor_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_hospitals_api_v1_customers_hospitals_get: {
         parameters: {
             query?: {
@@ -6990,6 +11877,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HospitalResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_hospital_api_v1_customers_hospitals__hospital_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                hospital_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation Error */
@@ -7171,6 +12091,39 @@ export interface operations {
             };
         };
     };
+    delete_chemist_api_v1_customers_chemists__chemist_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                chemist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_stockists_api_v1_customers_stockists_get: {
         parameters: {
             query?: {
@@ -7304,6 +12257,39 @@ export interface operations {
             };
         };
     };
+    delete_stockist_api_v1_customers_stockists__stockist_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stockist_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_today_attendance_api_v1_attendance_today_get: {
         parameters: {
             query?: never;
@@ -7393,6 +12379,8 @@ export interface operations {
     get_attendance_history_api_v1_attendance_history_get: {
         parameters: {
             query?: {
+                /** @description Filter by user ID (Admin/Manager only) */
+                user_id?: number | null;
                 start_date?: string | null;
                 end_date?: string | null;
                 skip?: number;
@@ -7411,6 +12399,122 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AttendanceResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_visits_summary_api_v1_dashboard_visits_summary_get: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                employee_ids?: number[] | null;
+                state_id?: number | null;
+                territory_id?: number | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VisitsSummaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_metric_drilldown_api_v1_dashboard_visits_summary__employee_id__metrics__metric_key__get: {
+        parameters: {
+            query?: {
+                from?: string;
+                to?: string;
+                division_ids?: number[] | null;
+                state_id?: number | null;
+                territory_id?: number | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                employee_id: number;
+                metric_key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_metric_drilldown_api_v1_dashboard_visits_summary__employee_id__metrics__metric_key__export_get: {
+        parameters: {
+            query?: {
+                format?: string;
+                from?: string;
+                to?: string;
+                division_ids?: number[] | null;
+                state_id?: number | null;
+                territory_id?: number | null;
+            };
+            header?: never;
+            path: {
+                employee_id: number;
+                metric_key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -7484,9 +12588,71 @@ export interface operations {
             };
         };
     };
+    get_navigation_menu_api_v1_navigation_menu_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NavigationMenuResponse"];
+                };
+            };
+        };
+    };
+    get_quick_cards_api_v1_navigation_quick_cards_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["QuickCardItem"][];
+                };
+            };
+        };
+    };
+    get_mobile_drawer_items_api_v1_navigation_mobile_drawer_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MobileDrawerItem"][];
+                };
+            };
+        };
+    };
     list_dcr_visits_api_v1_dcr_visits_get: {
         parameters: {
             query?: {
+                /** @description Filter by user ID (Admin/Manager only) */
+                user_id?: number | null;
                 dcr_date?: string | null;
                 customer_type?: string | null;
                 skip?: number;
@@ -7948,6 +13114,130 @@ export interface operations {
             };
         };
     };
+    list_tour_plan_locks_api_v1_tour_plan_locks_get: {
+        parameters: {
+            query?: {
+                month?: number | null;
+                year?: number | null;
+                /** @description ALL, TERRITORY, EMPLOYEE, or ALL_SCOPES */
+                scope?: string | null;
+                /** @description LOCKED, UNLOCKED, or ALL */
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TourPlanLockResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_tour_plan_lock_api_v1_tour_plan_locks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TourPlanLockCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TourPlanLockResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_tour_plan_lock_history_api_v1_tour_plan_locks_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TourPlanLockResponse"][];
+                };
+            };
+        };
+    };
+    unlock_tour_plan_lock_api_v1_tour_plan_locks__lock_id__unlock_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                lock_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TourPlanUnlockRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TourPlanLockResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_expenses_api_v1_expenses_get: {
         parameters: {
             query?: {
@@ -8032,6 +13322,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MonthlyExpenseSummaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_payout_modes_api_v1_expenses_payout_modes_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+        };
+    };
+    process_payout_api_v1_expenses__expense_id__payout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expense_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpensePayoutRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseResponse"];
                 };
             };
             /** @description Validation Error */
@@ -8624,9 +13969,55 @@ export interface operations {
             };
         };
     };
-    get_reports_catalog_api_v1_reports_get: {
+    broadcast_notification_api_v1_notifications_broadcast_post: {
         parameters: {
             query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationBroadcastRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string | number;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_reports_catalog_api_v1_reports_get: {
+        parameters: {
+            query?: {
+                /** @description Search by report name or key */
+                search?: string | null;
+                /** @description Filter by report group */
+                group?: string | null;
+                /** @description Filter by status (AVAILABLE, COMING_SOON) */
+                status?: string | null;
+                /** @description Page number */
+                page?: number;
+                /** @description Page size */
+                page_size?: number;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -8639,7 +14030,56 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReportCatalogResponse"];
+                    "application/json": components["schemas"]["ReportCatalogV3Response"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_report_options_api_v1_reports_options__source__get: {
+        parameters: {
+            query?: {
+                /** @description Search term for options */
+                q?: string | null;
+                /** @description Parent ID for dependent dropdowns */
+                parent_id?: string | null;
+                /** @description Page number */
+                page?: number;
+                /** @description Page size */
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                source: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportOptionsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -8678,47 +14118,77 @@ export interface operations {
             };
         };
     };
-    get_report_api_v1_reports__key__get: {
+    get_report_definition_api_v1_reports__key__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportDefinitionItem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_report_api_v1_reports__key__run_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportRunResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_report_get_api_v1_reports__key__export_get: {
         parameters: {
             query?: {
-                /** @description Start date in YYYY-MM-DD (Asia/Kolkata) */
-                from_date?: string | null;
-                /** @description End date in YYYY-MM-DD (Asia/Kolkata) */
-                to_date?: string | null;
-                /** @description Alias for from_date */
-                start_date?: string | null;
-                /** @description Alias for to_date */
-                end_date?: string | null;
-                /** @description Filter by Medical Representative user ID */
-                mr_id?: number | null;
-                /** @description Filter by Reporting Manager user ID */
-                manager_id?: number | null;
-                /** @description Filter by territory ID */
-                territory_id?: number | null;
-                /** @description Filter by customer type (DOCTOR, CHEMIST, etc.) */
-                customer_type?: string | null;
-                /** @description Filter by status (e.g. Verified, Approved) */
-                status?: string | null;
-                /** @description Filter by specialization */
-                specialization?: string | null;
-                /** @description Filter by category */
-                category?: string | null;
-                /** @description Filter by active status */
-                active?: boolean | null;
-                /** @description Filter by work type */
-                work_type?: string | null;
-                /** @description Filter by visit type */
-                visit_type?: string | null;
-                /** @description Filter by geofence verified */
-                verified?: boolean | null;
-                /** @description Filter by deviation type */
-                deviation_type?: string | null;
-                /** @description Filter by days not seen threshold */
-                days_not_seen?: number | null;
-                /** @description Page number */
-                page?: number;
-                /** @description Page size */
-                page_size?: number;
+                /** @description Export format: 'xlsx' or 'pdf' */
+                format?: string;
             };
             header?: never;
             path: {
@@ -8734,7 +14204,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ReportResponse"];
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -8748,45 +14218,11 @@ export interface operations {
             };
         };
     };
-    export_report_api_v1_reports__key__export_get: {
+    export_report_post_api_v1_reports__key__export_post: {
         parameters: {
             query?: {
                 /** @description Export format: 'xlsx' or 'pdf' */
                 format?: string;
-                /** @description Start date in YYYY-MM-DD (Asia/Kolkata) */
-                from_date?: string | null;
-                /** @description End date in YYYY-MM-DD (Asia/Kolkata) */
-                to_date?: string | null;
-                /** @description Alias for from_date */
-                start_date?: string | null;
-                /** @description Alias for to_date */
-                end_date?: string | null;
-                /** @description Filter by Medical Representative user ID */
-                mr_id?: number | null;
-                /** @description Filter by Reporting Manager user ID */
-                manager_id?: number | null;
-                /** @description Filter by territory ID */
-                territory_id?: number | null;
-                /** @description Filter by customer type */
-                customer_type?: string | null;
-                /** @description Filter by status */
-                status?: string | null;
-                /** @description Filter by specialization */
-                specialization?: string | null;
-                /** @description Filter by category */
-                category?: string | null;
-                /** @description Filter by active status */
-                active?: boolean | null;
-                /** @description Filter by work type */
-                work_type?: string | null;
-                /** @description Filter by visit type */
-                visit_type?: string | null;
-                /** @description Filter by geofence verified */
-                verified?: boolean | null;
-                /** @description Filter by deviation type */
-                deviation_type?: string | null;
-                /** @description Filter by days not seen threshold */
-                days_not_seen?: number | null;
             };
             header?: never;
             path: {
@@ -8794,7 +14230,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportExportRequest"];
+            };
+        };
         responses: {
             /** @description Streamed report file download */
             200: {
@@ -8975,6 +14415,26 @@ export interface operations {
             };
         };
     };
+    get_orders_summary_api_v1_orders_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrdersSummaryResponse"];
+                };
+            };
+        };
+    };
     list_orders_api_v1_orders_get: {
         parameters: {
             query?: {
@@ -9077,6 +14537,41 @@ export interface operations {
             };
         };
     };
+    update_order_status_api_v1_orders__order_id__status_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                order_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OrderStatusUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_targets_api_v1_targets_get: {
         parameters: {
             query?: {
@@ -9132,6 +14627,1992 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["TargetResponse"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_workflow_summary_api_v1_workflow__module__summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                module: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkflowSummaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_workflow_items_api_v1_workflow__module__get: {
+        parameters: {
+            query?: {
+                /** @description 'drafts', 'applied', or 'received' */
+                box?: string;
+                /** @description Search across requester, title, details */
+                search?: string | null;
+                /** @description Status filter e.g. PENDING, APPROVED, REJECTED */
+                status?: string | null;
+                skip?: number;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                module: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkflowItemResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_setting_groups_api_v1_settings_groups_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingGroupResponse"][];
+                };
+            };
+        };
+    };
+    list_settings_api_v1_settings_get: {
+        parameters: {
+            query?: {
+                group?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_update_settings_api_v1_settings_bulk_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettingBulkUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_geofence_settings_api_v1_settings_geofence_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeofenceSettingResponse"][];
+                };
+            };
+        };
+    };
+    update_geofence_settings_api_v1_settings_geofence_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GeofenceBulkUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeofenceSettingResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_geofence_settings_api_v1_settings_geofence_rules_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeofenceSettingResponse"][];
+                };
+            };
+        };
+    };
+    update_setting_api_v1_settings__key__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettingUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_setting_api_v1_settings__key__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_setting_history_api_v1_settings__key__history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SettingHistoryResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_audit_meta_api_v1_audit_meta_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditMetaResponse"];
+                };
+            };
+        };
+    };
+    list_audit_logs_api_v1_audit_logs_get: {
+        parameters: {
+            query?: {
+                user_id?: number | null;
+                module?: string | null;
+                action?: string | null;
+                entity_type?: string | null;
+                entity_id?: string | null;
+                result?: string | null;
+                channel?: string | null;
+                date_from?: string | null;
+                date_to?: string | null;
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditLogListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_audit_log_api_v1_audit_logs__log_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                log_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditLogResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_audit_logs_api_v1_audit_logs_export_post: {
+        parameters: {
+            query?: {
+                format?: string;
+                user_id?: number | null;
+                module?: string | null;
+                action?: string | null;
+                date_from?: string | null;
+                date_to?: string | null;
+                search?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_expense_limits_api_v1_expense_limits_get: {
+        parameters: {
+            query?: {
+                designation_id?: number | null;
+                expense_type_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseLimitResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_expense_limits_matrix_api_v1_expense_limits_matrix_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseLimitMatrixResponse"];
+                };
+            };
+        };
+    };
+    bulk_upsert_expense_limits_api_v1_expense_limits_bulk_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExpenseLimitBulkUpsertRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseLimitResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_expense_limit_api_v1_expense_limits__limit_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                limit_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExpenseLimitResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_mapping_capabilities_api_v1_mappings_capabilities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappingCapabilitiesResponse"];
+                };
+            };
+        };
+    };
+    preview_mapping_api_v1_mappings_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MappingPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappingPreviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    apply_mapping_api_v1_mappings__batch_id__apply_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappingBatchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revert_mapping_api_v1_mappings__batch_id__revert_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappingBatchResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mappings_api_v1_mappings_get: {
+        parameters: {
+            query?: {
+                mode?: string | null;
+                status?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappingBatchResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_mapping_detail_api_v1_mappings__batch_id__get: {
+        parameters: {
+            query?: {
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path: {
+                batch_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MappingBatchDetailResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_company_profile_api_v1_company_profile_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyProfileResponse"];
+                };
+            };
+        };
+    };
+    update_company_profile_api_v1_company_profile_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanyProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanyProfileResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_meetings_summary_api_v1_meetings_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingSummaryResponse"];
+                };
+            };
+        };
+    };
+    list_meetings_api_v1_meetings_get: {
+        parameters: {
+            query?: {
+                /** @description Status filter: DRAFTS, APPLIED, RECEIVED, APPROVED, REJECTED */
+                status?: string | null;
+                /** @description Search by agenda */
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_meeting_api_v1_meetings_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MeetingCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_meeting_api_v1_meetings__meeting_id__submit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                meeting_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    approve_meeting_api_v1_meetings__meeting_id__approve_post: {
+        parameters: {
+            query?: {
+                remarks?: string | null;
+            };
+            header?: never;
+            path: {
+                meeting_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reject_meeting_api_v1_meetings__meeting_id__reject_post: {
+        parameters: {
+            query?: {
+                remarks?: string | null;
+            };
+            header?: never;
+            path: {
+                meeting_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MeetingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_month_calendar_api_v1_calendar_month_get: {
+        parameters: {
+            query?: {
+                /** @description Employee ID (defaults to authenticated user) */
+                employee_id?: number | null;
+                /** @description Calendar year (defaults to current year) */
+                year?: number | null;
+                /** @description Calendar month (1-12, defaults to current month) */
+                month?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CalendarMonthResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_mobile_registrations_api_v1_mobile_registrations_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by status (PENDING, APPROVED, REJECTED, ALL) */
+                status?: string | null;
+                /** @description Search employee name, code, model */
+                search?: string | null;
+                /** @description Filter by employee state IDs */
+                state_id?: number[] | null;
+                /** @description Filter by employee city IDs */
+                city_id?: number[] | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MobileRegistrationListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_approve_registrations_api_v1_mobile_registrations_approve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MobileRegistrationBulkActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MobileRegistrationBulkActionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_reject_registrations_api_v1_mobile_registrations_reject_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MobileRegistrationBulkActionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MobileRegistrationBulkActionResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    preview_delete_visits_api_v1_admin_visits_delete_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteVisitsPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteVisitsPreviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    execute_delete_visits_api_v1_admin_visits_delete_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteVisitsExecuteRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteVisitsExecuteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    restore_visits_api_v1_admin_visits_restore_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RestoreVisitsRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RestoreVisitsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sample_inwards_api_v1_stock_samples_inward_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by product ID */
+                product_id?: number | null;
+                /** @description Filter by batch number */
+                batch_number?: string | null;
+                /** @description Search challan, product, supplier */
+                search?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleInwardListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    record_sample_inward_api_v1_stock_samples_inward_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SampleInwardCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleInwardResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sample_allocations_api_v1_stock_samples_allocations_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by employee ID */
+                user_id?: number | null;
+                /** @description Filter by product ID */
+                product_id?: number | null;
+                /** @description Filter by calendar month */
+                month?: number | null;
+                /** @description Filter by calendar year */
+                year?: number | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleAllocationListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_sample_allocation_api_v1_stock_samples_allocations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SampleAllocationCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleAllocationResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_sample_allocation_api_v1_stock_samples_allocations_bulk_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SampleAllocationBulkCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sample_issues_api_v1_stock_samples_issues_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by recipient user ID */
+                user_id?: number | null;
+                /** @description Filter by product ID */
+                product_id?: number | null;
+                /** @description Filter by dispatch status */
+                status?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleIssueListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_sample_issue_api_v1_stock_samples_issues_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SampleIssueCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleIssueResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    acknowledge_sample_issue_api_v1_stock_samples_issues__issue_id__acknowledge_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                issue_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SampleIssueAcknowledgeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleIssueResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sample_batches_api_v1_stock_samples_batches_get: {
+        parameters: {
+            query?: {
+                /** @description Filter by product ID */
+                product_id?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleBatchResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sample_stock_balance_api_v1_stock_samples_balance_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SampleStockBalanceResponse"][];
+                };
+            };
+        };
+    };
+    list_financial_years_api_v1_financial_years_get: {
+        parameters: {
+            query?: {
+                /** @description Search by name or code */
+                search?: string | null;
+                /** @description Filter current active fiscal year */
+                is_current?: boolean | null;
+                /** @description Filter active status */
+                is_active?: boolean | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinancialYearListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_financial_year_api_v1_financial_years_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FinancialYearCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinancialYearResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_current_financial_year_api_v1_financial_years_current_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinancialYearResponse"] | null;
+                };
+            };
+        };
+    };
+    get_financial_year_api_v1_financial_years__year_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                year_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinancialYearResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_financial_year_api_v1_financial_years__year_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                year_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FinancialYearUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinancialYearResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_financial_year_api_v1_financial_years__year_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                year_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    set_current_financial_year_api_v1_financial_years__year_id__set_current_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                year_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FinancialYearResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_releases_api_v1_releases_get: {
+        parameters: {
+            query?: {
+                /** @description Search by title, version, summary */
+                search?: string | null;
+                /** @description Filter by release type */
+                release_type?: string | null;
+                /** @description Filter publication status */
+                is_published?: boolean | null;
+                /** @description Filter audience */
+                target_audience?: string | null;
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppReleaseListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_release_api_v1_releases_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppReleaseCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppReleaseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_latest_release_api_v1_releases_latest_get: {
+        parameters: {
+            query?: {
+                target_audience?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppReleaseResponse"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_release_by_id_api_v1_releases__release_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                release_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppReleaseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_release_api_v1_releases__release_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                release_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppReleaseUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AppReleaseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_release_api_v1_releases__release_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                release_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
