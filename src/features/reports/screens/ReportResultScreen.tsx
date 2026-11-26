@@ -10,11 +10,11 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { Header } from "../../../shared/components/Header";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 import { Card } from "../../../shared/components/Card";
 import { ScreenContainer } from "../../../shared/components/ScreenContainer";
 import { Loader, EmptyState, ErrorState } from "../../../shared/components/StateViews";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { colors, radii, spacing, typography } from "../../../theme";
 import { ROUTES } from "../../../navigation/routes";
 import { useReportResult } from "../hooks/useReportResult";
 import { ExportBottomSheet } from "../components/ExportBottomSheet";
@@ -102,19 +102,19 @@ export function ReportResultScreen() {
 
   return (
     <ScreenContainer>
-      <Header
+      <ScreenHeader
         title={reportTitle || "Report Details"}
         subtitle={meta?.scope_label || scopeLabel || "Scoped report"}
-        showBack
+        variant="navy"
         onBack={() => navigation.goBack()}
-        rightAction={
+        rightElement={
           <TouchableOpacity
             style={[styles.exportBtn, !isOnline && styles.exportBtnDisabled]}
             disabled={!isOnline}
             onPress={() => setIsExportSheetVisible(true)}
             activeOpacity={0.7}
           >
-            <Ionicons name="download-outline" size={16} color="#FFFFFF" />
+            <Ionicons name="download-outline" size={16} color={colors.surface} />
             <Text style={styles.exportBtnText}>Export</Text>
           </TouchableOpacity>
         }

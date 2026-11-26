@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -10,11 +12,23 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { LeaveBalanceDto, leavesApi } from "../api/leavesApi";
-import { colors, radii, spacing } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
+
+const LEAVE_TYPES: Array<{
+  key: "CASUAL" | "SICK" | "EARNED";
+  label: string;
+  icon: keyof typeof Feather.glyphMap;
+}> = [
+  { key: "CASUAL", label: "Casual", icon: "sun" },
+  { key: "SICK", label: "Sick", icon: "thermometer" },
+  { key: "EARNED", label: "Earned", icon: "award" },
+];
 
 export function ApplyLeaveScreen() {
   const navigation = useNavigation();
@@ -100,171 +114,222 @@ export function ApplyLeaveScreen() {
 
   return (
     <SafeAreaView style={styles.screenContainer} edges={["top", "bottom"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#0F172A" />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Apply for Leave</Text>
-          <Text style={styles.subtitle}>Submit planned absence to manager</Text>
-        </View>
-      </View>
+      <StatusBar style="light" />
 
-      {/* Current Balance Bar */}
-      <View style={styles.balanceContainer}>
-        {isLoadingBalance ? (
-          <ActivityIndicator size="small" color={colors.primary} />
-        ) : balance ? (
-          <View style={styles.balanceRow}>
-            <View style={styles.balanceCol}>
-              <Text style={styles.balanceValue}>{balance.casual_leave_balance}</Text>
-              <Text style={styles.balanceLabel}>Casual (CL)</Text>
+      <ScreenHeader
+        title="Apply for Leave"
+        subtitle="Submit planned absence to manager"
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+      <ScrollView
+        contentContainerStyle={styles.body}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Leave Balance Bento Card */}
+        <View style={styles.balanceCard}>
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.cardIconBox}>
+              <Feather name="pie-chart" size={16} color={colors.brandBlue} />
             </View>
-            <View style={styles.balanceCol}>
-              <Text style={styles.balanceValue}>{balance.sick_leave_balance}</Text>
-              <Text style={styles.balanceLabel}>Sick (SL)</Text>
-            </View>
-            <View style={styles.balanceCol}>
-              <Text style={styles.balanceValue}>{balance.earned_leave_balance}</Text>
-              <Text style={styles.balanceLabel}>Earned (EL)</Text>
-            </View>
-            <View style={[styles.balanceCol, styles.totalCol]}>
-              <Text style={[styles.balanceValue, { color: colors.primary }]}>
-                {balance.total_balance}
-              </Text>
-              <Text style={styles.balanceLabel}>Total Left</Text>
-            </View>
+            <Text style={styles.cardTitle}>Available Leave Balance</Text>
           </View>
-        ) : null}
-      </View>
 
-      <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-        {/* Leave Type Selector */}
-        <Text style={styles.label}>Leave Type *</Text>
-        <View style={styles.typeSelectorRow}>
-          {(["CASUAL", "SICK", "EARNED"] as const).map((type) => {
-            const isSelected = leaveType === type;
-            return (
-              <TouchableOpacity
-                key={type}
-                style={[styles.typeBtn, isSelected && styles.typeBtnSelected]}
-                onPress={() => setLeaveType(type)}
-                activeOpacity={0.8}
-              >
-                <Text style={[styles.typeBtnText, isSelected && styles.typeBtnTextSelected]}>
-                  {type}
+          {isLoadingBalance ? (
+            <ActivityIndicator size="small" color={colors.navy} style={{ paddingVertical: 12 }} />
+          ) : balance ? (
+            <View style={styles.balanceRow}>
+              <View style={[styles.balanceTile, { backgroundColor: colors.bluePastel }]}>
+                <Text style={[styles.balanceValue, { color: colors.brandBlue }]}>
+                  {balance.casual_leave_balance}
                 </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+                <Text style={styles.balanceLabel}>Casual (CL)</Text>
+              </View>
 
-        {/* Half Day Toggle */}
-        <View style={styles.toggleRow}>
-          <View>
-            <Text style={styles.toggleTitle}>Half Day Leave</Text>
-            <Text style={styles.toggleSubtitle}>0.5 day deduction for morning/evening off</Text>
-          </View>
-          <Switch
-            value={isHalfDay}
-            onValueChange={handleHalfDayToggle}
-            trackColor={{ false: "#CBD5E1", true: colors.primary }}
-          />
-        </View>
+              <View style={[styles.balanceTile, { backgroundColor: colors.tealPastel }]}>
+                <Text style={[styles.balanceValue, { color: colors.teal }]}>
+                  {balance.sick_leave_balance}
+                </Text>
+                <Text style={styles.balanceLabel}>Sick (SL)</Text>
+              </View>
 
-        {/* Date Inputs */}
-        <View style={styles.dateInputsRow}>
-          <View style={styles.dateField}>
-            <Text style={styles.label}>Start Date *</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="calendar-outline" size={16} color="#64748B" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                value={startDate}
-                onChangeText={(val) => {
-                  setStartDate(val);
-                  if (isHalfDay) setEndDate(val);
-                }}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor="#94A3B8"
-              />
+              <View style={[styles.balanceTile, { backgroundColor: colors.orangePastel }]}>
+                <Text style={[styles.balanceValue, { color: colors.orange }]}>
+                  {balance.earned_leave_balance}
+                </Text>
+                <Text style={styles.balanceLabel}>Earned (EL)</Text>
+              </View>
+
+              <View style={[styles.balanceTile, { backgroundColor: colors.navy }]}>
+                <Text style={[styles.balanceValue, { color: colors.surface }]}>
+                  {balance.total_balance}
+                </Text>
+                <Text style={[styles.balanceLabel, { color: colors.emailSubtitle }]}>
+                  Total Left
+                </Text>
+              </View>
             </View>
+          ) : null}
+        </View>
+
+        {/* Leave Type & Schedule Card */}
+        <View style={styles.sectionCard}>
+          <View style={styles.cardHeaderRow}>
+            <View style={[styles.cardIconBox, { backgroundColor: colors.tealPastel }]}>
+              <Feather name="calendar" size={16} color={colors.teal} />
+            </View>
+            <Text style={styles.cardTitle}>Leave Details</Text>
           </View>
 
-          {!isHalfDay && (
+          {/* Leave Type Selector */}
+          <Text style={styles.label}>
+            Leave Type <Text style={styles.required}>*</Text>
+          </Text>
+          <View style={styles.typeSelectorRow}>
+            {LEAVE_TYPES.map((type) => {
+              const isSelected = leaveType === type.key;
+              return (
+                <TouchableOpacity
+                  key={type.key}
+                  style={[styles.typeBtn, isSelected && styles.typeBtnSelected]}
+                  onPress={() => setLeaveType(type.key)}
+                  activeOpacity={0.8}
+                >
+                  <Feather
+                    name={type.icon}
+                    size={15}
+                    color={isSelected ? colors.surface : colors.textMuted}
+                  />
+                  <Text style={[styles.typeBtnText, isSelected && styles.typeBtnTextSelected]}>
+                    {type.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          {/* Half Day Toggle */}
+          <View style={styles.toggleRow}>
+            <View style={{ flex: 1, marginRight: spacing.md }}>
+              <Text style={styles.toggleTitle}>Half Day Leave</Text>
+              <Text style={styles.toggleSubtitle}>0.5 day deduction for morning or evening off</Text>
+            </View>
+            <Switch
+              value={isHalfDay}
+              onValueChange={handleHalfDayToggle}
+              trackColor={{ false: colors.border, true: colors.brandBlue }}
+              thumbColor={colors.surface}
+            />
+          </View>
+
+          {/* Date Inputs */}
+          <View style={styles.dateInputsRow}>
             <View style={styles.dateField}>
-              <Text style={styles.label}>End Date *</Text>
+              <Text style={styles.label}>
+                Start Date <Text style={styles.required}>*</Text>
+              </Text>
               <View style={styles.inputWrapper}>
-                <Ionicons name="calendar-outline" size={16} color="#64748B" style={styles.inputIcon} />
+                <Feather name="calendar" size={16} color={colors.textMuted} />
                 <TextInput
                   style={styles.textInput}
-                  value={endDate}
-                  onChangeText={setEndDate}
+                  value={startDate}
+                  onChangeText={(val) => {
+                    setStartDate(val);
+                    if (isHalfDay) setEndDate(val);
+                  }}
                   placeholder="YYYY-MM-DD"
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={colors.textFaint}
+                />
+              </View>
+            </View>
+
+            {!isHalfDay && (
+              <View style={styles.dateField}>
+                <Text style={styles.label}>
+                  End Date <Text style={styles.required}>*</Text>
+                </Text>
+                <View style={styles.inputWrapper}>
+                  <Feather name="calendar" size={16} color={colors.textMuted} />
+                  <TextInput
+                    style={styles.textInput}
+                    value={endDate}
+                    onChangeText={setEndDate}
+                    placeholder="YYYY-MM-DD"
+                    placeholderTextColor={colors.textFaint}
+                  />
+                </View>
+              </View>
+            )}
+          </View>
+
+          {/* Days Count */}
+          {!isHalfDay && (
+            <View style={styles.fieldBlock}>
+              <Text style={styles.label}>
+                Total Days <Text style={styles.required}>*</Text>
+              </Text>
+              <View style={styles.inputWrapper}>
+                <Feather name="clock" size={16} color={colors.textMuted} />
+                <TextInput
+                  style={styles.textInput}
+                  value={daysCount}
+                  onChangeText={setDaysCount}
+                  placeholder="1.0"
+                  placeholderTextColor={colors.textFaint}
+                  keyboardType="numeric"
                 />
               </View>
             </View>
           )}
-        </View>
 
-        {/* Days Count */}
-        {!isHalfDay && (
-          <View>
-            <Text style={styles.label}>Total Days *</Text>
-            <View style={styles.inputWrapper}>
-              <Ionicons name="hourglass-outline" size={16} color="#64748B" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                value={daysCount}
-                onChangeText={setDaysCount}
-                placeholder="1.0"
-                placeholderTextColor="#94A3B8"
-                keyboardType="numeric"
-              />
-            </View>
+          {/* Reason */}
+          <View style={styles.fieldBlock}>
+            <Text style={styles.label}>
+              Reason for Leave <Text style={styles.required}>*</Text>
+            </Text>
+            <TextInput
+              style={styles.textArea}
+              value={reason}
+              onChangeText={setReason}
+              placeholder="e.g. Urgent family matter / Medical checkup..."
+              placeholderTextColor={colors.textFaint}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
           </View>
-        )}
-
-        {/* Reason */}
-        <Text style={styles.label}>Reason for Leave *</Text>
-        <TextInput
-          style={styles.textArea}
-          value={reason}
-          onChangeText={setReason}
-          placeholder="e.g. Urgent family matter / Viral fever..."
-          placeholderTextColor="#94A3B8"
-          multiline
-          numberOfLines={3}
-          textAlignVertical="top"
-        />
+        </View>
       </ScrollView>
+      </KeyboardAvoidingView>
 
-      {/* Footer Submit Button */}
+      {/* Footer Submit Bar */}
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.cancelBtn}
           onPress={() => navigation.goBack()}
           disabled={isSubmitting}
+          activeOpacity={0.8}
         >
           <Text style={styles.cancelBtnText}>Cancel</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.submitBtn}
+          style={[styles.submitBtn, isSubmitting && { opacity: 0.7 }]}
           onPress={handleSubmit}
           disabled={isSubmitting}
+          activeOpacity={0.8}
         >
           {isSubmitting ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color={colors.surface} />
           ) : (
             <>
-              <Ionicons name="send-outline" size={18} color="#FFFFFF" />
+              <Feather name="send" size={16} color={colors.surface} />
               <Text style={styles.submitBtnText}>Submit Application</Text>
             </>
           )}
@@ -277,182 +342,219 @@ export function ApplyLeaveScreen() {
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
-    backgroundColor: "#FFFFFF",
-    gap: 12,
-  },
-  backButton: {
-    padding: 4,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#0F172A",
-  },
-  subtitle: {
-    fontSize: 12,
-    color: "#64748B",
-    marginTop: 2,
-  },
-  balanceContainer: {
-    backgroundColor: "#F8FAFC",
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.lg,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
-  },
-  balanceRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  balanceCol: {
-    alignItems: "center",
-  },
-  totalCol: {
-    borderLeftWidth: 1,
-    borderLeftColor: "#E2E8F0",
-    paddingLeft: spacing.md,
-  },
-  balanceValue: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#0F172A",
-  },
-  balanceLabel: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#64748B",
-    marginTop: 2,
+    backgroundColor: colors.background,
   },
   body: {
     padding: spacing.lg,
-    gap: 8,
+    paddingBottom: spacing.xxxl,
+    gap: spacing.lg,
+  },
+  balanceCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
+  },
+  sectionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
+  },
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  cardIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.md,
+    backgroundColor: colors.bluePastel,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardTitle: {
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
+  },
+  balanceRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+  },
+  balanceTile: {
+    flex: 1,
+    borderRadius: radii.lg,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.xs,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  balanceValue: {
+    ...typography.heading,
+    fontSize: 18,
+    fontWeight: "800",
+  },
+  balanceLabel: {
+    ...typography.caption,
+    fontSize: 10,
+    fontWeight: "700",
+    color: colors.textMuted,
+    marginTop: 2,
+    textAlign: "center",
   },
   label: {
+    ...typography.caption,
     fontSize: 12,
     fontWeight: "700",
-    color: "#334155",
-    marginBottom: 4,
+    color: colors.navy,
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  required: {
+    color: colors.accentRed,
   },
   typeSelectorRow: {
     flexDirection: "row",
-    gap: 8,
-    marginBottom: 8,
+    gap: spacing.sm,
+    marginBottom: spacing.lg,
   },
   typeBtn: {
     flex: 1,
-    paddingVertical: 10,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    backgroundColor: "#F8FAFC",
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: radii.lg,
+    backgroundColor: colors.inputBackground,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
   typeBtnSelected: {
-    borderColor: colors.primary,
-    backgroundColor: "#ECFDF5",
+    backgroundColor: colors.navy,
+    borderColor: colors.navy,
   },
   typeBtnText: {
-    fontSize: 12,
+    ...typography.caption,
+    fontSize: 13,
     fontWeight: "700",
-    color: "#64748B",
+    color: colors.textInk,
   },
   typeBtnTextSelected: {
-    color: colors.primary,
+    color: colors.surface,
+    fontWeight: "800",
   },
   toggleRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#F1F5F9",
-    padding: spacing.sm,
-    borderRadius: radii.md,
-    marginVertical: 4,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    marginBottom: spacing.lg,
   },
   toggleTitle: {
-    fontSize: 12,
+    ...typography.body,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#0F172A",
+    color: colors.textInk,
   },
   toggleSubtitle: {
-    fontSize: 10,
-    color: "#64748B",
+    ...typography.caption,
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   dateInputsRow: {
     flexDirection: "row",
-    gap: 10,
+    gap: spacing.md,
+    marginBottom: spacing.md,
   },
   dateField: {
     flex: 1,
   },
+  fieldBlock: {
+    marginBottom: spacing.md,
+  },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: colors.inputBackground,
     borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: radii.md,
-    backgroundColor: "#F8FAFC",
-    paddingHorizontal: spacing.sm,
-    height: 42,
-  },
-  inputIcon: {
-    marginRight: 6,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.md,
+    minHeight: 48,
+    gap: spacing.sm,
   },
   textInput: {
     flex: 1,
+    ...typography.body,
     fontSize: 14,
-    color: "#0F172A",
+    color: colors.textInk,
+    fontWeight: "600",
   },
   textArea: {
+    backgroundColor: colors.inputBackground,
     borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: radii.md,
-    backgroundColor: "#F8FAFC",
-    padding: spacing.sm,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    ...typography.body,
     fontSize: 14,
-    color: "#0F172A",
-    minHeight: 70,
+    color: colors.textInk,
+    minHeight: 88,
   },
   footer: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 12,
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
-    backgroundColor: "#FFFFFF",
+    borderTopColor: colors.borderLight,
+    gap: spacing.md,
+    ...shadows.soft,
   },
   cancelBtn: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    flex: 1,
+    minHeight: 48,
+    borderRadius: radii.lg,
+    backgroundColor: colors.inputBackground,
+    alignItems: "center",
+    justifyContent: "center",
   },
   cancelBtnText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#64748B",
-  },
-  submitBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: radii.md,
-  },
-  submitBtnText: {
+    ...typography.button,
     fontSize: 14,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: colors.textInk,
+  },
+  submitBtn: {
+    flex: 2,
+    flexDirection: "row",
+    minHeight: 48,
+    borderRadius: radii.lg,
+    backgroundColor: colors.navy,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    ...shadows.soft,
+  },
+  submitBtnText: {
+    ...typography.button,
+    fontSize: 14,
+    fontWeight: "800",
+    color: colors.surface,
   },
 });

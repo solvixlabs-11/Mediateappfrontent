@@ -10,12 +10,12 @@ import {
 } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
-import { Header } from "../../../shared/components/Header";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 import { Card } from "../../../shared/components/Card";
 import { Button } from "../../../shared/components/Button";
 import { Input } from "../../../shared/components/Input";
 import { ScreenContainer } from "../../../shared/components/ScreenContainer";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { colors, radii, spacing, typography } from "../../../theme";
 import { ROUTES } from "../../../navigation/routes";
 import { useReportFilters } from "../hooks/useReportFilters";
 import { DatePreset } from "../utils/reportDateUtils";
@@ -148,10 +148,10 @@ export function ReportFiltersScreen() {
 
   return (
     <ScreenContainer>
-      <Header
+      <ScreenHeader
         title="Report Filters"
         subtitle={reportTitle}
-        showBack
+        variant="navy"
         onBack={() => navigation.goBack()}
       />
 

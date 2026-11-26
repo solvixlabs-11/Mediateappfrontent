@@ -15,8 +15,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useMasterStore } from "../store";
 import { MasterItemDto, mastersApi } from "../api/mastersApi";
 import { TerritoryDto, territoriesApi } from "../../territories/api/territoriesApi";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
-import { Header } from "../../../shared/components/Header";
+import { colors, radii, spacing, typography } from "../../../theme";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 type SectionType = "SPECIALIZATIONS" | "TERRITORIES" | "CATEGORIES" | "GEOGRAPHY";
 
@@ -119,25 +119,26 @@ export function AdminMastersScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header with Mediate Logo & Admin Role Badge */}
-      <Header
+      {/* Signature Navy Header */}
+      <ScreenHeader
         title="Masters & Geography"
         subtitle="System configuration & dropdown registries"
-        rightAction={
+        variant="navy"
+        rightElement={
           activeSection === "TERRITORIES" ? (
             <TouchableOpacity
-              style={styles.addButton}
+              style={[styles.addButton, { backgroundColor: "rgba(255,255,255,0.2)" }]}
               onPress={() => setTerritoryModalVisible(true)}
             >
-              <Ionicons name="add" size={16} color="#fff" />
+              <Ionicons name="add" size={16} color={colors.surface} />
               <Text style={styles.addButtonText}>Add Territory</Text>
             </TouchableOpacity>
           ) : activeSection === "SPECIALIZATIONS" ? (
             <TouchableOpacity
-              style={styles.addButton}
+              style={[styles.addButton, { backgroundColor: "rgba(255,255,255,0.2)" }]}
               onPress={() => setModalVisible(true)}
             >
-              <Ionicons name="add" size={16} color="#fff" />
+              <Ionicons name="add" size={16} color={colors.surface} />
               <Text style={styles.addButtonText}>Add Spec</Text>
             </TouchableOpacity>
           ) : null

@@ -9,17 +9,38 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 import { useAuthStore } from "../../auth/store";
 import { apiClient } from "../../../api/client";
-import { colors, spacing, typography } from "../../../shared/theme/tokens";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
+import appConfig from "../../../../app.json";
 
-interface MrBuddyDrawerProps {
+export interface MrBuddyDrawerProps {
   visible: boolean;
   onClose: () => void;
   onSelectAction: (action: string) => void;
   activeTerritory: string;
 }
+
+interface DrawerMenuItem {
+  key: string;
+  label: string;
+  icon: keyof typeof Feather.glyphMap;
+}
+
+const DEFAULT_DRAWER_ITEMS: DrawerMenuItem[] = [
+  { key: "change_territory", label: "Change Territory", icon: "map" },
+  { key: "my_visits", label: "My Visits", icon: "user" },
+  { key: "reports", label: "Reports", icon: "bar-chart-2" },
+  { key: "sample_receive", label: "Sample Receive", icon: "box" },
+  { key: "reimbursement", label: "Reimbursement", icon: "file-text" },
+  { key: "dr_monthly_business", label: "Dr. Monthly Business", icon: "bar-chart" },
+  { key: "near_by_me", label: "Near By Me", icon: "map-pin" },
+  { key: "employee_route", label: "Employee Route", icon: "share-2" },
+  { key: "settings", label: "Settings", icon: "sliders" },
+  { key: "whats_new", label: "What's New", icon: "bell" },
+];
 
 export function MrBuddyDrawer({
   visible,
@@ -27,8 +48,12 @@ export function MrBuddyDrawer({
   onSelectAction,
   activeTerritory,
 }: MrBuddyDrawerProps) {
+  const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const [activeItemKey, setActiveItemKey] = useState<string>("change_territory");
+
+  const [menuItems, setMenuItems] = useState<DrawerMenuItem[]>(DEFAULT_DRAWER_ITEMS);
 
   const handleSignOut = () => {
     Alert.alert("Sign Out", "Are you sure you want to sign out from Mediate Healthcare?", [
@@ -44,18 +69,42 @@ export function MrBuddyDrawer({
     ]);
   };
 
-  const [menuItems, setMenuItems] = useState<Array<{ key: string; label: string }>>([]);
-
   useEffect(() => {
     apiClient
       .get<Array<{ key: string; label: string }>>("/api/v1/navigation/mobile-drawer")
       .then((res) => {
-        if (res.data && Array.isArray(res.data)) {
-          setMenuItems(res.data);
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
+          // Merge API items with known icons
+          const merged = res.data.map((item) => {
+            const found = DEFAULT_DRAWER_ITEMS.find((d) => d.key === item.key);
+            return {
+              key: item.key,
+              label: item.label,
+              icon: (found ? found.icon : "circle") as keyof typeof Feather.glyphMap,
+            };
+          });
+          setMenuItems(merged);
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        // Fallback to default
+        setMenuItems(DEFAULT_DRAWER_ITEMS);
+      });
   }, []);
+
+  const fullName = user?.fullName || "Representative";
+  const initials = fullName
+    .split(" ")
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "MR";
+
+  const userRole = user?.role || "MR";
+  const userPhone = user?.phone || "";
+  const roleAndPhone = userPhone ? `${userRole} · ${userPhone}` : userRole;
+  const appVersion = appConfig?.expo?.version || "1.0.0";
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -64,33 +113,28 @@ export function MrBuddyDrawer({
           <View style={styles.backdrop} />
         </TouchableWithoutFeedback>
 
-        <View style={styles.drawerContainer}>
-          {/* Header Profile Section */}
-          <View style={styles.profileHeader}>
+        <View
+          style={[
+            styles.drawerContainer,
+            { paddingBottom: Math.max(insets.bottom, spacing.lg) },
+          ]}
+        >
+          {/* Navy Header Block */}
+          <View style={[styles.profileHeader, { paddingTop: Math.max(insets.top + 8, 48) }]}>
             <View style={styles.avatarRow}>
               <View style={styles.avatarCircle}>
-                <Ionicons name="image-outline" size={26} color="#94A3B8" />
+                <Text style={styles.avatarText}>{initials}</Text>
               </View>
+
               <View style={styles.nameBlock}>
-                <Text style={styles.companyName} numberOfLines={1}>
-                  {user?.fullName ? user.fullName.toUpperCase() : "MEDIATE HEALTHCARE"}
+                <Text style={styles.userName} numberOfLines={1}>
+                  {fullName}
                 </Text>
-                <Text style={styles.userRole}>
-                  {user?.role === "ADMIN"
-                    ? "ERP ADMIN"
-                    : user?.role === "MANAGER"
-                    ? "AREA MANAGER"
-                    : "FIELD REPRESENTATIVE"}
-                </Text>
+                <Text style={styles.rolePhone}>{roleAndPhone}</Text>
               </View>
             </View>
 
-            <Text style={styles.phoneText}>{user?.phone || ""}</Text>
-            <Text style={styles.subOrgText}>MEDIATE HEALTHCARE PVT. LTD.</Text>
-            <View style={styles.territoryBadge}>
-              <Ionicons name="location-sharp" size={12} color="#DC2626" />
-              <Text style={styles.territoryBadgeText}>{activeTerritory}</Text>
-            </View>
+            <Text style={styles.companyName}>MEDIATE HEALTHCARE PVT. LTD.</Text>
           </View>
 
           {/* Menu Items List */}
@@ -99,35 +143,57 @@ export function MrBuddyDrawer({
             contentContainerStyle={styles.menuScrollContent}
             showsVerticalScrollIndicator={false}
           >
-            {menuItems.map((item) => (
-              <TouchableOpacity
-                key={item.key}
-                style={styles.menuItem}
-                activeOpacity={0.7}
-                onPress={() => {
-                  onClose();
-                  onSelectAction(item.key);
-                }}
-              >
-                <Text style={styles.menuItemText}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
+            {menuItems.map((item) => {
+              const isActive = activeItemKey === item.key;
+              return (
+                <TouchableOpacity
+                  key={item.key}
+                  style={[styles.menuRow, isActive && styles.menuRowActive]}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    setActiveItemKey(item.key);
+                    onClose();
+                    onSelectAction(item.key);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel={item.label}
+                >
+                  <Feather
+                    name={item.icon}
+                    size={20}
+                    color={isActive ? colors.navy : colors.textInk}
+                    style={styles.menuIcon}
+                  />
+                  <Text
+                    style={[
+                      styles.menuText,
+                      isActive && styles.menuTextActive,
+                    ]}
+                  >
+                    {item.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+
+            {/* Divider */}
+            <View style={styles.divider} />
 
             {/* Red Sign Out Link */}
             <TouchableOpacity
-              style={styles.menuItem}
+              style={styles.signOutBtn}
               activeOpacity={0.7}
               onPress={handleSignOut}
+              accessibilityRole="button"
             >
               <Text style={styles.signOutText}>Sign out</Text>
             </TouchableOpacity>
-          </ScrollView>
 
-          {/* Footer App Info */}
-          <View style={styles.drawerFooter}>
-            <Text style={styles.footerAppName}>Mediate Buddy</Text>
-            <Text style={styles.footerVersion}>version 1.0.63</Text>
-          </View>
+            {/* App Version Info */}
+            <Text style={styles.versionText}>
+              Mediate MR App · version {appVersion}
+            </Text>
+          </ScrollView>
         </View>
       </View>
     </Modal>
@@ -138,130 +204,120 @@ const styles = StyleSheet.create({
   overlay: {
     flex: 1,
     flexDirection: "row",
-    backgroundColor: "rgba(0,0,0,0.45)",
+    backgroundColor: colors.backdrop,
   },
   backdrop: {
-    flex: 1,
+    ...StyleSheet.absoluteFill,
   },
   drawerContainer: {
-    position: "absolute",
-    left: 0,
-    top: 0,
-    bottom: 0,
-    width: "78%",
+    width: "80%",
     maxWidth: 320,
-    backgroundColor: "#FFFFFF",
-    elevation: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 4, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    display: "flex",
-    flexDirection: "column",
+    backgroundColor: colors.surface,
+    height: "100%",
+    ...shadows.sheet,
   },
   profileHeader: {
-    paddingTop: 48,
-    paddingHorizontal: 20,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-    backgroundColor: "#FAFAFA",
+    backgroundColor: colors.navy,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
   },
   avatarRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   avatarCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: "#EEF2F6",
+    width: 52,
+    height: 52,
+    borderRadius: radii.full,
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: spacing.md,
+  },
+  avatarText: {
+    ...typography.heading,
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.navy,
   },
   nameBlock: {
     flex: 1,
   },
-  companyName: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1E293B",
-    letterSpacing: 0.3,
+  userName: {
+    ...typography.heading,
+    fontSize: 17,
+    fontWeight: "800",
+    color: colors.surface,
   },
-  userRole: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: "#64748B",
+  rolePhone: {
+    ...typography.caption,
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.75)",
     marginTop: 2,
-    letterSpacing: 0.5,
+    fontWeight: "600",
   },
-  phoneText: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#334155",
-    marginBottom: 2,
-  },
-  subOrgText: {
-    fontSize: 11,
-    fontWeight: "400",
-    color: "#94A3B8",
-    letterSpacing: 0.5,
-  },
-  territoryBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 8,
-    backgroundColor: "#FEE2E2",
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 4,
-    alignSelf: "flex-start",
-    gap: 4,
-  },
-  territoryBadgeText: {
-    fontSize: 11,
+  companyName: {
+    ...typography.caption,
+    fontSize: 10,
+    letterSpacing: 0.8,
+    color: "rgba(255, 255, 255, 0.65)",
     fontWeight: "700",
-    color: "#DC2626",
   },
   menuScroll: {
     flex: 1,
   },
   menuScrollContent: {
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
   },
-  menuItem: {
-    paddingVertical: 13,
+  menuRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    height: 48,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.md,
+    marginBottom: 4,
   },
-  menuItemText: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#1E293B",
-    letterSpacing: 0.2,
+  menuRowActive: {
+    backgroundColor: colors.bluePastel,
+  },
+  menuIcon: {
+    marginRight: spacing.md,
+  },
+  menuText: {
+    ...typography.bodyMedium,
+    fontSize: 14,
+    color: colors.textInk,
+    fontWeight: "600",
+  },
+  menuTextActive: {
+    color: colors.navy,
+    fontWeight: "700",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: colors.borderLight,
+    marginVertical: spacing.md,
+    marginHorizontal: spacing.sm,
+  },
+  signOutBtn: {
+    height: 48,
+    justifyContent: "center",
+    paddingHorizontal: spacing.md,
   },
   signOutText: {
-    fontSize: 15,
-    fontWeight: "600",
-    color: "#EF4444",
-    letterSpacing: 0.2,
-  },
-  drawerFooter: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
-    backgroundColor: "#FAFAFA",
-  },
-  footerAppName: {
+    ...typography.bodyMedium,
     fontSize: 14,
-    fontWeight: "500",
-    color: "#334155",
+    fontWeight: "700",
+    color: colors.accentRed,
   },
-  footerVersion: {
-    fontSize: 12,
-    color: "#94A3B8",
-    marginTop: 2,
+  versionText: {
+    ...typography.caption,
+    fontSize: 11,
+    color: colors.textFaint,
+    paddingHorizontal: spacing.md,
+    marginTop: spacing.sm,
+    marginBottom: spacing.lg,
   },
 });

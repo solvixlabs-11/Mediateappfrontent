@@ -1,186 +1,108 @@
 import React from "react";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { radii, spacing } from "../../../shared/theme/tokens";
+import { Image, StyleSheet, Text, View } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors, radii, spacing, typography } from "../../../theme";
 
-interface LoginHeroBannerProps {
-  isServerOnline: boolean | null;
-  onCheckHealth: () => void;
+export interface LoginHeroBannerProps {
+  isServerOnline?: boolean | null;
+  onCheckHealth?: () => void;
 }
 
-export const LoginHeroBanner: React.FC<LoginHeroBannerProps> = ({
-  isServerOnline,
-  onCheckHealth,
-}) => {
+export const LoginHeroBanner: React.FC<LoginHeroBannerProps> = () => {
+  const insets = useSafeAreaInsets();
+  const topPadding = Math.max(insets.top + 20, 52);
+
   return (
-    <View style={styles.heroBackground}>
-      {/* Ambient decorative glowing rings */}
-      <View style={styles.glowCircle1} />
-      <View style={styles.glowCircle2} />
+    <LinearGradient
+      colors={["#27339A", "#1B2470"]}
+      start={{ x: 0.15, y: 0 }}
+      end={{ x: 0.85, y: 1 }}
+      style={[styles.heroContainer, { paddingTop: topPadding }]}
+    >
+      {/* Soft translucent ambient decorative circles matching PDF */}
+      <View style={styles.circle1} />
+      <View style={styles.circle2} />
 
-      {/* Top Bar with Server Status Pill */}
-      <View style={styles.topBar}>
-        <View style={styles.appTagBadge}>
-          <Text style={styles.appTagText}>ENTERPRISE FIELD FORCE</Text>
-        </View>
-
-        <TouchableOpacity
-          onPress={onCheckHealth}
-          activeOpacity={0.8}
-          style={[
-            styles.statusPill,
-            isServerOnline === false && styles.statusPillOffline,
-          ]}
-        >
-          <View
-            style={[
-              styles.statusDot,
-              isServerOnline === true
-                ? styles.statusDotOnline
-                : isServerOnline === false
-                ? styles.statusDotOffline
-                : styles.statusDotChecking,
-            ]}
-          />
-          <Text style={styles.statusPillText}>
-            {isServerOnline === true
-              ? "Live"
-              : isServerOnline === false
-              ? "Retry"
-              : "Connecting"}
-          </Text>
-        </TouchableOpacity>
+      {/* White rounded card with Mediate logo */}
+      <View style={styles.logoCard}>
+        <Image
+          source={require("../../../../assets/logo.png")}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
       </View>
 
-      {/* Company Logo on High-Contrast Crisp White Plate with Halka Blue Depth */}
-      <View style={styles.brandHero}>
-        <View style={styles.logoPlate}>
-          <Image
-            source={require("../../../../assets/logo.png")}
-            style={styles.logoImage}
-            resizeMode="contain"
-          />
-        </View>
-        <Text style={styles.heroSubtitle}>Intelligent Pharma CRM & Field Automation</Text>
+      {/* Headline & Subtitle */}
+      <View style={styles.textContainer}>
+        <Text style={styles.headline}>Field work,{"\n"}made simple.</Text>
+        <Text style={styles.subtitle}>
+          Visits, reports and tours in one place.
+        </Text>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  heroBackground: {
-    backgroundColor: "#EBF3FC",
-    paddingTop: spacing.md,
-    paddingBottom: 44,
-    paddingHorizontal: spacing.lg,
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    borderBottomWidth: 1,
-    borderBottomColor: "#D3E4F8",
+  heroContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 54,
     position: "relative",
     overflow: "hidden",
   },
-  glowCircle1: {
+  circle1: {
     position: "absolute",
-    width: 240,
-    height: 240,
-    borderRadius: 120,
-    backgroundColor: "rgba(27, 100, 218, 0.08)",
-    top: -60,
-    right: -40,
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    top: -40,
+    right: -60,
   },
-  glowCircle2: {
+  circle2: {
     position: "absolute",
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: "rgba(37, 99, 235, 0.06)",
-    bottom: -20,
-    left: -20,
+    width: 190,
+    height: 190,
+    borderRadius: 95,
+    backgroundColor: "rgba(255, 255, 255, 0.04)",
+    bottom: 20,
+    left: -50,
   },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: spacing.md,
-  },
-  appTagBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: radii.full,
-    borderWidth: 1,
-    borderColor: "#CFE2F8",
-  },
-  appTagText: {
-    fontSize: 9,
-    fontWeight: "700",
-    color: "#1B64DA",
-    letterSpacing: 0.8,
-  },
-  statusPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: radii.full,
-    borderWidth: 1,
-    borderColor: "#CFE2F8",
-  },
-  statusPillOffline: {
-    backgroundColor: "#FEE2E2",
-    borderColor: "#FECACA",
-  },
-  statusDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    marginRight: 6,
-  },
-  statusDotOnline: {
-    backgroundColor: "#16A34A",
-  },
-  statusDotOffline: {
-    backgroundColor: "#DC2626",
-  },
-  statusDotChecking: {
-    backgroundColor: "#F59E0B",
-  },
-  statusPillText: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#1E293B",
-  },
-  brandHero: {
-    alignItems: "center",
-    marginTop: spacing.xs,
-  },
-  logoPlate: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    width: "92%",
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5,
-    borderColor: "#D9E9FA",
-    shadowColor: "#1B64DA",
+  logoCard: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
+    borderRadius: 16,
+    alignSelf: "flex-start",
+    marginTop: 4,
+    marginBottom: 20,
+    shadowColor: colors.navy,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.12,
-    shadowRadius: 14,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
     elevation: 4,
   },
   logoImage: {
-    width: "100%",
-    height: 56,
+    width: 136,
+    height: 36,
   },
-  heroSubtitle: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#1E3A8A",
-    marginTop: 10,
-    letterSpacing: 0.2,
+  textContainer: {
+    marginTop: 2,
+  },
+  headline: {
+    fontFamily: typography.titleLarge.fontFamily,
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: "800",
+    color: colors.surface,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontFamily: typography.body.fontFamily,
+    fontSize: 14.5,
+    lineHeight: 21,
+    color: "rgba(255, 255, 255, 0.82)",
+    marginTop: 6,
   },
 });
-

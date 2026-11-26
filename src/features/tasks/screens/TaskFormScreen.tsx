@@ -12,10 +12,12 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { tasksApi } from "../api/tasksApi";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
 
 interface TaskFormModalProps {
   visible: boolean;
@@ -53,7 +55,6 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
         customer_type: customerType || undefined,
       });
 
-      // Reset
       setTitle("");
       setDescription("");
       setDueDate(new Date().toISOString().split("T")[0]);
@@ -70,99 +71,131 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+        <StatusBar style="light" />
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <Ionicons name="close" size={24} color={colors.textPrimary} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>New Task / Reminder</Text>
-            <View style={{ width: 24 }} />
-          </View>
+          <ScreenHeader
+            title="New Task"
+            subtitle="Create field reminder or follow-up"
+            variant="navy"
+            onBack={onClose}
+          />
 
-          <ScrollView contentContainerStyle={styles.formContent}>
-            {/* Title */}
-            <Text style={styles.label}>Task Title *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Deliver sample batch to Dr. Sharma"
-              placeholderTextColor={colors.textSecondary}
-              value={title}
-              onChangeText={setTitle}
-            />
+          <ScrollView
+            contentContainerStyle={styles.formContent}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* Card 1: Task Details */}
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={styles.cardIconBox}>
+                  <Feather name="check-square" size={16} color={colors.brandBlue} />
+                </View>
+                <Text style={styles.cardTitle}>Task Information</Text>
+              </View>
 
-            {/* Description */}
-            <Text style={styles.label}>Description</Text>
-            <TextInput
-              style={[styles.input, styles.textArea]}
-              placeholder="Add key objectives, discussion points or notes..."
-              placeholderTextColor={colors.textSecondary}
-              value={description}
-              onChangeText={setDescription}
-              multiline
-              numberOfLines={3}
-            />
+              <Text style={styles.label}>
+                Task Title <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. Deliver sample batch to Dr. Sharma"
+                placeholderTextColor={colors.textFaint}
+                value={title}
+                onChangeText={setTitle}
+              />
 
-            {/* Due Date */}
-            <Text style={styles.label}>Due Date (YYYY-MM-DD) *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="YYYY-MM-DD"
-              placeholderTextColor={colors.textSecondary}
-              value={dueDate}
-              onChangeText={setDueDate}
-            />
+              <Text style={styles.label}>Description</Text>
+              <TextInput
+                style={[styles.input, styles.textArea]}
+                placeholder="Add key objectives, discussion points or notes..."
+                placeholderTextColor={colors.textFaint}
+                value={description}
+                onChangeText={setDescription}
+                multiline
+                numberOfLines={3}
+              />
 
-            {/* Priority Selector */}
-            <Text style={styles.label}>Priority Level</Text>
-            <View style={styles.chipsRow}>
-              {(["LOW", "MEDIUM", "HIGH", "URGENT"] as const).map((p) => {
-                const isSelected = priority === p;
-                return (
-                  <TouchableOpacity
-                    key={p}
-                    style={[styles.priorityChip, isSelected && styles.priorityChipSelected]}
-                    onPress={() => setPriority(p)}
-                  >
-                    <Text
-                      style={[
-                        styles.priorityChipText,
-                        isSelected && styles.priorityChipTextSelected,
-                      ]}
-                    >
-                      {p}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+              <Text style={styles.label}>
+                Due Date (YYYY-MM-DD) <Text style={styles.required}>*</Text>
+              </Text>
+              <View style={styles.inputWithIcon}>
+                <Feather name="calendar" size={16} color={colors.textMuted} />
+                <TextInput
+                  style={styles.inputInner}
+                  placeholder="YYYY-MM-DD"
+                  placeholderTextColor={colors.textFaint}
+                  value={dueDate}
+                  onChangeText={setDueDate}
+                />
+              </View>
             </View>
 
-            {/* Customer Type Selector */}
-            <Text style={styles.label}>Link Customer Type (Optional)</Text>
-            <View style={styles.chipsRow}>
-              {(["DOCTOR", "CHEMIST", "HOSPITAL", "STOCKIST"] as const).map((c) => {
-                const isSelected = customerType === c;
-                return (
-                  <TouchableOpacity
-                    key={c}
-                    style={[styles.customerChip, isSelected && styles.customerChipSelected]}
-                    onPress={() => setCustomerType(isSelected ? null : c)}
-                  >
-                    <Text
+            {/* Card 2: Priority & Linked Entity */}
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: colors.orangePastel }]}>
+                  <Feather name="flag" size={16} color={colors.orange} />
+                </View>
+                <Text style={styles.cardTitle}>Priority & Category</Text>
+              </View>
+
+              <Text style={styles.label}>Priority Level</Text>
+              <View style={styles.chipsRow}>
+                {(["LOW", "MEDIUM", "HIGH", "URGENT"] as const).map((p) => {
+                  const isSelected = priority === p;
+                  return (
+                    <TouchableOpacity
+                      key={p}
                       style={[
-                        styles.customerChipText,
-                        isSelected && styles.customerChipTextSelected,
+                        styles.chipBtn,
+                        isSelected && styles.priorityChipSelected,
                       ]}
+                      onPress={() => setPriority(p)}
+                      activeOpacity={0.8}
                     >
-                      {c}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                      <Text
+                        style={[
+                          styles.chipText,
+                          isSelected && styles.chipTextSelected,
+                        ]}
+                      >
+                        {p}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <Text style={styles.label}>Link Customer Type (Optional)</Text>
+              <View style={styles.chipsRow}>
+                {(["DOCTOR", "CHEMIST", "HOSPITAL", "STOCKIST"] as const).map((c) => {
+                  const isSelected = customerType === c;
+                  return (
+                    <TouchableOpacity
+                      key={c}
+                      style={[
+                        styles.chipBtn,
+                        isSelected && styles.customerChipSelected,
+                      ]}
+                      onPress={() => setCustomerType(isSelected ? null : c)}
+                      activeOpacity={0.8}
+                    >
+                      <Text
+                        style={[
+                          styles.chipText,
+                          isSelected && styles.chipTextSelected,
+                        ]}
+                      >
+                        {c}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
 
             {/* Save Button */}
@@ -170,11 +203,15 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
               style={[styles.submitBtn, isSubmitting && styles.submitBtnDisabled]}
               onPress={handleSubmit}
               disabled={isSubmitting}
+              activeOpacity={0.8}
             >
               {isSubmitting ? (
                 <ActivityIndicator color={colors.surface} />
               ) : (
-                <Text style={styles.submitBtnText}>Create Task</Text>
+                <>
+                  <Feather name="plus-circle" size={18} color={colors.surface} />
+                  <Text style={styles.submitBtnText}>Create Task</Text>
+                </>
               )}
             </TouchableOpacity>
           </ScrollView>
@@ -187,115 +224,139 @@ export const TaskFormModal: React.FC<TaskFormModalProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
+  formContent: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxxl,
+    gap: spacing.lg,
+  },
+  sectionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
+  },
+  cardHeaderRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
-  closeBtn: {
-    padding: spacing.xs,
+  cardIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.md,
+    backgroundColor: colors.bluePastel,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  headerTitle: {
-    ...typography.subheading,
-    color: colors.textPrimary,
-  },
-  formContent: {
-    padding: spacing.md,
+  cardTitle: {
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   label: {
+    ...typography.caption,
     fontSize: 12,
     fontWeight: "700",
-    color: colors.textSecondary,
+    color: colors.navy,
     marginBottom: 6,
     marginTop: spacing.md,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  required: {
+    color: colors.accentRed,
   },
   input: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.md,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.sm,
+    borderColor: colors.borderLight,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...typography.body,
     fontSize: 14,
-    color: colors.textPrimary,
+    color: colors.textInk,
+  },
+  inputWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    paddingHorizontal: spacing.lg,
+    minHeight: 48,
+    gap: spacing.sm,
+  },
+  inputInner: {
+    flex: 1,
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
   },
   textArea: {
-    height: 80,
+    minHeight: 84,
     textAlignVertical: "top",
   },
   chipsRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    marginBottom: spacing.xs,
+    gap: spacing.sm,
+    marginTop: 2,
   },
-  priorityChip: {
+  chipBtn: {
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs + 2,
+    paddingVertical: spacing.sm,
     borderRadius: radii.full,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.inputBackground,
     borderWidth: 1,
-    borderColor: colors.border,
-    marginRight: spacing.xs,
-    marginBottom: spacing.xs,
+    borderColor: colors.borderLight,
   },
   priorityChipSelected: {
-    backgroundColor: colors.primary,
-    borderColor: colors.primary,
-  },
-  priorityChipText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.textSecondary,
-  },
-  priorityChipTextSelected: {
-    color: colors.surface,
-  },
-  customerChip: {
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs + 2,
-    borderRadius: radii.full,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginRight: spacing.xs,
-    marginBottom: spacing.xs,
+    backgroundColor: colors.brandBlue,
+    borderColor: colors.brandBlue,
   },
   customerChipSelected: {
     backgroundColor: colors.navy,
     borderColor: colors.navy,
   },
-  customerChipText: {
+  chipText: {
+    ...typography.caption,
     fontSize: 12,
-    fontWeight: "600",
-    color: colors.textSecondary,
+    fontWeight: "700",
+    color: colors.textMuted,
   },
-  customerChipTextSelected: {
+  chipTextSelected: {
     color: colors.surface,
+    fontWeight: "800",
   },
   submitBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: radii.md,
-    paddingVertical: spacing.md,
+    flexDirection: "row",
+    backgroundColor: colors.navy,
+    borderRadius: radii.lg,
+    paddingVertical: spacing.lg,
     alignItems: "center",
-    marginTop: spacing.xl,
+    justifyContent: "center",
+    gap: spacing.sm,
+    ...shadows.soft,
   },
   submitBtnDisabled: {
     opacity: 0.6,
   },
   submitBtnText: {
+    ...typography.button,
     color: colors.surface,
     fontSize: 15,
-    fontWeight: "700",
+    fontWeight: "800",
   },
 });

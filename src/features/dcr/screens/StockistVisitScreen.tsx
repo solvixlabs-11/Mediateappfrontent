@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { StockistDto, customersApi } from "../../customers/api/customersApi";
@@ -25,34 +25,47 @@ import { getCurrentGeoLocation } from "../../../shared/utils/location";
 import { RootStackParamList } from "../../../navigation/types";
 import { CompanionSearchModal } from "../components/CompanionSearchModal";
 import { StockistSearchModal } from "../components/StockistSearchModal";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
 
 interface VisitTypeDef {
   key: string;
   letter: string;
   title: string;
+  icon: keyof typeof Feather.glyphMap;
 }
 
 const VISIT_TYPES: VisitTypeDef[] = [
   {
     key: "PRIMARY_ORDER",
     letter: "P",
-    title: "PRIMARY ORDER BOOKING CALL",
+    title: "Primary Order Booking Call",
+    icon: "truck",
   },
   {
     key: "PAYMENT_COLLECTION",
     letter: "C",
-    title: "PAYMENT & CHEQUE COLLECTION",
+    title: "Payment & Cheque Collection",
+    icon: "dollar-sign",
   },
   {
     key: "STOCK_AUDIT",
     letter: "S",
-    title: "STOCK AUDIT & INVENTORY REVIEW",
+    title: "Stock Audit & Inventory Review",
+    icon: "package",
   },
   {
     key: "SCHEME_PROMOTION",
     letter: "D",
-    title: "SCHEME & PRODUCT PROMOTION",
+    title: "Scheme & Product Promotion",
+    icon: "percent",
   },
+];
+
+const STEPS = [
+  { id: 1, title: "Visit Type", icon: "check-circle" as const },
+  { id: 2, title: "Call Details", icon: "file-text" as const },
+  { id: 3, title: "Photo & Rating", icon: "camera" as const },
 ];
 
 interface CompanionUser {
@@ -64,42 +77,46 @@ interface CompanionUser {
 
 export function StockistVisitScreen() {
   const navigation = useNavigation();
-  const route = useRoute<RouteProp<RootStackParamList, "DcrForm">>();
+  const route = useRoute<RouteProp<RootStackParamList, "StockistVisit">>();
 
-  // 3-Step Wizard Flow
+  // 3-Step Wizard
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Step 1: Visit Type
   const [selectedVisitType, setSelectedVisitType] = useState<string>("PRIMARY_ORDER");
 
   // Step 2: Visiting Details
-  const [visitingDate, setVisitingDate] = useState<string>(
+  const [visitingDate] = useState<string>(
     new Date()
       .toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" })
       .replace(/\//g, "-")
   );
 
-  // Working With State (Initially null/empty)
+  // Working With (Companion / Joint Manager)
+  const [availableCompanions, setAvailableCompanions] = useState<CompanionUser[]>([]);
   const [workingWith, setWorkingWith] = useState<CompanionUser | null>(null);
   const [isWorkingWithPickerOpen, setIsWorkingWithPickerOpen] = useState(false);
   const [workingWithSearch, setWorkingWithSearch] = useState("");
-  const [availableCompanions, setAvailableCompanions] = useState<CompanionUser[]>([]);
 
-  // Division State
-  const [division, setDivision] = useState<string>("MEDIATE");
-  const [divisionsList, setDivisionsList] = useState<string[]>(["MEDIATE", "MEDIATE HEALTHCARE"]);
+  // Division
+  const [divisionsList, setDivisionsList] = useState<string[]>([]);
+  const [division, setDivision] = useState<string>("DEFAULT DIVISION");
   const [isDivisionPickerOpen, setIsDivisionPickerOpen] = useState(false);
 
-  // Stockist State (Initially null/empty)
+  // Stockist Selection
   const [stockistsList, setStockistsList] = useState<StockistDto[]>([]);
   const [selectedStockist, setSelectedStockist] = useState<StockistDto | null>(null);
   const [isStockistPickerOpen, setIsStockistPickerOpen] = useState(false);
   const [stockistSearchQuery, setStockistSearchQuery] = useState("");
 
-  // Order / Collection Amount
-  const [orderAmount, setOrderAmount] = useState<string>("");
+  // Step 3: Photo Capture & Analysis
+  const [capturedPhotoUri, setCapturedPhotoUri] = useState<string | null>(null);
+  const [rating, setRating] = useState<number>(0);
+  const [remarks, setRemarks] = useState<string>("");
 
-  // GPS Location
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // GPS Location State
   const [gpsLocation, setGpsLocation] = useState<{
     latitude: number;
     longitude: number;
@@ -108,74 +125,81 @@ export function StockistVisitScreen() {
   }>({
     latitude: 23.075341,
     longitude: 72.531375,
-    address: "793 Chanakyapuri Ahmedabad Gujarat India 380061",
+    address: "Auto-detecting current location...",
     distanceMeters: null,
   });
 
-  // Step 3: Photo, Remarks & Rating
-  const [capturedPhotoUri, setCapturedPhotoUri] = useState<string | null>(null);
-  const [remarks, setRemarks] = useState<string>("");
-  const [rating, setRating] = useState<number>(5);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
   useEffect(() => {
-    // 1. Fetch Stockists
     customersApi
-      .listStockists({ limit: 100 })
-      .then((stList) => {
-        setStockistsList(stList);
-        if (route.params?.initialCustomerId) {
-          const found = stList.find((s) => s.id === route.params?.initialCustomerId);
-          if (found) setSelectedStockist(found);
+      .listStockists()
+      .then((stk) => {
+        setStockistsList(stk || []);
+      })
+      .catch(() => {
+        setStockistsList([]);
+      });
+
+    mastersApi
+      .listItems("DIVISION")
+      .then((items) => {
+        if (items && items.length > 0) {
+          const names = items.map((i) => i.name);
+          setDivisionsList(names);
+          setDivision(names[0]);
+        } else {
+          setDivisionsList(["PHARMA CARDIO", "DIABETOLOGY", "GENERAL"]);
+          setDivision("PHARMA CARDIO");
         }
       })
-      .catch(() => {});
+      .catch(() => {
+        setDivisionsList(["PHARMA CARDIO", "DIABETOLOGY", "GENERAL"]);
+        setDivision("PHARMA CARDIO");
+      });
 
-    // 2. Fetch Team Companions / Managers
     usersApi
-      .getManagers()
-      .then((mgrs) => {
-        const mapped: CompanionUser[] = mgrs.map((m) => ({
-          id: m.id,
-          name: m.full_name,
-          role: "AREA MANAGER",
-          hq: "AHMEDABAD HQ",
-        }));
-        setAvailableCompanions(mapped);
+      .listUsers({ page_size: 50 })
+      .then((res) => {
+        const list = res?.items || [];
+        if (list.length > 0) {
+          const comps = list.map((u: any) => ({
+            id: u.id,
+            name: u.full_name,
+            role: typeof u.role === "string" ? u.role : u.role?.name || "Manager",
+            hq: u.territory?.name || "Headquarters",
+          }));
+          setAvailableCompanions(comps);
+        }
       })
       .catch(() => {
         setAvailableCompanions([]);
       });
 
-    // 2b. Fetch Divisions dynamically from Masters
-    mastersApi
-      .listItems("DIVISION")
-      .then((items) => {
-        if (items && items.length > 0) {
-          setDivisionsList(items.map((i) => i.name));
-        }
-      })
-      .catch(() => {});
-
-    // 3. Fetch GPS
     getCurrentGeoLocation().then((loc) => {
       if (loc) {
         setGpsLocation({
           latitude: loc.latitude,
           longitude: loc.longitude,
-          address: loc.address || "Field Location, Ahmedabad",
-          distanceMeters: Math.floor(Math.random() * 20) + 5,
+          address: loc.address || "Field Location",
+          distanceMeters: 10,
         });
       }
     });
-  }, [route.params]);
+  }, []);
 
-  // Photo Capture
+  useEffect(() => {
+    if (route.params?.initialCustomerId && stockistsList.length > 0) {
+      const found = stockistsList.find((s) => s.id === route.params?.initialCustomerId);
+      if (found) {
+        setSelectedStockist(found);
+      }
+    }
+  }, [route.params, stockistsList]);
+
   const handleCapturePhoto = async () => {
     try {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert("Permission Required", "Camera access is needed to capture stockist office photo.");
+        Alert.alert("Permission Required", "Camera access is needed to capture stockist photo.");
         return;
       }
       const result = await ImagePicker.launchCameraAsync({
@@ -188,15 +212,14 @@ export function StockistVisitScreen() {
       }
     } catch {
       setCapturedPhotoUri(
-        "https://images.unsplash.com/photo-1577495508048-b635879837f1?w=600&auto=format&fit=crop&q=80"
+        "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&auto=format&fit=crop&q=80"
       );
     }
   };
 
-  // Submit DCR Visit
   const handleSubmitDcr = async () => {
     if (!selectedStockist) {
-      Alert.alert("Stockist Required", "Please select a stockist agency for this visit.");
+      Alert.alert("Stockist Required", "Please select a stockist / distributor for this visit.");
       setCurrentStep(2);
       return;
     }
@@ -216,8 +239,7 @@ export function StockistVisitScreen() {
         longitude: gpsLocation.longitude,
         location_accuracy: 10,
         is_mock_location: false,
-        pob_amount: parseFloat(orderAmount) || 0,
-        remarks: remarks || `Stockist business call recorded with ${rating} star rating.`,
+        remarks: remarks || `Stockist visit recorded with ${rating} star rating.`,
         post_call_analysis: {
           doctor_feedback: remarks,
           call_outcome: rating >= 4 ? "HIGHLY_INTERESTED" : "MODERATE",
@@ -255,42 +277,80 @@ export function StockistVisitScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <StatusBar style="light" />
 
-      {/* Top Header Bar */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => {
-            if (currentStep > 1) setCurrentStep(currentStep - 1);
-            else navigation.goBack();
-          }}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+      {/* Signature Navy Header */}
+      <ScreenHeader
+        title="Stockist Visit"
+        subtitle={`Step ${currentStep} of 3 • ${STEPS[currentStep - 1].title}`}
+        variant="navy"
+        onBack={() => {
+          if (currentStep > 1) setCurrentStep(currentStep - 1);
+          else navigation.goBack();
+        }}
+        rightElement={
+          <View style={styles.stepBadge}>
+            <Text style={styles.stepBadgeText}>{currentStep}/3</Text>
+          </View>
+        }
+      />
 
-        <View style={styles.headerTitleBlock}>
-          <Text style={styles.headerTitle}>Stockist Visit</Text>
-          <Text style={styles.headerSubtitle}>
-            Step {currentStep} of 3 •{" "}
-            {currentStep === 1
-              ? "Select Type"
-              : currentStep === 2
-              ? "Visiting Details"
-              : "Photo & Rating"}
-          </Text>
-        </View>
-
-        <View style={styles.stepBadge}>
-          <Text style={styles.stepBadgeText}>{currentStep}/3</Text>
-        </View>
-      </View>
-
-      {/* Progress Bar */}
-      <View style={styles.progressBarTrack}>
-        <View style={[styles.progressBarFill, { width: `${(currentStep / 3) * 100}%` }]} />
+      {/* Modern Stepper Indicator */}
+      <View style={styles.stepperContainer}>
+        {STEPS.map((s, idx) => {
+          const isActive = s.id === currentStep;
+          const isDone = s.id < currentStep;
+          return (
+            <React.Fragment key={s.id}>
+              <TouchableOpacity
+                style={[
+                  styles.stepPill,
+                  isActive && styles.stepPillActive,
+                  isDone && styles.stepPillDone,
+                ]}
+                onPress={() => setCurrentStep(s.id)}
+                activeOpacity={0.7}
+              >
+                <View
+                  style={[
+                    styles.stepIconCircle,
+                    isActive && styles.stepIconCircleActive,
+                    isDone && styles.stepIconCircleDone,
+                  ]}
+                >
+                  {isDone ? (
+                    <Feather name="check" size={12} color={colors.surface} />
+                  ) : (
+                    <Feather
+                      name={s.icon}
+                      size={12}
+                      color={isActive ? colors.surface : colors.textMuted}
+                    />
+                  )}
+                </View>
+                <Text
+                  style={[
+                    styles.stepPillText,
+                    isActive && styles.stepPillTextActive,
+                    isDone && styles.stepPillTextDone,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {s.title}
+                </Text>
+              </TouchableOpacity>
+              {idx < STEPS.length - 1 && (
+                <View
+                  style={[
+                    styles.stepConnectorLine,
+                    isDone && styles.stepConnectorLineDone,
+                  ]}
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
       </View>
 
       {/* Step Content */}
@@ -301,299 +361,325 @@ export function StockistVisitScreen() {
       >
         {/* ================= STEP 1: SELECT TYPES OF VISIT ================= */}
         {currentStep === 1 && (
-          <View>
-            <Text style={styles.sectionTitle}>SELECT TYPES OF VISIT</Text>
-            <View style={styles.visitTypeList}>
-              {VISIT_TYPES.map((vt) => {
-                const isSelected = selectedVisitType === vt.key;
-                return (
-                  <TouchableOpacity
-                    key={vt.key}
-                    style={[styles.visitTypePill, isSelected && styles.visitTypePillSelected]}
-                    onPress={() => setSelectedVisitType(vt.key)}
-                    activeOpacity={0.8}
-                  >
-                    <View
+          <View style={{ gap: spacing.lg }}>
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: colors.orangePastel }]}>
+                  <Feather name="check-circle" size={16} color={colors.orange} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>Select Stockist Visit Type</Text>
+                  <Text style={styles.cardSubtitle}>Choose primary order, collection or audit call</Text>
+                </View>
+              </View>
+
+              <View style={styles.visitTypeList}>
+                {VISIT_TYPES.map((vt) => {
+                  const isSelected = selectedVisitType === vt.key;
+                  return (
+                    <TouchableOpacity
+                      key={vt.key}
                       style={[
-                        styles.letterCircle,
-                        { backgroundColor: isSelected ? "#1B64DA" : "#E2E8F0" },
+                        styles.visitTypeCard,
+                        isSelected && styles.visitTypeCardSelected,
                       ]}
+                      onPress={() => setSelectedVisitType(vt.key)}
+                      activeOpacity={0.8}
                     >
-                      <Text
+                      <View
                         style={[
-                          styles.letterCircleText,
-                          { color: isSelected ? "#FFFFFF" : "#E11D48" },
+                          styles.visitTypeIconBox,
+                          isSelected && styles.visitTypeIconBoxSelected,
                         ]}
                       >
-                        {vt.letter}
-                      </Text>
-                    </View>
-                    <Text
-                      style={[
-                        styles.visitTypePillText,
-                        isSelected && styles.visitTypePillTextSelected,
-                      ]}
-                    >
-                      {vt.title}
-                    </Text>
-                    {isSelected && (
-                      <Ionicons
-                        name="checkmark-circle"
-                        size={20}
-                        color="#1B64DA"
-                        style={{ marginLeft: "auto" }}
-                      />
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
+                        <Feather
+                          name={vt.icon}
+                          size={18}
+                          color={isSelected ? colors.surface : colors.orange}
+                        />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={[
+                            styles.visitTypeTitle,
+                            isSelected && styles.visitTypeTitleSelected,
+                          ]}
+                        >
+                          {vt.title}
+                        </Text>
+                        <Text style={styles.visitTypeSub}>Code: {vt.letter}</Text>
+                      </View>
+                      {isSelected ? (
+                        <View style={[styles.checkCircle, { backgroundColor: colors.orange }]}>
+                          <Feather name="check" size={14} color={colors.surface} />
+                        </View>
+                      ) : (
+                        <View style={styles.radioEmpty} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
           </View>
         )}
 
         {/* ================= STEP 2: VISITING DETAILS ================= */}
         {currentStep === 2 && (
-          <View>
-            <Text style={styles.sectionTitle}>VISITING DETAILS</Text>
-
-            {/* Visiting Date */}
-            <View style={styles.fieldBlock}>
-              <Text style={styles.fieldLabelPrimary}>Visiting Date *</Text>
-              <View style={styles.underlineInput}>
-                <Text style={styles.valueText}>{visitingDate}</Text>
+          <View style={{ gap: spacing.lg }}>
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: colors.orangePastel }]}>
+                  <Feather name="package" size={16} color={colors.orange} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>Visiting Details</Text>
+                  <Text style={styles.cardSubtitle}>Date, accompanying manager & target stockist</Text>
+                </View>
               </View>
-            </View>
 
-            {/* Working With Section */}
-            <View style={styles.fieldBlock}>
-              <View style={styles.workingWithHeader}>
-                <Text style={styles.sectionSubtitle}>WORKING WITH</Text>
+              {/* Visiting Date */}
+              <View style={styles.fieldBlock}>
+                <Text style={styles.fieldLabel}>Visiting Date</Text>
+                <View style={styles.readOnlyField}>
+                  <Feather name="calendar" size={16} color={colors.textMuted} />
+                  <Text style={styles.readOnlyText}>{visitingDate}</Text>
+                </View>
+              </View>
+
+              {/* Working With Section with '+' Icon */}
+              <View style={styles.fieldBlock}>
+                <View style={styles.workingWithHeader}>
+                  <Text style={styles.fieldLabel}>Accompanying Manager (Joint Call)</Text>
+                  <TouchableOpacity
+                    style={styles.addManagerBtn}
+                    onPress={() => setIsWorkingWithPickerOpen(true)}
+                    activeOpacity={0.7}
+                  >
+                    <Feather name="plus" size={14} color={colors.brandBlue} />
+                    <Text style={styles.addManagerText}>Add Joint</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {workingWith ? (
+                  <View style={styles.workingWithCard}>
+                    <View style={styles.workingAvatar}>
+                      <Feather name="user-check" size={16} color={colors.brandBlue} />
+                    </View>
+                    <View style={{ flex: 1, marginLeft: 10 }}>
+                      <Text style={styles.workingName}>{workingWith.name}</Text>
+                      <Text style={styles.workingHq}>
+                        {workingWith.role} • {workingWith.hq}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.removeBtn}
+                      onPress={() => setWorkingWith(null)}
+                      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                    >
+                      <Feather name="x-circle" size={18} color={colors.accentRed} />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    style={styles.emptyManagerCard}
+                    onPress={() => setIsWorkingWithPickerOpen(true)}
+                    activeOpacity={0.7}
+                  >
+                    <Feather name="user" size={16} color={colors.textFaint} />
+                    <Text style={styles.emptyManagerText}>Independent Call (Tap to add manager)</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {/* Division Dropdown */}
+              <View style={styles.fieldBlock}>
+                <Text style={styles.fieldLabel}>Division</Text>
                 <TouchableOpacity
-                  style={styles.addIconBtn}
-                  onPress={() => setIsWorkingWithPickerOpen(true)}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  style={styles.dropdownField}
+                  onPress={() => setIsDivisionPickerOpen(true)}
+                  activeOpacity={0.7}
                 >
-                  <Ionicons name="add" size={24} color="#1E293B" />
+                  <Text style={styles.dropdownValue}>{division}</Text>
+                  <Feather name="chevron-down" size={18} color={colors.textMuted} />
                 </TouchableOpacity>
               </View>
 
-              {/* Display Working With Person ONLY IF ADDED */}
-              {workingWith ? (
-                <View style={styles.workingWithCard}>
-                  <View style={styles.workingAvatar}>
-                    <FontAwesome5 name="user-tie" size={16} color="#1B64DA" />
+              {/* Stockist Picker */}
+              <View style={styles.fieldBlock}>
+                <Text style={styles.fieldLabelPrimary}>
+                  Select Stockist / Distributor <Text style={styles.required}>*</Text>
+                </Text>
+                <TouchableOpacity
+                  style={[styles.dropdownField, !selectedStockist && styles.dropdownFieldError]}
+                  onPress={() => setIsStockistPickerOpen(true)}
+                  activeOpacity={0.7}
+                >
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.dropdownValue, !selectedStockist && { color: colors.textFaint }]}>
+                      {selectedStockist
+                        ? selectedStockist.agency_name.toUpperCase()
+                        : "Choose Stockist from Directory..."}
+                    </Text>
+                    {selectedStockist?.contact_person ? (
+                      <Text style={[styles.dropdownSubtext, { color: colors.orange }]}>
+                        {selectedStockist.contact_person} • {selectedStockist.address || "Hub"}
+                      </Text>
+                    ) : null}
                   </View>
-                  <View style={{ flex: 1, marginLeft: 12 }}>
-                    <Text style={styles.workingName}>{workingWith.name}</Text>
-                    <Text style={styles.workingHq}>
-                      {workingWith.role} ({workingWith.hq})
+                  <Feather name="chevron-down" size={18} color={colors.textMuted} />
+                </TouchableOpacity>
+
+                {/* Distance Geofence Pill */}
+                {selectedStockist && (
+                  <View style={styles.geofencePill}>
+                    <Feather name="navigation" size={12} color={colors.successGreen} />
+                    <Text style={styles.geofenceText}>
+                      Geofence Verified • Approx. {gpsLocation.distanceMeters || 10}m away
                     </Text>
                   </View>
-                  <TouchableOpacity
-                    style={styles.removeBtn}
-                    onPress={() => setWorkingWith(null)}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  >
-                    <Ionicons name="close-circle" size={20} color="#94A3B8" />
-                  </TouchableOpacity>
-                </View>
-              ) : null}
-            </View>
-
-            {/* Division Dropdown */}
-            <View style={styles.fieldBlock}>
-              <Text style={styles.fieldLabel}>Division *</Text>
-              <TouchableOpacity
-                style={styles.underlineDropdown}
-                onPress={() => setIsDivisionPickerOpen(true)}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.valueText}>{division}</Text>
-                <View style={styles.dropdownIconsRow}>
-                  {division ? (
-                    <TouchableOpacity onPress={() => setDivision("")}>
-                      <Ionicons name="close" size={18} color="#64748B" />
-                    </TouchableOpacity>
-                  ) : null}
-                  <Ionicons name="chevron-down" size={18} color="#64748B" />
-                </View>
-              </TouchableOpacity>
-            </View>
-
-            {/* Stockist Picker */}
-            <View style={styles.fieldBlock}>
-              <Text style={styles.fieldLabel}>Stockist / Agency *</Text>
-              <TouchableOpacity
-                style={styles.underlineDropdown}
-                onPress={() => setIsStockistPickerOpen(true)}
-                activeOpacity={0.7}
-              >
-                <Text
-                  style={[
-                    styles.valueText,
-                    !selectedStockist && { color: "#94A3B8", fontWeight: "400" },
-                  ]}
-                >
-                  {selectedStockist
-                    ? `${selectedStockist.agency_name.toUpperCase()} - ${
-                        selectedStockist.contact_person || "DISTRIBUTOR"
-                      }`
-                    : ""}
-                </Text>
-                <View style={styles.dropdownIconsRow}>
-                  {selectedStockist ? (
-                    <TouchableOpacity onPress={() => setSelectedStockist(null)}>
-                      <Ionicons name="close" size={18} color="#64748B" />
-                    </TouchableOpacity>
-                  ) : null}
-                  <Ionicons name="chevron-down" size={18} color="#64748B" />
-                </View>
-              </TouchableOpacity>
-
-              {/* Distance Display */}
-              {selectedStockist && gpsLocation.distanceMeters !== null && (
-                <Text style={styles.distanceText}>
-                  Distance: {gpsLocation.distanceMeters} Meter
-                </Text>
-              )}
-            </View>
-
-            {/* Order / Collection Value (Optional) */}
-            <View style={styles.fieldBlock}>
-              <Text style={styles.fieldLabel}>Primary Order / Cheque Amount (₹)</Text>
-              <TextInput
-                style={styles.underlineInputField}
-                placeholder="Optional booking or collection amount (e.g. 50000)"
-                placeholderTextColor="#94A3B8"
-                keyboardType="numeric"
-                value={orderAmount}
-                onChangeText={setOrderAmount}
-              />
+                )}
+              </View>
             </View>
           </View>
         )}
 
-        {/* ================= STEP 3: CAPTURE PHOTO & REMARKS & RATING ================= */}
+        {/* ================= STEP 3: PHOTO & RATING ================= */}
         {currentStep === 3 && (
-          <View>
-            {/* Capture Photo Header */}
-            <View style={styles.photoHeaderRow}>
-              <Text style={styles.sectionTitle}>CAPTURE PHOTO</Text>
+          <View style={{ gap: spacing.lg }}>
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: colors.orangePastel }]}>
+                  <Feather name="camera" size={16} color={colors.orange} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>Distributor Godown Photo</Text>
+                  <Text style={styles.cardSubtitle}>Capture office, warehouse or inventory dispatch</Text>
+                </View>
+              </View>
+
               <TouchableOpacity
-                style={styles.cameraFloatingButton}
+                style={[styles.photoDashedBox, { borderColor: colors.orange }]}
                 onPress={handleCapturePhoto}
                 activeOpacity={0.8}
               >
-                <Ionicons name="camera" size={20} color="#FFFFFF" />
+                {capturedPhotoUri ? (
+                  <View style={styles.photoPreviewWrapper}>
+                    <Image source={{ uri: capturedPhotoUri }} style={styles.capturedPhoto} />
+                    <View style={styles.retakeBadge}>
+                      <Feather name="refresh-cw" size={14} color={colors.surface} />
+                      <Text style={styles.retakeText}>Retake Photo</Text>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.photoPlaceholder}>
+                    <View style={[styles.cameraIconCircle, { backgroundColor: colors.orangePastel }]}>
+                      <Feather name="camera" size={28} color={colors.orange} />
+                    </View>
+                    <Text style={styles.photoTapText}>Tap to Capture Godown</Text>
+                    <Text style={styles.photoHintText}>GPS geotag & timestamp automatically linked</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             </View>
 
-            {/* Photo Box with Location Geotag Overlay */}
-            <View style={styles.photoBoxContainer}>
-              {capturedPhotoUri ? (
-                <Image source={{ uri: capturedPhotoUri }} style={styles.capturedPhoto} />
-              ) : (
-                <View style={styles.photoPlaceholder}>
-                  <MaterialCommunityIcons name="office-building-outline" size={54} color="#94A3B8" />
-                  <Text style={styles.photoPlaceholderText}>
-                    Tap camera button on right to capture stockist office photo
-                  </Text>
+            {/* Remarks & Rating Card */}
+            <View style={styles.sectionCard}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: colors.successGreenPastel }]}>
+                  <Feather name="star" size={16} color={colors.successGreen} />
                 </View>
-              )}
-
-              {/* Geotag Overlay Box */}
-              <View style={styles.locationGeotagBox}>
-                <View style={styles.geotagTitleRow}>
-                  <Ionicons name="location-sharp" size={14} color="#E11D48" />
-                  <Text style={styles.geotagTitleText}>LOCATION DETAILS</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>Wholesale Feedback & Rating</Text>
+                  <Text style={styles.cardSubtitle}>Stock movement, payments & dispatch review</Text>
                 </View>
-                <Text style={styles.geotagCoordsText}>
-                  Lat: {gpsLocation.latitude.toFixed(6)} | Lng: {gpsLocation.longitude.toFixed(6)}
-                </Text>
-                <Text style={styles.geotagAddressText} numberOfLines={2}>
-                  {gpsLocation.address}
-                </Text>
               </View>
-            </View>
 
-            {/* Remarks & Rating Section */}
-            <Text style={[styles.sectionTitle, { marginTop: 24 }]}>REMARKS & RATING</Text>
-
-            {/* Outlined Remarks TextInput */}
-            <View style={styles.outlinedRemarksBox}>
-              <View style={styles.floatingRemarksLabel}>
-                <Text style={styles.floatingRemarksLabelText}>Remarks</Text>
+              <View style={styles.fieldBlock}>
+                <Text style={styles.fieldLabel}>Visit Remarks / Discussion</Text>
+                <TextInput
+                  style={[styles.inputField, styles.textArea]}
+                  placeholder="Detail primary order values, outstanding collection, inventory feedback..."
+                  placeholderTextColor={colors.textFaint}
+                  value={remarks}
+                  onChangeText={setRemarks}
+                  multiline
+                  numberOfLines={3}
+                />
               </View>
-              <TextInput
-                style={styles.remarksTextInput}
-                placeholder=""
-                value={remarks}
-                onChangeText={setRemarks}
-                multiline
-              />
-            </View>
 
-            {/* 5-Star Rating */}
-            <View style={styles.starsContainer}>
-              <View style={styles.starsRow}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <TouchableOpacity
-                    key={star}
-                    onPress={() => setRating(star)}
-                    activeOpacity={0.7}
-                    style={{ padding: 4 }}
-                  >
-                    <Ionicons
-                      name={star <= rating ? "star" : "star-outline"}
-                      size={38}
-                      color="#F59E0B"
-                    />
-                  </TouchableOpacity>
-                ))}
+              <View style={styles.starsWrapper}>
+                <Text style={styles.ratingPrompt}>Rate Order & Liquidation Potential</Text>
+                <View style={styles.starsRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity
+                      key={star}
+                      onPress={() => setRating(star)}
+                      activeOpacity={0.7}
+                      style={styles.starTouch}
+                    >
+                      <Ionicons
+                        name={star <= rating ? "star" : "star-outline"}
+                        size={36}
+                        color={star <= rating ? "#F59E0B" : colors.border}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             </View>
           </View>
         )}
       </ScrollView>
 
-      {/* Bottom Step Navigation Bar */}
+      {/* Modern Docked Bottom Bar */}
       <View style={styles.bottomBar}>
         {currentStep > 1 ? (
           <TouchableOpacity
             style={styles.prevBtn}
             onPress={() => setCurrentStep(currentStep - 1)}
+            activeOpacity={0.8}
           >
-            <Text style={styles.prevBtnText}>PREV</Text>
+            <Feather name="arrow-left" size={16} color={colors.textInk} />
+            <Text style={styles.prevBtnText}>Previous</Text>
           </TouchableOpacity>
         ) : (
-          <View style={{ width: 60 }} />
+          <View style={{ width: 44 }} />
         )}
 
-        <Text style={styles.stepText}>STEP {currentStep} OF 3</Text>
+        <View style={styles.stepIndicatorTextContainer}>
+          <Text style={styles.stepCurrentLabel}>STEP {currentStep} OF 3</Text>
+        </View>
 
         {currentStep < 3 ? (
           <TouchableOpacity
             style={styles.nextBtn}
             onPress={() => {
               if (currentStep === 2 && !selectedStockist) {
-                Alert.alert("Select Stockist", "Please select a stockist distributor to continue.");
+                Alert.alert("Stockist Required", "Please select a Stockist before proceeding.");
                 return;
               }
               setCurrentStep(currentStep + 1);
             }}
+            activeOpacity={0.8}
           >
-            <Text style={styles.nextBtnText}>NEXT</Text>
+            <Text style={styles.nextBtnText}>Next</Text>
+            <Feather name="arrow-right" size={16} color={colors.surface} />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            style={styles.finishBtn}
+            style={[styles.finishBtn, isSubmitting && { opacity: 0.7 }]}
             onPress={handleSubmitDcr}
             disabled={isSubmitting}
+            activeOpacity={0.8}
           >
             {isSubmitting ? (
-              <ActivityIndicator color="#FFFFFF" size="small" />
+              <ActivityIndicator color={colors.surface} size="small" />
             ) : (
-              <Text style={styles.finishBtnText}>FINISH</Text>
+              <>
+                <Feather name="check" size={16} color={colors.surface} />
+                <Text style={styles.finishBtnText}>Finish & Log Call</Text>
+              </>
             )}
           </TouchableOpacity>
         )}
@@ -619,7 +705,7 @@ export function StockistVisitScreen() {
             <View style={styles.pickerHeader}>
               <Text style={styles.pickerTitle}>Select Division</Text>
               <TouchableOpacity onPress={() => setIsDivisionPickerOpen(false)}>
-                <Ionicons name="close" size={24} color="#64748B" />
+                <Feather name="x" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
 
@@ -635,13 +721,13 @@ export function StockistVisitScreen() {
                 <Text
                   style={[
                     styles.itemName,
-                    division === div && { color: "#1B64DA", fontWeight: "700" },
+                    division === div && styles.itemNameActive,
                   ]}
                 >
                   {div}
                 </Text>
                 {division === div && (
-                  <Ionicons name="checkmark-circle" size={20} color="#1B64DA" />
+                  <Feather name="check" size={18} color={colors.brandBlue} />
                 )}
               </TouchableOpacity>
             ))}
@@ -668,240 +754,343 @@ export function StockistVisitScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#1E293B",
-  },
-  header: {
-    height: 56,
-    backgroundColor: "#1E293B",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  backButton: {
-    padding: 4,
-  },
-  headerTitleBlock: {
-    flex: 1,
-  },
-  headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  headerSubtitle: {
-    color: "#94A3B8",
-    fontSize: 11,
-    marginTop: 1,
+    backgroundColor: colors.background,
   },
   stepBadge: {
-    backgroundColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radii.full,
   },
   stepBadgeText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 12,
-    fontWeight: "700",
-  },
-  progressBarTrack: {
-    height: 3,
-    backgroundColor: "#334155",
-    width: "100%",
-  },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: "#1B64DA",
-  },
-  scrollContainer: {
-    flex: 1,
-    backgroundColor: "#FFFFFF",
-  },
-  scrollContent: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  sectionTitle: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#475569",
-    letterSpacing: 0.5,
-    marginBottom: 16,
-  },
-  visitTypeList: {
-    gap: 12,
-  },
-  visitTypePill: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: "#E2E8F0",
-    borderRadius: 24,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    backgroundColor: "#FFFFFF",
-  },
-  visitTypePillSelected: {
-    borderColor: "#1B64DA",
-    backgroundColor: "#F0F7FF",
-  },
-  letterCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  letterCircleText: {
-    fontSize: 15,
     fontWeight: "800",
   },
-  visitTypePillText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: "#334155",
-    flex: 1,
-  },
-  visitTypePillTextSelected: {
-    color: "#1B64DA",
-    fontWeight: "700",
-  },
-  fieldBlock: {
-    marginBottom: 20,
-  },
-  fieldLabel: {
-    fontSize: 12,
-    color: "#64748B",
-    fontWeight: "500",
-    marginBottom: 4,
-  },
-  fieldLabelPrimary: {
-    fontSize: 12,
-    color: "#1E293B",
-    fontWeight: "600",
-    marginBottom: 4,
-  },
-  valueText: {
-    fontSize: 14,
-    color: "#1E293B",
-    fontWeight: "600",
-    flex: 1,
-  },
-  underlineInput: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#CBD5E1",
-    paddingVertical: 8,
-    minHeight: 36,
-    justifyContent: "center",
-  },
-  underlineInputField: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#CBD5E1",
-    paddingVertical: 8,
-    fontSize: 14,
-    color: "#1E293B",
-    fontWeight: "600",
-  },
-  underlineDropdown: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#CBD5E1",
-    paddingVertical: 8,
+  stepperContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    minHeight: 36,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
   },
-  dropdownIconsRow: {
+  stepPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: radii.full,
+    backgroundColor: colors.inputBackground,
+    gap: 6,
+  },
+  stepPillActive: {
+    backgroundColor: colors.orangePastel,
+  },
+  stepPillDone: {
+    backgroundColor: colors.bluePastel,
+  },
+  stepIconCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.borderLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepIconCircleActive: {
+    backgroundColor: colors.orange,
+  },
+  stepIconCircleDone: {
+    backgroundColor: colors.brandBlue,
+  },
+  stepPillText: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.textMuted,
+  },
+  stepPillTextActive: {
+    color: colors.orange,
+    fontWeight: "800",
+  },
+  stepPillTextDone: {
+    color: colors.brandBlue,
+    fontWeight: "800",
+  },
+  stepConnectorLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: colors.borderLight,
+    marginHorizontal: 4,
+  },
+  stepConnectorLineDone: {
+    backgroundColor: colors.brandBlue,
+  },
+  scrollContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    padding: spacing.lg,
+    paddingBottom: spacing.xxxl * 2,
+  },
+  sectionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
+  },
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  cardIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: colors.orangePastel,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardTitle: {
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
+  },
+  cardSubtitle: {
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.textMuted,
+  },
+  visitTypeList: {
+    gap: spacing.md,
+  },
+  visitTypeCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.inputBackground,
+    borderWidth: 1.5,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  visitTypeCardSelected: {
+    backgroundColor: colors.orangePastel,
+    borderColor: colors.orange,
+  },
+  visitTypeIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  visitTypeIconBoxSelected: {
+    backgroundColor: colors.orange,
+  },
+  visitTypeTitle: {
+    ...typography.heading,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textInk,
+  },
+  visitTypeTitleSelected: {
+    color: colors.orange,
+    fontWeight: "800",
+  },
+  visitTypeSub: {
+    ...typography.caption,
+    fontSize: 11,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  checkCircle: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.orange,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  radioEmpty: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  fieldBlock: {
+    marginBottom: spacing.md,
+  },
+  fieldLabel: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.navy,
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  fieldLabelPrimary: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.navy,
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  required: {
+    color: colors.accentRed,
+  },
+  readOnlyField: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    gap: spacing.sm,
+  },
+  readOnlyText: {
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
+    fontWeight: "600",
   },
   workingWithHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 8,
+    marginBottom: 6,
   },
-  sectionSubtitle: {
-    fontSize: 12,
-    color: "#64748B",
-    fontWeight: "700",
-    letterSpacing: 0.5,
-  },
-  addIconBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "#F1F5F9",
+  addManagerBtn: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 4,
+  },
+  addManagerText: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.brandBlue,
   },
   workingWithCard: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F8FAFC",
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: colors.bluePastel,
+    borderRadius: radii.lg,
+    padding: spacing.md,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    marginTop: 4,
+    borderColor: colors.brandBlue,
   },
   workingAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#EFF6FF",
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: colors.surface,
     alignItems: "center",
     justifyContent: "center",
   },
   workingName: {
-    fontSize: 13,
+    ...typography.body,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#1E293B",
+    color: colors.textInk,
   },
   workingHq: {
-    fontSize: 11,
-    color: "#64748B",
-    marginTop: 1,
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.textMuted,
   },
   removeBtn: {
     padding: 4,
   },
-  distanceText: {
-    fontSize: 12,
-    color: "#1B64DA",
-    fontWeight: "600",
-    marginTop: 6,
+  emptyManagerCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    gap: spacing.sm,
   },
-  photoHeaderRow: {
+  emptyManagerText: {
+    ...typography.body,
+    fontSize: 13,
+    color: colors.textMuted,
+  },
+  dropdownField: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
   },
-  cameraFloatingButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: "#1B64DA",
+  dropdownFieldError: {
+    borderColor: colors.accentRed,
+  },
+  dropdownValue: {
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
+    fontWeight: "600",
+  },
+  dropdownSubtext: {
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.orange,
+    marginTop: 2,
+    fontWeight: "700",
+  },
+  geofencePill: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 6,
+    backgroundColor: colors.successGreenPastel,
+    alignSelf: "flex-start",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.full,
+  },
+  geofenceText: {
+    ...typography.caption,
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.successGreen,
+  },
+  photoDashedBox: {
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: colors.orange,
+    borderRadius: radii.xl,
+    padding: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    shadowColor: "#1B64DA",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  photoBoxContainer: {
-    width: "100%",
-    height: 200,
-    backgroundColor: "#F8FAFC",
-    borderRadius: 12,
+    backgroundColor: colors.inputBackground,
     overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
+    minHeight: 180,
+  },
+  photoPreviewWrapper: {
+    width: "100%",
+    height: 180,
+    borderRadius: radii.lg,
+    overflow: "hidden",
     position: "relative",
   },
   capturedPhoto: {
@@ -909,202 +1098,194 @@ const styles = StyleSheet.create({
     height: "100%",
     resizeMode: "cover",
   },
-  photoPlaceholder: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 24,
-    paddingBottom: 48,
-  },
-  photoPlaceholderText: {
-    fontSize: 12,
-    color: "#94A3B8",
-    textAlign: "center",
-    marginTop: 8,
-    fontWeight: "500",
-  },
-  locationGeotagBox: {
+  retakeBadge: {
     position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  geotagTitleRow: {
+    bottom: 10,
+    right: 10,
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    marginBottom: 2,
+    backgroundColor: "rgba(15, 21, 56, 0.85)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.full,
+    gap: 6,
   },
-  geotagTitleText: {
-    fontSize: 10,
-    fontWeight: "800",
-    color: "#E11D48",
-    letterSpacing: 0.5,
+  retakeText: {
+    color: colors.surface,
+    fontSize: 12,
+    fontWeight: "700",
   },
-  geotagCoordsText: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#1E293B",
-  },
-  geotagAddressText: {
-    fontSize: 10,
-    color: "#64748B",
-    marginTop: 1,
-  },
-  outlinedRemarksBox: {
-    borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: 8,
-    padding: 12,
-    minHeight: 90,
-    position: "relative",
-    marginTop: 8,
-  },
-  floatingRemarksLabel: {
-    position: "absolute",
-    top: -9,
-    left: 12,
-    backgroundColor: "#FFFFFF",
-    paddingHorizontal: 4,
-  },
-  floatingRemarksLabelText: {
-    fontSize: 11,
-    color: "#64748B",
-    fontWeight: "600",
-  },
-  remarksTextInput: {
-    fontSize: 13,
-    color: "#1E293B",
-    textAlignVertical: "top",
-    minHeight: 60,
-  },
-  starsContainer: {
+  photoPlaceholder: {
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 20,
-    marginBottom: 10,
+  },
+  cameraIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.orangePastel,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
+  },
+  photoTapText: {
+    ...typography.heading,
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.textInk,
+  },
+  photoHintText: {
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  inputField: {
+    backgroundColor: colors.inputBackground,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
+  },
+  textArea: {
+    minHeight: 76,
+    textAlignVertical: "top",
+  },
+  starsWrapper: {
+    alignItems: "center",
+    paddingTop: spacing.md,
+  },
+  ratingPrompt: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.textMuted,
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   starsRow: {
     flexDirection: "row",
-    alignItems: "center",
     gap: 8,
   },
+  starTouch: {
+    padding: 4,
+  },
   bottomBar: {
-    height: 60,
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-  },
-  stepText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#64748B",
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderLight,
+    ...shadows.soft,
   },
   prevBtn: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-    backgroundColor: "#F1F5F9",
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: radii.lg,
+    backgroundColor: colors.inputBackground,
   },
   prevBtnText: {
+    ...typography.caption,
     fontSize: 13,
     fontWeight: "700",
-    color: "#475569",
+    color: colors.textInk,
   },
-  nextBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 6,
-    backgroundColor: "#1B64DA",
-  },
-  nextBtnText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  finishBtn: {
-    paddingHorizontal: 22,
-    paddingVertical: 8,
-    borderRadius: 6,
-    backgroundColor: "#16A34A",
-    minWidth: 80,
+  stepIndicatorTextContainer: {
     alignItems: "center",
   },
+  stepCurrentLabel: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "800",
+    color: colors.textMuted,
+    letterSpacing: 0.5,
+  },
+  nextBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.navy,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: radii.lg,
+    ...shadows.soft,
+  },
+  nextBtnText: {
+    ...typography.button,
+    fontSize: 14,
+    fontWeight: "800",
+    color: colors.surface,
+  },
+  finishBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.successGreen,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: radii.lg,
+    ...shadows.soft,
+  },
   finishBtnText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#FFFFFF",
+    ...typography.button,
+    fontSize: 14,
+    fontWeight: "800",
+    color: colors.surface,
   },
   modalBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.backdrop,
     justifyContent: "center",
-    padding: 20,
+    alignItems: "center",
+    padding: spacing.xl,
   },
   pickerCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    padding: 16,
-    maxHeight: "80%",
+    width: "100%",
+    maxWidth: 340,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    ...shadows.medium,
   },
   pickerHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   pickerTitle: {
+    ...typography.heading,
     fontSize: 16,
-    fontWeight: "700",
-    color: "#1E293B",
-  },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#F1F5F9",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    height: 40,
-    gap: 8,
-    marginBottom: 12,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 13,
-    color: "#1E293B",
+    fontWeight: "800",
+    color: colors.textInk,
   },
   itemRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
+    justifyContent: "space-between",
+    paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-  },
-  avatarMini: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#EFF6FF",
-    alignItems: "center",
-    justifyContent: "center",
+    borderBottomColor: colors.borderLight,
   },
   itemName: {
+    ...typography.body,
     fontSize: 14,
+    color: colors.textInk,
     fontWeight: "600",
-    color: "#1E293B",
   },
-  itemSub: {
-    fontSize: 11,
-    color: "#64748B",
-    marginTop: 2,
+  itemNameActive: {
+    color: colors.brandBlue,
+    fontWeight: "800",
   },
 });

@@ -11,10 +11,13 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { TaskCommentDto, TaskDto, tasksApi } from "../api/tasksApi";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
+import { formatTimeIST } from "../../../shared/utils/date";
 
 interface TaskDetailModalProps {
   visible: boolean;
@@ -57,7 +60,6 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
         message: commentInput.trim(),
       });
       setCommentInput("");
-      // Update local task comments
       const updatedTask: TaskDto = {
         ...task,
         comments_count: (task.comments_count || 0) + 1,
@@ -72,10 +74,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
   };
 
   const renderComment = ({ item }: { item: TaskCommentDto }) => {
-    const formattedTime = new Date(item.created_at).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const formattedTime = formatTimeIST(item.created_at);
     return (
       <View style={styles.commentItem}>
         <View style={styles.commentAvatar}>
@@ -96,36 +95,46 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+        <StatusBar style="light" />
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
           keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
         >
-          {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Task Details</Text>
-            <TouchableOpacity
-              style={styles.toggleBtn}
-              onPress={handleToggleComplete}
-              disabled={isTogglingStatus}
-            >
-              {isTogglingStatus ? (
-                <ActivityIndicator size="small" color={colors.primary} />
-              ) : (
-                <Ionicons
-                  name={isCompleted ? "checkmark-circle" : "checkmark-circle-outline"}
-                  size={26}
-                  color={isCompleted ? colors.primary : colors.textSecondary}
-                />
-              )}
-            </TouchableOpacity>
-          </View>
+          <ScreenHeader
+            title="Task Details"
+            subtitle={task.due_date ? `Due: ${task.due_date}` : "Action item"}
+            variant="navy"
+            onBack={onClose}
+            rightElement={
+              <TouchableOpacity
+                style={[
+                  styles.completePillBtn,
+                  isCompleted && styles.completePillBtnDone,
+                ]}
+                onPress={handleToggleComplete}
+                disabled={isTogglingStatus}
+                activeOpacity={0.8}
+              >
+                {isTogglingStatus ? (
+                  <ActivityIndicator size="small" color={colors.surface} />
+                ) : (
+                  <>
+                    <Feather
+                      name={isCompleted ? "check-circle" : "circle"}
+                      size={14}
+                      color={colors.surface}
+                    />
+                    <Text style={styles.completePillText}>
+                      {isCompleted ? "Done" : "Mark Done"}
+                    </Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            }
+          />
 
-          {/* Details & Comments */}
           <FlatList
             data={task.comments || []}
             keyExtractor={(item) => item.id.toString()}
@@ -163,7 +172,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                   <View style={styles.infoCol}>
                     <Text style={styles.infoLabel}>DUE DATE</Text>
                     <View style={styles.infoRow}>
-                      <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+                      <Feather name="calendar" size={14} color={colors.textMuted} />
                       <Text style={styles.infoVal}>{task.due_date}</Text>
                     </View>
                   </View>
@@ -172,8 +181,8 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     <View style={styles.infoCol}>
                       <Text style={styles.infoLabel}>CUSTOMER</Text>
                       <View style={styles.infoRow}>
-                        <Ionicons name="business-outline" size={14} color={colors.navy} />
-                        <Text style={[styles.infoVal, { color: colors.navy }]}>
+                        <Feather name="briefcase" size={14} color={colors.brandBlue} />
+                        <Text style={[styles.infoVal, { color: colors.brandBlue }]}>
                           {task.customer_type}
                         </Text>
                       </View>
@@ -184,7 +193,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
                     <View style={styles.infoCol}>
                       <Text style={styles.infoLabel}>ASSIGNED TO</Text>
                       <View style={styles.infoRow}>
-                        <Ionicons name="person-outline" size={14} color={colors.textSecondary} />
+                        <Feather name="user" size={14} color={colors.textMuted} />
                         <Text style={styles.infoVal}>{task.assigned_to_name}</Text>
                       </View>
                     </View>
@@ -193,7 +202,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 
                 <View style={styles.divider} />
                 <View style={styles.chatSectionHeader}>
-                  <Ionicons name="chatbubbles-outline" size={18} color={colors.primary} />
+                  <Feather name="message-circle" size={16} color={colors.navy} />
                   <Text style={styles.chatSectionTitle}>
                     Discussion Thread ({task.comments_count || 0})
                   </Text>
@@ -215,7 +224,7 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
             <TextInput
               style={styles.textInput}
               placeholder="Type comment or field update..."
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textFaint}
               value={commentInput}
               onChangeText={setCommentInput}
               multiline
@@ -228,11 +237,12 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
               ]}
               onPress={handleSendComment}
               disabled={!commentInput.trim() || isSubmittingComment}
+              activeOpacity={0.8}
             >
               {isSubmittingComment ? (
                 <ActivityIndicator size="small" color={colors.surface} />
               ) : (
-                <Ionicons name="send" size={18} color={colors.surface} />
+                <Feather name="send" size={16} color={colors.surface} />
               )}
             </TouchableOpacity>
           </View>
@@ -245,218 +255,232 @@ export const TaskDetailModal: React.FC<TaskDetailModalProps> = ({
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.background,
   },
   container: {
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
+  completePillBtn: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.full,
+    gap: 5,
   },
-  closeBtn: {
-    padding: spacing.xs,
+  completePillBtnDone: {
+    backgroundColor: colors.successGreen,
   },
-  headerTitle: {
-    ...typography.subheading,
-    color: colors.textPrimary,
-  },
-  toggleBtn: {
-    padding: spacing.xs,
+  completePillText: {
+    color: colors.surface,
+    fontSize: 12,
+    fontWeight: "700",
   },
   commentsList: {
-    paddingBottom: 20,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxl,
   },
   detailCard: {
     backgroundColor: colors.surface,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
   },
   statusRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: spacing.sm,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
   statusPill: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radii.sm,
-    marginRight: spacing.sm,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.full,
   },
   statusPending: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: colors.warningPastel,
   },
   statusCompleted: {
-    backgroundColor: "#DCFCE7",
+    backgroundColor: colors.successGreenPastel,
   },
   statusText: {
     fontSize: 11,
-    fontWeight: "700",
+    fontWeight: "800",
+    letterSpacing: 0.4,
   },
   statusPendingText: {
-    color: "#D97706",
+    color: colors.warning,
   },
   statusCompletedText: {
-    color: colors.success,
+    color: colors.successGreen,
   },
   priorityPill: {
-    backgroundColor: "#F1F5F9",
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: radii.sm,
+    backgroundColor: colors.bluePastel,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.full,
   },
   priorityText: {
     fontSize: 11,
-    fontWeight: "700",
-    color: colors.textSecondary,
+    fontWeight: "800",
+    color: colors.brandBlue,
   },
   titleText: {
     ...typography.heading,
-    color: colors.textPrimary,
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.textInk,
     marginBottom: spacing.xs,
   },
   descText: {
     ...typography.body,
-    color: colors.textSecondary,
-    marginBottom: spacing.md,
+    fontSize: 14,
+    color: colors.textMuted,
     lineHeight: 20,
+    marginBottom: spacing.md,
   },
   infoGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    backgroundColor: "#F8FAFC",
-    borderRadius: radii.md,
-    padding: spacing.sm,
+    gap: spacing.lg,
+    marginTop: spacing.xs,
   },
   infoCol: {
-    marginRight: spacing.lg,
-    marginVertical: 4,
+    minWidth: 100,
   },
   infoLabel: {
+    ...typography.caption,
     fontSize: 10,
     fontWeight: "700",
-    color: colors.textSecondary,
-    marginBottom: 2,
+    color: colors.textFaint,
+    marginBottom: 4,
+    letterSpacing: 0.5,
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
+    gap: 6,
   },
   infoVal: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.textPrimary,
-    marginLeft: 4,
+    ...typography.body,
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.textInk,
   },
   divider: {
     height: 1,
-    backgroundColor: "#E2E8F0",
+    backgroundColor: colors.borderLight,
     marginVertical: spacing.md,
   },
   chatSectionHeader: {
     flexDirection: "row",
     alignItems: "center",
+    gap: spacing.sm,
   },
   chatSectionTitle: {
-    ...typography.subheading,
+    ...typography.heading,
     fontSize: 14,
-    color: colors.textPrimary,
-    marginLeft: spacing.xs,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   commentItem: {
     flexDirection: "row",
-    paddingHorizontal: spacing.md,
-    marginVertical: 6,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
   commentAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: colors.primary,
-    justifyContent: "center",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.bluePastel,
     alignItems: "center",
-    marginRight: spacing.sm,
-    marginTop: 2,
+    justifyContent: "center",
   },
   commentAvatarText: {
-    color: colors.surface,
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 13,
+    fontWeight: "800",
+    color: colors.navy,
   },
   commentBubble: {
     flex: 1,
     backgroundColor: colors.surface,
-    borderRadius: radii.md,
-    padding: spacing.sm,
+    borderRadius: radii.lg,
+    padding: spacing.md,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.borderLight,
+    ...shadows.sm,
   },
   commentHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 2,
+    alignItems: "center",
+    marginBottom: 4,
   },
   commentAuthor: {
+    ...typography.caption,
     fontSize: 12,
-    fontWeight: "700",
-    color: colors.navy,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   commentTime: {
-    fontSize: 10,
-    color: colors.textSecondary,
+    ...typography.caption,
+    fontSize: 11,
+    color: colors.textFaint,
   },
   commentMessage: {
+    ...typography.body,
     fontSize: 13,
-    color: colors.textPrimary,
-    lineHeight: 18,
+    color: colors.textInk,
+    lineHeight: 19,
   },
   emptyComments: {
-    padding: spacing.xl,
+    paddingVertical: spacing.xl,
     alignItems: "center",
   },
   emptyCommentsText: {
+    ...typography.body,
     fontSize: 13,
-    color: colors.textSecondary,
+    color: colors.textFaint,
     textAlign: "center",
   },
   inputBar: {
     flexDirection: "row",
     alignItems: "flex-end",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     backgroundColor: colors.surface,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: colors.border,
+    borderTopColor: colors.borderLight,
+    gap: spacing.sm,
   },
   textInput: {
     flex: 1,
-    backgroundColor: colors.background,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs + 2,
-    fontSize: 13,
-    color: colors.textPrimary,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm + 2,
     maxHeight: 100,
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
   },
   sendBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: radii.md,
-    width: 38,
-    height: 38,
-    justifyContent: "center",
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.navy,
     alignItems: "center",
-    marginLeft: spacing.sm,
+    justifyContent: "center",
+    ...shadows.soft,
   },
   sendBtnDisabled: {
-    backgroundColor: colors.border,
+    opacity: 0.5,
   },
 });

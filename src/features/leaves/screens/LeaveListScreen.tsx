@@ -17,6 +17,7 @@ import { LeaveBalanceDto, LeaveDto, leavesApi } from "../api/leavesApi";
 import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 export function LeaveListScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -87,19 +88,12 @@ export function LeaveListScreen() {
   return (
     <SafeAreaView style={styles.screenContainer} edges={["top", "bottom"]}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#0F172A" />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Leaves & Absence</Text>
-          <Text style={styles.subtitle}>Check balances and request leaves</Text>
-        </View>
-      </View>
+      <ScreenHeader
+        title="Leaves & Absence"
+        subtitle="Check balances and request leaves"
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
 
       {/* Leave Balances Grid */}
       {balance && (

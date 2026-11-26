@@ -12,13 +12,14 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import {
   ApprovalRequestDto,
   approvalsApi,
 } from "../api/approvalsApi";
-import { colors, radii, spacing } from "../../../shared/theme/tokens";
-import { Header } from "../../../shared/components/Header";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
+import { formatDateIST } from "../../../shared/utils/date";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
   const [requests, setRequests] = useState<ApprovalRequestDto[]>([]);
@@ -85,7 +86,7 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
   const submitRejection = async () => {
     if (!rejectingItem) return;
     if (!rejectionComment.trim()) {
-      Alert.alert("Comment Required", "BR-08 Rule: Please enter a reason/comment for rejecting this request.");
+      Alert.alert("Comment Required", "Please enter a reason/comment for rejecting this request.");
       return;
     }
 
@@ -114,74 +115,88 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
   const getEntityIcon = (type: string) => {
     switch (type) {
       case "EXPENSE":
-        return { name: "receipt-outline" as const, color: "#D97706", bg: "#FEF3C7" };
+        return { name: "credit-card" as const, color: colors.orange, bg: colors.orangePastel };
       case "LEAVE":
-        return { name: "calendar-outline" as const, color: "#DC2626", bg: "#FEE2E2" };
+        return { name: "calendar" as const, color: colors.accentRed, bg: "#FEE2E2" };
       case "TOUR_PROGRAM":
-        return { name: "map-outline" as const, color: "#2563EB", bg: "#DBEAFE" };
+        return { name: "map-pin" as const, color: colors.brandBlue, bg: colors.bluePastel };
       default:
-        return { name: "document-text-outline" as const, color: "#059669", bg: "#D1FAE5" };
+        return { name: "file-text" as const, color: colors.teal, bg: colors.tealPastel };
     }
   };
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Top Header with Mediate Logo & Manager/Admin Role Badge */}
-      <Header
-        title="Approvals Inbox"
-        subtitle={`${pendingList.length} pending MR request${pendingList.length === 1 ? "" : "s"}`}
-        showBack={navigation?.canGoBack ? navigation.canGoBack() : false}
-        onBack={() => navigation?.goBack?.()}
-        rightAction={
-          <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh} activeOpacity={0.7}>
-            <Ionicons name="refresh-outline" size={20} color={colors.primary} />
+      {/* Top Header with ScreenHeader */}
+      <ScreenHeader
+        title="Approvals"
+        subtitle={`${pendingList.length} pending request${pendingList.length === 1 ? "" : "s"}`}
+        variant="navy"
+        onBack={navigation?.canGoBack && navigation.canGoBack() ? () => navigation.goBack() : undefined}
+        rightElement={
+          <TouchableOpacity style={styles.refreshBtn} onPress={onRefresh} activeOpacity={0.7} accessibilityLabel="Refresh list">
+            <Feather name="refresh-cw" size={18} color={colors.surface} />
           </TouchableOpacity>
         }
       />
 
       {/* Tabs */}
-      <View style={styles.tabsRow}>
-        <TouchableOpacity
-          style={[styles.tabButton, activeTab === "PENDING" && styles.tabButtonActive]}
-          onPress={() => setActiveTab("PENDING")}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.tabButtonText, activeTab === "PENDING" && styles.tabButtonTextActive]}>
-            Pending ({pendingList.length})
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.tabsContainer}>
+        <View style={styles.tabsRow}>
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === "PENDING" && styles.tabButtonActive]}
+            onPress={() => setActiveTab("PENDING")}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.tabButtonText, activeTab === "PENDING" && styles.tabButtonTextActive]}>
+              Pending
+            </Text>
+            <View style={[styles.tabBadge, activeTab === "PENDING" && styles.tabBadgeActive]}>
+              <Text style={[styles.tabBadgeText, activeTab === "PENDING" && styles.tabBadgeTextActive]}>
+                {pendingList.length}
+              </Text>
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.tabButton, activeTab === "HISTORY" && styles.tabButtonActive]}
-          onPress={() => setActiveTab("HISTORY")}
-          activeOpacity={0.8}
-        >
-          <Text style={[styles.tabButtonText, activeTab === "HISTORY" && styles.tabButtonTextActive]}>
-            History ({historyList.length})
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === "HISTORY" && styles.tabButtonActive]}
+            onPress={() => setActiveTab("HISTORY")}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.tabButtonText, activeTab === "HISTORY" && styles.tabButtonTextActive]}>
+              History
+            </Text>
+            <View style={[styles.tabBadge, activeTab === "HISTORY" && styles.tabBadgeActive]}>
+              <Text style={[styles.tabBadgeText, activeTab === "HISTORY" && styles.tabBadgeTextActive]}>
+                {historyList.length}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.navy} />
           <Text style={styles.loadingText}>Loading requests...</Text>
         </View>
       ) : (
         <ScrollView
           contentContainerStyle={styles.scrollList}
-          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />}
+          refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} tintColor={colors.navy} />}
           showsVerticalScrollIndicator={false}
         >
           {displayedList.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Ionicons name="checkmark-done-circle-outline" size={54} color="#CBD5E1" />
+              <View style={styles.emptyIconCircle}>
+                <Feather name="check" size={32} color={colors.teal} />
+              </View>
               <Text style={styles.emptyTitle}>
                 {activeTab === "PENDING" ? "Inbox All Clear" : "No Past History"}
               </Text>
               <Text style={styles.emptySubtitle}>
                 {activeTab === "PENDING"
-                  ? "You have reviewed all pending MR tour, expense, and leave requests."
+                  ? "You have reviewed all pending tour, expense, and leave requests."
                   : "Processed approvals will appear here."}
               </Text>
             </View>
@@ -195,9 +210,9 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
                   <View style={styles.cardHeader}>
                     <View style={styles.typeBadgeRow}>
                       <View style={[styles.iconCircle, { backgroundColor: iconMeta.bg }]}>
-                        <Ionicons name={iconMeta.name} size={16} color={iconMeta.color} />
+                        <Feather name={iconMeta.name} size={15} color={iconMeta.color} />
                       </View>
-                      <Text style={styles.entityTypeText}>{item.entity_type.replace("_", " ")}</Text>
+                      <Text style={styles.entityTypeText}>{item.entity_type.replace(/_/g, " ")}</Text>
                     </View>
 
                     <View
@@ -228,23 +243,22 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
                   <Text style={styles.cardTitle}>{item.title}</Text>
 
                   {item.details ? (
-                    <Text style={styles.cardDetails} numberOfLines={3}>
-                      {item.details}
-                    </Text>
+                    <View style={styles.cardDetailsBox}>
+                      <Text style={styles.cardDetails} numberOfLines={3}>
+                        {item.details}
+                      </Text>
+                    </View>
                   ) : null}
 
                   <View style={styles.cardFooterRow}>
                     <View style={styles.requesterInfo}>
-                      <Ionicons name="person-circle-outline" size={16} color="#64748B" />
+                      <Feather name="user" size={14} color={colors.textMuted} />
                       <Text style={styles.requesterName}>
                         {item.requester_name || `MR #${item.requester_id}`}
                       </Text>
                     </View>
                     <Text style={styles.dateText}>
-                      {new Date(item.created_at).toLocaleDateString("en-IN", {
-                        day: "numeric",
-                        month: "short",
-                      })}
+                      {formatDateIST(item.created_at)}
                     </Text>
                   </View>
 
@@ -259,7 +273,7 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
                           setRejectionComment("");
                         }}
                       >
-                        <Ionicons name="close-circle-outline" size={16} color="#DC2626" />
+                        <Feather name="x-circle" size={15} color={colors.accentRed} />
                         <Text style={styles.rejectBtnText}>Reject</Text>
                       </TouchableOpacity>
 
@@ -268,7 +282,7 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
                         activeOpacity={0.8}
                         onPress={() => handleApprove(item)}
                       >
-                        <Ionicons name="checkmark-circle-outline" size={16} color="#FFFFFF" />
+                        <Feather name="check-circle" size={15} color={colors.surface} />
                         <Text style={styles.approveBtnText}>Approve</Text>
                       </TouchableOpacity>
                     </View>
@@ -290,20 +304,19 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
                 onPress={() => setRejectingItem(null)}
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Ionicons name="close" size={22} color="#64748B" />
+                <Feather name="x" size={22} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
 
             <Text style={styles.modalSubtext}>
-              Rejecting &quot;{rejectingItem?.title}&quot;. Per company policy, you must provide feedback
-              to the field executive.
+              Rejecting &quot;{rejectingItem?.title}&quot;. Please provide feedback for the executive.
             </Text>
 
-            <Text style={styles.inputLabel}>Reason / Remarks (Required) *</Text>
+            <Text style={styles.inputLabel}>REASON / REMARKS (REQUIRED)</Text>
             <TextInput
               style={styles.commentInput}
-              placeholder="e.g. Please attach missing toll receipt, or dates conflict with review meet..."
-              placeholderTextColor="#94A3B8"
+              placeholder="e.g. Please attach missing receipts or clarify date..."
+              placeholderTextColor={colors.textFaint}
               value={rejectionComment}
               onChangeText={setRejectionComment}
               multiline
@@ -326,7 +339,7 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
                 disabled={isProcessing}
               >
                 {isProcessing ? (
-                  <ActivityIndicator size="small" color="#FFFFFF" />
+                  <ActivityIndicator size="small" color={colors.surface} />
                 ) : (
                   <Text style={styles.confirmRejectBtnText}>Confirm Rejection</Text>
                 )}
@@ -342,63 +355,67 @@ export const ApprovalsInboxScreen: React.FC<any> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.md,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "800",
-    color: "#0F172A",
-  },
-  headerSubtitle: {
-    fontSize: 12,
-    color: "#64748B",
-    marginTop: 2,
+    backgroundColor: colors.background,
   },
   refreshBtn: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: "#F1F5F9",
+    borderRadius: radii.full,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
     alignItems: "center",
     justifyContent: "center",
   },
+  tabsContainer: {
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
   tabsRow: {
     flexDirection: "row",
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    backgroundColor: "#FFFFFF",
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
+    backgroundColor: colors.background,
+    borderRadius: radii.xl,
+    padding: 4,
+    gap: 6,
   },
   tabButton: {
     flex: 1,
-    paddingVertical: 10,
+    flexDirection: "row",
     alignItems: "center",
-    borderBottomWidth: 2,
-    borderBottomColor: "transparent",
+    justifyContent: "center",
+    gap: 8,
+    paddingVertical: 9,
+    borderRadius: radii.lg,
   },
   tabButtonActive: {
-    borderBottomColor: colors.primary,
+    backgroundColor: colors.bluePastel,
   },
   tabButtonText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "600",
-    color: "#64748B",
+    color: colors.textMuted,
   },
   tabButtonTextActive: {
-    color: colors.primary,
+    color: colors.brandBlue,
     fontWeight: "700",
+  },
+  tabBadge: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: radii.full,
+    backgroundColor: colors.border,
+  },
+  tabBadgeActive: {
+    backgroundColor: colors.brandBlue,
+  },
+  tabBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.textMuted,
+  },
+  tabBadgeTextActive: {
+    color: colors.surface,
   },
   loadingContainer: {
     flex: 1,
@@ -408,7 +425,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: "#64748B",
+    color: colors.textMuted,
   },
   scrollList: {
     padding: spacing.md,
@@ -420,26 +437,35 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
     paddingHorizontal: spacing.xl,
   },
+  emptyIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.tealPastel,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
+  },
   emptyTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#334155",
-    marginTop: spacing.md,
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   emptySubtitle: {
-    fontSize: 12,
-    color: "#64748B",
+    fontSize: 13,
+    color: colors.textMuted,
     textAlign: "center",
     marginTop: 6,
     lineHeight: 18,
   },
   card: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: radii.lg,
-    padding: spacing.md,
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    padding: 16,
     marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.border,
+    ...shadows.card,
   },
   cardHeader: {
     flexDirection: "row",
@@ -453,94 +479,94 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   iconCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     alignItems: "center",
     justifyContent: "center",
   },
   entityTypeText: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#334155",
+    color: colors.textInk,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   statusBadge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: radii.full,
   },
   statusBadgeText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "700",
   },
   statusPending: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: colors.orangePastel,
   },
   statusPendingText: {
-    color: "#B45309",
-    fontSize: 10,
-    fontWeight: "700",
+    color: colors.orange,
   },
   statusApproved: {
-    backgroundColor: "#D1FAE5",
+    backgroundColor: "#DDF3EF",
   },
   statusApprovedText: {
-    color: "#059669",
-    fontSize: 10,
-    fontWeight: "700",
+    color: colors.teal,
   },
   statusRejected: {
     backgroundColor: "#FEE2E2",
   },
   statusRejectedText: {
-    color: "#DC2626",
-    fontSize: 10,
-    fontWeight: "700",
+    color: colors.accentRed,
   },
   cardTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: "700",
-    color: "#0F172A",
+    color: colors.textInk,
     marginBottom: 4,
+  },
+  cardDetailsBox: {
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.md,
+    padding: 10,
+    marginTop: 6,
+    marginBottom: 8,
   },
   cardDetails: {
     fontSize: 12,
-    color: "#475569",
+    color: colors.textMuted,
     lineHeight: 18,
-    marginBottom: 10,
   },
   cardFooterRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingTop: 8,
+    paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+    borderTopColor: colors.background,
   },
   requesterInfo: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
+    gap: 6,
   },
   requesterName: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#334155",
+    color: colors.textInk,
   },
   dateText: {
-    fontSize: 11,
-    color: "#94A3B8",
+    fontSize: 12,
+    color: colors.textFaint,
   },
   actionButtonsRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
     marginTop: 12,
-    paddingTop: 10,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#F1F5F9",
+    borderTopColor: colors.border,
   },
   rejectBtn: {
     flex: 1,
@@ -548,16 +574,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 10,
-    borderRadius: radii.md,
+    paddingVertical: 12,
+    borderRadius: radii.lg,
     borderWidth: 1,
-    borderColor: "#FCA5A5",
+    borderColor: "#FECACA",
     backgroundColor: "#FEF2F2",
   },
   rejectBtnText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "700",
-    color: "#DC2626",
+    color: colors.accentRed,
   },
   approveBtn: {
     flex: 1,
@@ -565,27 +591,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    paddingVertical: 10,
-    borderRadius: radii.md,
-    backgroundColor: colors.primary,
+    paddingVertical: 12,
+    borderRadius: radii.lg,
+    backgroundColor: colors.navy,
   },
   approveBtnText: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: colors.surface,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    backgroundColor: "rgba(15, 21, 56, 0.6)",
     justifyContent: "center",
     alignItems: "center",
     padding: spacing.lg,
   },
   modalContent: {
     width: "100%",
-    backgroundColor: "#FFFFFF",
-    borderRadius: radii.xl,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xxl,
     padding: spacing.lg,
+    ...shadows.lg,
   },
   modalHeader: {
     flexDirection: "row",
@@ -594,31 +621,32 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textInk,
   },
   modalSubtext: {
-    fontSize: 12,
-    color: "#64748B",
+    fontSize: 13,
+    color: colors.textMuted,
     lineHeight: 18,
     marginBottom: spacing.md,
   },
   inputLabel: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "700",
-    color: "#334155",
+    color: colors.textMuted,
+    letterSpacing: 0.8,
     marginBottom: 6,
   },
   commentInput: {
     borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: radii.md,
-    padding: spacing.sm,
-    fontSize: 13,
-    color: "#0F172A",
-    backgroundColor: "#F8FAFC",
-    minHeight: 90,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    fontSize: 14,
+    color: colors.textInk,
+    backgroundColor: colors.inputBackground,
+    minHeight: 100,
     marginBottom: spacing.lg,
   },
   modalFooter: {
@@ -628,24 +656,24 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   cancelBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: radii.md,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderRadius: radii.lg,
   },
   cancelBtnText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#64748B",
+    color: colors.textMuted,
   },
   confirmRejectBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: radii.md,
-    backgroundColor: "#DC2626",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: radii.lg,
+    backgroundColor: colors.accentRed,
   },
   confirmRejectBtnText: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: colors.surface,
   },
 });

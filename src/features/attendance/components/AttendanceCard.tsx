@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { AttendanceDto, attendanceApi } from "../api/attendanceApi";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
-
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
 import { getCurrentGeoLocation } from "../../../shared/utils/location";
+import { formatTimeIST } from "../../../shared/utils/date";
 
 interface AttendanceCardProps {
   onStatusChanged?: (attendance: AttendanceDto | null) => void;
@@ -107,7 +107,7 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
   if (isLoading) {
     return (
       <View style={[styles.card, styles.center]}>
-        <ActivityIndicator size="small" color={colors.primary} />
+        <ActivityIndicator size="small" color={colors.navy} />
       </View>
     );
   }
@@ -126,8 +126,8 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
                 backgroundColor: isCheckedOut
                   ? colors.navy
                   : isCheckedIn
-                  ? colors.success
-                  : colors.warning,
+                  ? colors.teal
+                  : colors.orange,
               },
             ]}
           />
@@ -154,10 +154,7 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
             <View style={styles.timeBlock}>
               <Text style={styles.timeLabel}>Check-In Time</Text>
               <Text style={styles.timeVal}>
-                {new Date(attendance!.check_in_time!).toLocaleTimeString("en-IN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                {formatTimeIST(attendance?.check_in_time)}
               </Text>
             </View>
 
@@ -165,16 +162,13 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
               <View style={styles.timeBlock}>
                 <Text style={styles.timeLabel}>Check-Out Time</Text>
                 <Text style={styles.timeVal}>
-                  {new Date(attendance!.check_out_time!).toLocaleTimeString("en-IN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
+                  {formatTimeIST(attendance?.check_out_time)}
                 </Text>
               </View>
             ) : (
               <View style={styles.timeBlock}>
-                <Text style={styles.timeLabel}>Total Field Time</Text>
-                <Text style={styles.timeVal}>Active Now</Text>
+                <Text style={styles.timeLabel}>Field Status</Text>
+                <Text style={[styles.timeVal, { color: colors.teal }]}>Active Now</Text>
               </View>
             )}
           </View>
@@ -191,12 +185,13 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
             onPress={handleCheckIn}
             disabled={isActionLoading}
             activeOpacity={0.8}
+            accessibilityLabel="Check in for field work"
           >
             {isActionLoading ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color={colors.surface} size="small" />
             ) : (
               <>
-                <Ionicons name="location" size={16} color="#fff" />
+                <Feather name="map-pin" size={16} color={colors.surface} />
                 <Text style={styles.checkInBtnText}>Check In for Field Work</Text>
               </>
             )}
@@ -207,22 +202,21 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
             onPress={handleCheckOut}
             disabled={isActionLoading}
             activeOpacity={0.8}
+            accessibilityLabel="End day and check out"
           >
             {isActionLoading ? (
-              <ActivityIndicator color="#fff" size="small" />
+              <ActivityIndicator color={colors.surface} size="small" />
             ) : (
               <>
-                <Ionicons name="log-out-outline" size={16} color="#fff" />
+                <Feather name="log-out" size={16} color={colors.surface} />
                 <Text style={styles.checkOutBtnText}>End Day & Check Out</Text>
               </>
             )}
           </TouchableOpacity>
         ) : (
           <View style={styles.completedBadge}>
-            <Ionicons name="checkmark-circle" size={16} color={colors.navy} />
-            <Text style={styles.completedBadgeText}>
-              All attendance records for today are finalized
-            </Text>
+            <Feather name="check-circle" size={16} color={colors.teal} />
+            <Text style={styles.completedText}>Attendance Closed for Today</Text>
           </View>
         )}
       </View>
@@ -233,34 +227,28 @@ export function AttendanceCard({ onStatusChanged }: AttendanceCardProps) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    padding: spacing.md + 2,
-    marginBottom: spacing.md,
+    borderRadius: 24,
+    padding: 18,
     borderWidth: 1,
     borderColor: colors.border,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
+    marginBottom: spacing.md,
+    ...shadows.card,
   },
   center: {
+    padding: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    padding: spacing.xl,
   },
   headerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: colors.background,
-    paddingBottom: spacing.xs + 2,
+    marginBottom: spacing.sm,
   },
   statusGroup: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs + 2,
+    gap: 8,
   },
   statusDot: {
     width: 8,
@@ -268,87 +256,87 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   statusTitle: {
-    ...typography.subheading,
-    fontSize: 13,
-    color: colors.navy,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textInk,
   },
   dateText: {
-    ...typography.caption,
+    fontSize: 12,
     fontWeight: "600",
-    color: colors.textSecondary,
+    color: colors.textMuted,
   },
   body: {
-    marginTop: spacing.sm,
+    marginTop: 2,
   },
   hintText: {
-    ...typography.body,
     fontSize: 13,
-    color: colors.textSecondary,
-    marginBottom: spacing.md,
+    color: colors.textMuted,
     lineHeight: 18,
+    marginBottom: spacing.md,
   },
   timeInfoRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    backgroundColor: colors.background,
-    borderRadius: radii.md,
-    padding: spacing.sm,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    padding: spacing.md,
     marginBottom: spacing.md,
   },
   timeBlock: {
     flex: 1,
   },
   timeLabel: {
-    ...typography.caption,
     fontSize: 11,
-    color: colors.textSecondary,
+    fontWeight: "600",
+    color: colors.textMuted,
   },
   timeVal: {
-    ...typography.subheading,
-    fontSize: 14,
-    color: colors.navy,
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.textInk,
     marginTop: 2,
   },
   checkInBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.xs,
-    backgroundColor: colors.primary,
-    borderRadius: radii.md,
-    paddingVertical: spacing.sm + 2,
+    gap: 8,
+    backgroundColor: colors.navy,
+    borderRadius: radii.lg,
+    paddingVertical: 13,
+    ...shadows.sm,
   },
   checkInBtnText: {
-    ...typography.button,
-    color: "#fff",
-    fontSize: 13,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.surface,
   },
   checkOutBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.xs,
-    backgroundColor: colors.navy,
-    borderRadius: radii.md,
-    paddingVertical: spacing.sm + 2,
+    gap: 8,
+    backgroundColor: colors.accentRed,
+    borderRadius: radii.lg,
+    paddingVertical: 13,
+    ...shadows.sm,
   },
   checkOutBtnText: {
-    ...typography.button,
-    color: "#fff",
-    fontSize: 13,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.surface,
   },
   completedBadge: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.xs,
-    backgroundColor: colors.background,
-    borderRadius: radii.md,
-    paddingVertical: spacing.sm,
+    gap: 8,
+    paddingVertical: 10,
+    backgroundColor: colors.tealPastel,
+    borderRadius: radii.lg,
   },
-  completedBadgeText: {
-    ...typography.caption,
-    fontWeight: "600",
-    color: colors.navy,
+  completedText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.teal,
   },
 });

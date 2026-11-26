@@ -1,8 +1,9 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { NotificationDto } from "../api/notificationsApi";
 import { formatDateIST } from "../../../shared/utils/date";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
 
 export interface NotificationItemExtended extends NotificationDto {
   entity_id?: string | number;
@@ -39,50 +40,43 @@ export function getNotificationIconMeta(item: NotificationItemExtended) {
 
   if (text.includes("approved") || item.status_chip === "Approved") {
     return {
-      iconName: "checkmark-circle" as const,
-      iconColor: "#0C5D46",
-      bgColor: "#DCFCE7",
+      iconName: "check-circle" as const,
+      iconColor: colors.successGreen,
+      bgColor: colors.successGreenPastel,
     };
   }
   if (text.includes("rejected") || item.status_chip === "Rejected") {
     return {
-      iconName: "close-circle" as const,
-      iconColor: "#E22122",
-      bgColor: "#FEE2E2",
+      iconName: "alert-circle" as const,
+      iconColor: colors.accentRed,
+      bgColor: colors.accentRedPastel,
     };
   }
   if (type === "TASK" || text.includes("task")) {
     return {
-      iconName: "clipboard-outline" as const,
-      iconColor: "#2563EB",
-      bgColor: "#EFF6FF",
+      iconName: "clipboard" as const,
+      iconColor: colors.brandBlue,
+      bgColor: colors.bluePastel,
     };
   }
   if (type === "LEAVE" || type === "TOUR" || text.includes("leave") || text.includes("tour")) {
     return {
-      iconName: "calendar-outline" as const,
-      iconColor: "#7C3AED",
-      bgColor: "#F5F3FF",
+      iconName: "calendar" as const,
+      iconColor: colors.purple,
+      bgColor: colors.purplePastel,
     };
   }
   if (type === "EXPENSE" || text.includes("expense") || text.includes("allowance")) {
     return {
-      iconName: "wallet-outline" as const,
-      iconColor: "#D97706",
-      bgColor: "#FEF3C7",
-    };
-  }
-  if (type === "REMINDER" || text.includes("reminder") || text.includes("due")) {
-    return {
-      iconName: "alarm-outline" as const,
-      iconColor: "#0284C7",
-      bgColor: "#E0F2FE",
+      iconName: "file-text" as const,
+      iconColor: colors.orange,
+      bgColor: colors.orangePastel,
     };
   }
   return {
-    iconName: "megaphone-outline" as const,
-    iconColor: "#475569",
-    bgColor: "#F1F5F9",
+    iconName: "bell" as const,
+    iconColor: colors.navy,
+    bgColor: colors.bluePastel,
   };
 }
 
@@ -101,34 +95,29 @@ export function NotificationCard({
   onApprove,
   onReject,
 }: NotificationCardProps) {
-  const meta = getNotificationIconMeta(item);
-  const relTime = getRelativeTime(item.created_at);
+  const iconMeta = getNotificationIconMeta(item);
+  const relativeTime = getRelativeTime(item.created_at);
 
   return (
     <TouchableOpacity
       style={[styles.notifCard, !item.is_read && styles.notifCardUnread]}
-      activeOpacity={0.8}
       onPress={() => onPress(item)}
+      activeOpacity={0.75}
+      accessibilityRole="button"
     >
       <View style={styles.cardMainRow}>
-        {item.sender_avatar ? (
-          <View style={styles.senderAvatarCircle}>
-            <Text style={styles.senderAvatarText}>{item.sender_avatar}</Text>
-          </View>
-        ) : (
-          <View style={[styles.typeIconCircle, { backgroundColor: meta.bgColor }]}>
-            <Ionicons name={meta.iconName} size={20} color={meta.iconColor} />
-          </View>
-        )}
+        <View style={[styles.typeIconCircle, { backgroundColor: iconMeta.bgColor }]}>
+          <Feather name={iconMeta.iconName as any} size={18} color={iconMeta.iconColor} />
+        </View>
 
         <View style={styles.cardContentCol}>
           <View style={styles.titleRow}>
-            <Text style={styles.cardTitle} numberOfLines={2}>
+            <Text style={styles.cardTitle} numberOfLines={1}>
               {item.title}
             </Text>
             <View style={styles.timeWrapper}>
-              <Text style={styles.timeText}>{relTime}</Text>
-              {!item.is_read && <View style={styles.unreadDot} />}
+              {!item.is_read ? <View style={styles.unreadDot} /> : null}
+              <Text style={styles.timeText}>{relativeTime}</Text>
             </View>
           </View>
 
@@ -138,65 +127,57 @@ export function NotificationCard({
             </Text>
           ) : null}
 
-          <View style={styles.chipsRow}>
-            {item.status_chip && (
+          {item.status_chip ? (
+            <View style={styles.chipsRow}>
               <View
                 style={[
                   styles.statusChip,
-                  item.status_chip === "Approved" && styles.statusChipApproved,
-                  item.status_chip === "Rejected" && styles.statusChipRejected,
-                  item.status_chip === "Pending" && styles.statusChipPending,
-                  (item.status_chip === "High Priority" || item.status_chip === "Overdue") &&
-                    styles.statusChipOverdue,
+                  item.status_chip === "Approved"
+                    ? styles.statusChipApproved
+                    : item.status_chip === "Rejected"
+                    ? styles.statusChipRejected
+                    : styles.statusChipPending,
                 ]}
               >
                 <Text
                   style={[
                     styles.statusChipText,
-                    item.status_chip === "Approved" && styles.statusChipTextApproved,
-                    item.status_chip === "Rejected" && styles.statusChipTextRejected,
-                    item.status_chip === "Pending" && styles.statusChipTextPending,
-                    (item.status_chip === "High Priority" || item.status_chip === "Overdue") &&
-                      styles.statusChipTextOverdue,
+                    item.status_chip === "Approved"
+                      ? styles.statusChipTextApproved
+                      : item.status_chip === "Rejected"
+                      ? styles.statusChipTextRejected
+                      : styles.statusChipTextPending,
                   ]}
                 >
                   {item.status_chip}
                 </Text>
               </View>
-            )}
+            </View>
+          ) : null}
 
-            {item.sender_name && (
-              <View style={styles.senderChip}>
-                <Ionicons name="chatbubble-ellipses-outline" size={11} color="#64748B" />
-                <Text style={styles.senderChipText}>{item.sender_name}</Text>
-              </View>
-            )}
-          </View>
-
-          {isAdminOrManager && item.is_approval_request && (
+          {/* Action Row for Pending Approvals */}
+          {isAdminOrManager && item.is_approval_request && !item.is_read ? (
             <View style={styles.inlineActionRow}>
               <TouchableOpacity
                 style={styles.inlineApproveBtn}
-                activeOpacity={0.8}
                 onPress={() => onApprove(item)}
+                activeOpacity={0.8}
               >
-                <Ionicons name="checkmark" size={15} color="#FFFFFF" />
+                <Feather name="check" size={14} color={colors.surface} />
                 <Text style={styles.inlineApproveBtnText}>Approve</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.inlineRejectBtn}
-                activeOpacity={0.8}
                 onPress={() => onReject(item)}
+                activeOpacity={0.8}
               >
-                <Ionicons name="close" size={15} color="#E22122" />
+                <Feather name="x" size={14} color={colors.accentRed} />
                 <Text style={styles.inlineRejectBtnText}>Reject</Text>
               </TouchableOpacity>
             </View>
-          )}
+          ) : null}
         </View>
-
-        <Ionicons name="chevron-forward" size={16} color="#CBD5E1" style={styles.chevron} />
       </View>
     </TouchableOpacity>
   );
@@ -204,47 +185,29 @@ export function NotificationCard({
 
 const styles = StyleSheet.create({
   notifCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
+    backgroundColor: colors.surface,
+    borderRadius: radii.card,
     borderWidth: 1,
-    borderColor: "#EDEEF6",
-    padding: 14,
-    marginBottom: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 3,
-    elevation: 1,
+    borderColor: colors.borderLight,
+    padding: spacing.md + 2,
+    marginBottom: spacing.md,
+    ...shadows.soft,
   },
   notifCardUnread: {
-    backgroundColor: "#F0FDF4",
-    borderColor: "#DCFCE7",
+    borderLeftWidth: 3.5,
+    borderLeftColor: colors.brandBlue,
   },
   cardMainRow: {
     flexDirection: "row",
     alignItems: "flex-start",
   },
   typeIconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
-  },
-  senderAvatarCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#0C5D46",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 12,
-  },
-  senderAvatarText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#FFFFFF",
+    marginRight: spacing.md,
   },
   cardContentCol: {
     flex: 1,
@@ -252,130 +215,107 @@ const styles = StyleSheet.create({
   titleRow: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
+    marginBottom: 2,
   },
   cardTitle: {
+    ...typography.subheading,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textInk,
     flex: 1,
-    fontSize: 13.5,
-    fontWeight: "800",
-    color: "#0F172A",
-    lineHeight: 18,
-    marginRight: 8,
+    marginRight: spacing.sm,
   },
   timeWrapper: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 5,
   },
   timeText: {
+    ...typography.caption,
     fontSize: 11,
-    color: "#64748B",
-    fontWeight: "500",
+    color: colors.textFaint,
   },
   unreadDot: {
     width: 7,
     height: 7,
-    borderRadius: 3.5,
-    backgroundColor: "#0C5D46",
+    borderRadius: radii.full,
+    backgroundColor: colors.accentRed,
+    marginRight: 5,
   },
   cardBody: {
-    fontSize: 12,
-    color: "#64748B",
-    lineHeight: 17,
-    marginTop: 4,
+    ...typography.body,
+    fontSize: 13,
+    color: colors.textMuted,
+    lineHeight: 18,
+    marginTop: 2,
   },
   chipsRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 8,
+    marginTop: spacing.sm,
   },
   statusChip: {
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
+    paddingHorizontal: spacing.sm + 2,
+    paddingVertical: 3,
+    borderRadius: radii.full,
   },
   statusChipApproved: {
-    backgroundColor: "#DCFCE7",
+    backgroundColor: colors.successGreenPastel,
   },
   statusChipRejected: {
-    backgroundColor: "#FEE2E2",
+    backgroundColor: colors.accentRedPastel,
   },
   statusChipPending: {
-    backgroundColor: "#FEF3C7",
-  },
-  statusChipOverdue: {
-    backgroundColor: "#FEE2E2",
+    backgroundColor: colors.orangePastel,
   },
   statusChipText: {
+    ...typography.caption,
     fontSize: 10,
     fontWeight: "700",
   },
   statusChipTextApproved: {
-    color: "#0C5D46",
+    color: colors.successGreen,
   },
   statusChipTextRejected: {
-    color: "#E22122",
+    color: colors.accentRed,
   },
   statusChipTextPending: {
-    color: "#D97706",
-  },
-  statusChipTextOverdue: {
-    color: "#E22122",
-  },
-  senderChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#F1F5F9",
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  senderChipText: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#475569",
-  },
-  chevron: {
-    marginLeft: 6,
-    marginTop: 2,
+    color: colors.orange,
   },
   inlineActionRow: {
     flexDirection: "row",
-    gap: 8,
-    marginTop: 10,
+    gap: spacing.sm,
+    marginTop: spacing.md,
   },
   inlineApproveBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    backgroundColor: "#0C5D46",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 8,
+    backgroundColor: colors.navy,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 7,
+    borderRadius: radii.md,
   },
   inlineApproveBtnText: {
-    fontSize: 11,
+    ...typography.caption,
+    fontSize: 12,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: colors.surface,
+    marginLeft: 4,
   },
   inlineRejectBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1.5,
-    borderColor: "#E22122",
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 8,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.accentRed,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 6,
+    borderRadius: radii.md,
   },
   inlineRejectBtnText: {
-    fontSize: 11,
+    ...typography.caption,
+    fontSize: 12,
     fontWeight: "700",
-    color: "#E22122",
+    color: colors.accentRed,
+    marginLeft: 4,
   },
 });
-

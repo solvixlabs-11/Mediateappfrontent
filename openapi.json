@@ -2988,7 +2988,7 @@
               "maximum": 50000,
               "minimum": 50,
               "description": "Search radius in meters",
-              "default": 2000.0,
+              "default": 2000,
               "title": "Radius Meters"
             },
             "description": "Search radius in meters"
@@ -5309,7 +5309,7 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "maximum": 100,
+              "maximum": 500,
               "minimum": 1,
               "default": 50,
               "title": "Limit"
@@ -5550,7 +5550,7 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "maximum": 100,
+              "maximum": 500,
               "minimum": 1,
               "default": 50,
               "title": "Limit"
@@ -5687,7 +5687,7 @@
             "required": false,
             "schema": {
               "type": "integer",
-              "maximum": 100,
+              "maximum": 500,
               "minimum": 1,
               "default": 50,
               "title": "Limit"
@@ -5789,6 +5789,64 @@
                   },
                   "type": "array",
                   "title": "Response Get Inbox Api V1 Approvals Inbox Get"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/approvals/pending-count": {
+      "get": {
+        "tags": [
+          "Approvals"
+        ],
+        "summary": "Get pending approvals count for current user",
+        "description": "Return count of pending approvals scoped to the user.",
+        "operationId": "get_pending_count_api_v1_approvals_pending_count_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalPendingCountResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/api/v1/approvals/my-requests": {
+      "get": {
+        "tags": [
+          "Approvals"
+        ],
+        "summary": "Get approval requests submitted by current user",
+        "description": "Fetch approval requests submitted by the current user.",
+        "operationId": "get_my_requests_api_v1_approvals_my_requests_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ApprovalRequestResponse"
+                  },
+                  "type": "array",
+                  "title": "Response Get My Requests Api V1 Approvals My Requests Get"
                 }
               }
             }
@@ -6280,6 +6338,110 @@
         }
       }
     },
+    "/api/v1/standard-route-charts": {
+      "post": {
+        "tags": [
+          "Tour Programs"
+        ],
+        "summary": "Create a Standard Route Chart (Draft or Applied)",
+        "description": "Create a new standard route chart.",
+        "operationId": "create_standard_route_chart_api_v1_standard_route_charts_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StandardRouteChartCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StandardRouteChartResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Tour Programs"
+        ],
+        "summary": "List Standard Route Charts",
+        "description": "Fetch all standard route charts.",
+        "operationId": "list_standard_route_charts_api_v1_standard_route_charts_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StandardRouteChartResponse"
+                  },
+                  "title": "Response List Standard Route Charts Api V1 Standard Route Charts Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/expenses": {
       "post": {
         "tags": [
@@ -6547,6 +6709,61 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ExpenseResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/leaves/balance": {
+      "get": {
+        "tags": [
+          "Leaves"
+        ],
+        "summary": "Get current leave balances for rep (alias)",
+        "description": "Fetch remaining Casual, Sick, and Earned leave balances.",
+        "operationId": "get_leave_balances_api_v1_leaves_balance_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Year"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaveBalanceResponse"
                 }
               }
             }
@@ -13229,6 +13446,20 @@
         "title": "ApprovalHistoryResponse",
         "description": "Single review action record."
       },
+      "ApprovalPendingCountResponse": {
+        "properties": {
+          "pending_count": {
+            "type": "integer",
+            "title": "Pending Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pending_count"
+        ],
+        "title": "ApprovalPendingCountResponse",
+        "description": "Pending approvals count scoped to current user."
+      },
       "ApprovalRequestResponse": {
         "properties": {
           "id": {
@@ -15379,7 +15610,7 @@
           "coverage_percentage": {
             "type": "number",
             "title": "Coverage Percentage",
-            "default": 0.0
+            "default": 0
           },
           "pending_follow_ups": {
             "type": "integer",
@@ -15589,13 +15820,13 @@
           },
           "sample_quantity": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Sample Quantity",
             "default": 0
           },
           "gift_quantity": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Gift Quantity",
             "default": 0
           },
@@ -15757,8 +15988,8 @@
           },
           "call_duration_minutes": {
             "type": "integer",
-            "maximum": 480.0,
-            "minimum": 1.0,
+            "maximum": 480,
+            "minimum": 1,
             "title": "Call Duration Minutes",
             "default": 15
           },
@@ -15813,9 +16044,9 @@
           },
           "pob_amount": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Pob Amount",
-            "default": 0.0
+            "default": 0
           },
           "post_call_analysis": {
             "anyOf": [
@@ -15928,6 +16159,50 @@
               }
             ],
             "title": "Customer Name"
+          },
+          "owner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Name"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area"
+          },
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Address"
           },
           "planned_visit_id": {
             "anyOf": [
@@ -17270,7 +17545,7 @@
           },
           "amount": {
             "type": "number",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Amount",
             "description": "Amount claimed in INR"
           },
@@ -17332,13 +17607,13 @@
           },
           "daily_limit": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Daily Limit",
             "description": "Daily limit in INR"
           },
           "monthly_limit": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Monthly Limit",
             "description": "Monthly limit in INR"
           },
@@ -18447,18 +18722,18 @@
           },
           "radius_m": {
             "type": "number",
-            "maximum": 5000.0,
-            "minimum": 10.0,
+            "maximum": 5000,
+            "minimum": 10,
             "title": "Radius M",
             "description": "Radius in meters (10 to 5000)"
           },
           "min_accuracy_m": {
             "type": "number",
-            "maximum": 500.0,
-            "minimum": 5.0,
+            "maximum": 500,
+            "minimum": 5,
             "title": "Min Accuracy M",
             "description": "Min GPS accuracy in meters",
-            "default": 50.0
+            "default": 50
           },
           "is_provisional": {
             "anyOf": [
@@ -19162,10 +19437,10 @@
           },
           "days_count": {
             "type": "number",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Days Count",
             "description": "Total days (supports half-day e.g. 0.5)",
-            "default": 1.0
+            "default": 1
           },
           "reason": {
             "type": "string",
@@ -19530,12 +19805,12 @@
           "total_pob": {
             "type": "number",
             "title": "Total Pob",
-            "default": 0.0
+            "default": 0
           },
           "call_average": {
             "type": "number",
             "title": "Call Average",
-            "default": 0.0
+            "default": 0
           },
           "geofence_verified_calls": {
             "type": "integer",
@@ -19545,7 +19820,7 @@
           "geofence_compliance": {
             "type": "number",
             "title": "Geofence Compliance",
-            "default": 0.0
+            "default": 0
           },
           "attendance_days": {
             "type": "integer",
@@ -19581,7 +19856,7 @@
           "total_pob_today": {
             "type": "number",
             "title": "Total Pob Today",
-            "default": 0.0
+            "default": 0
           },
           "pending_approvals_count": {
             "type": "integer",
@@ -19591,7 +19866,7 @@
           "team_coverage_pct": {
             "type": "number",
             "title": "Team Coverage Pct",
-            "default": 0.0
+            "default": 0
           }
         },
         "type": "object",
@@ -21618,7 +21893,7 @@
           "pob_today": {
             "type": "number",
             "title": "Pob Today",
-            "default": 0.0
+            "default": 0
           },
           "monthly_visits": {
             "type": "integer",
@@ -21633,7 +21908,7 @@
           "monthly_pob": {
             "type": "number",
             "title": "Monthly Pob",
-            "default": 0.0
+            "default": 0
           },
           "pending_followups_count": {
             "type": "integer",
@@ -22298,17 +22573,17 @@
           },
           "quantity": {
             "type": "integer",
-            "minimum": 1.0,
+            "minimum": 1,
             "title": "Quantity"
           },
           "unit_price": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Unit Price"
           },
           "free_quantity": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Free Quantity",
             "default": 0
           }
@@ -22417,6 +22692,17 @@
             ],
             "title": "Customer Name"
           },
+          "owner_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Owner Name"
+          },
           "user_id": {
             "type": "integer",
             "title": "User Id"
@@ -22431,6 +22717,61 @@
               }
             ],
             "title": "User Name"
+          },
+          "territory_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Territory Code"
+          },
+          "assigned_emp_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Emp Name"
+          },
+          "assigned_terr_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Terr Code"
+          },
+          "assigned_terr_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Assigned Terr Name"
+          },
+          "remarks": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remarks"
           },
           "total_amount": {
             "type": "number",
@@ -22934,23 +23275,23 @@
           },
           "mrp": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Mrp"
           },
           "ptr": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Ptr"
           },
           "pts": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Pts"
           },
           "gst_rate": {
             "type": "number",
             "title": "Gst Rate",
-            "default": 12.0
+            "default": 12
           },
           "indications": {
             "anyOf": [
@@ -23775,12 +24116,12 @@
           "total_pob": {
             "type": "number",
             "title": "Total Pob",
-            "default": 0.0
+            "default": 0
           },
           "average_calls_per_day": {
             "type": "number",
             "title": "Average Calls Per Day",
-            "default": 0.0
+            "default": 0
           },
           "total_attendance_days": {
             "type": "integer",
@@ -23790,7 +24131,7 @@
           "geofence_compliance_rate": {
             "type": "number",
             "title": "Geofence Compliance Rate",
-            "default": 0.0
+            "default": 0
           },
           "pending_approvals_count": {
             "type": "integer",
@@ -24003,14 +24344,14 @@
         "properties": {
           "month": {
             "type": "integer",
-            "maximum": 12.0,
-            "minimum": 1.0,
+            "maximum": 12,
+            "minimum": 1,
             "title": "Month"
           },
           "year": {
             "type": "integer",
-            "maximum": 2035.0,
-            "minimum": 2024.0,
+            "maximum": 2035,
+            "minimum": 2024,
             "title": "Year"
           },
           "allocations": {
@@ -24067,21 +24408,21 @@
           },
           "month": {
             "type": "integer",
-            "maximum": 12.0,
-            "minimum": 1.0,
+            "maximum": 12,
+            "minimum": 1,
             "title": "Month",
             "description": "Allocation calendar month"
           },
           "year": {
             "type": "integer",
-            "maximum": 2035.0,
-            "minimum": 2024.0,
+            "maximum": 2035,
+            "minimum": 2024,
             "title": "Year",
             "description": "Allocation calendar year"
           },
           "allocated_quantity": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Allocated Quantity",
             "description": "Target quota in units"
           }
@@ -24382,16 +24723,16 @@
           },
           "quantity": {
             "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Quantity",
             "description": "Quantity inwarded in packs/units"
           },
           "unit_cost": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Unit Cost",
             "description": "Unit cost per sample",
-            "default": 0.0
+            "default": 0
           },
           "supplier_name": {
             "anyOf": [
@@ -24649,7 +24990,7 @@
           },
           "quantity": {
             "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Quantity",
             "description": "Quantity to dispatch"
           },
@@ -25224,6 +25565,207 @@
         ],
         "title": "SettingUpdateRequest",
         "description": "Payload to update a single setting."
+      },
+      "StandardRouteChartCreateRequest": {
+        "properties": {
+          "emp_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emp Id"
+          },
+          "territory_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Territory Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 150,
+            "title": "Name",
+            "description": "Route name"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "allowance": {
+            "type": "string",
+            "title": "Allowance",
+            "description": "HEAD QUARTERS, EX-STATION, OUT-STATION",
+            "default": "HEAD QUARTERS"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode",
+            "description": "Bike, Car, Bus, Train, Flight",
+            "default": "Bike"
+          },
+          "field_type": {
+            "type": "string",
+            "title": "Field Type",
+            "description": "Field Work, Meeting, Transit, Holiday, Sunday",
+            "default": "Field Work"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "DRAFT, APPLIED",
+            "default": "DRAFT"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "title": "StandardRouteChartCreateRequest",
+        "description": "Payload to create a Standard Route Chart (Draft or Applied)."
+      },
+      "StandardRouteChartResponse": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "emp_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emp Id"
+          },
+          "emp_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emp Name"
+          },
+          "territory_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Territory Id"
+          },
+          "territory_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Territory Name"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "city": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "City"
+          },
+          "allowance": {
+            "type": "string",
+            "title": "Allowance"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "field_type": {
+            "type": "string",
+            "title": "Field Type"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Details"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "allowance",
+          "mode",
+          "field_type",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "StandardRouteChartResponse",
+        "description": "Standard Route Chart details response."
       },
       "StateCreate": {
         "properties": {
@@ -25830,52 +26372,52 @@
           },
           "year": {
             "type": "integer",
-            "maximum": 2050.0,
-            "minimum": 2020.0,
+            "maximum": 2050,
+            "minimum": 2020,
             "title": "Year",
             "description": "Target year"
           },
           "month": {
             "type": "integer",
-            "maximum": 12.0,
-            "minimum": 1.0,
+            "maximum": 12,
+            "minimum": 1,
             "title": "Month",
             "description": "Target month (1-12)"
           },
           "visit_target": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Visit Target",
             "description": "Monthly call/visit target",
             "default": 0
           },
           "doctor_call_target": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Doctor Call Target",
             "description": "Doctor visit target",
             "default": 0
           },
           "chemist_call_target": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Chemist Call Target",
             "description": "Chemist visit target",
             "default": 0
           },
           "primary_sales_target": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Primary Sales Target",
             "description": "Primary sales target (Rs)",
-            "default": 0.0
+            "default": 0
           },
           "secondary_sales_target": {
             "type": "number",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Secondary Sales Target",
             "description": "Secondary sales / POB target (Rs)",
-            "default": 0.0
+            "default": 0
           }
         },
         "type": "object",
@@ -26767,15 +27309,15 @@
           },
           "month": {
             "type": "integer",
-            "maximum": 12.0,
-            "minimum": 1.0,
+            "maximum": 12,
+            "minimum": 1,
             "title": "Month",
             "description": "Target month (1-12)"
           },
           "year": {
             "type": "integer",
-            "maximum": 2050.0,
-            "minimum": 2020.0,
+            "maximum": 2050,
+            "minimum": 2020,
             "title": "Year",
             "description": "Target calendar year"
           },
@@ -27491,7 +28033,7 @@
               }
             ],
             "title": "Hq Allowance",
-            "default": 0.0
+            "default": 0
           },
           "ex_allowance": {
             "anyOf": [
@@ -27503,7 +28045,7 @@
               }
             ],
             "title": "Ex Allowance",
-            "default": 0.0
+            "default": 0
           },
           "os_allowance": {
             "anyOf": [
@@ -27515,7 +28057,7 @@
               }
             ],
             "title": "Os Allowance",
-            "default": 0.0
+            "default": 0
           },
           "salary": {
             "anyOf": [
@@ -27527,7 +28069,7 @@
               }
             ],
             "title": "Salary",
-            "default": 0.0
+            "default": 0
           },
           "mobile_exp": {
             "anyOf": [
@@ -27539,7 +28081,7 @@
               }
             ],
             "title": "Mobile Exp",
-            "default": 0.0
+            "default": 0
           },
           "internet_exp": {
             "anyOf": [
@@ -27551,7 +28093,7 @@
               }
             ],
             "title": "Internet Exp",
-            "default": 0.0
+            "default": 0
           },
           "per_km_rate": {
             "anyOf": [
@@ -27563,7 +28105,7 @@
               }
             ],
             "title": "Per Km Rate",
-            "default": 0.0
+            "default": 0
           },
           "minimum_km": {
             "anyOf": [
@@ -27575,7 +28117,7 @@
               }
             ],
             "title": "Minimum Km",
-            "default": 0.0
+            "default": 0
           }
         },
         "type": "object",
@@ -28465,7 +29007,7 @@
           "pob_amount": {
             "type": "number",
             "title": "Pob Amount",
-            "default": 0.0
+            "default": 0
           }
         },
         "type": "object",
@@ -28531,7 +29073,7 @@
           },
           "slide_order": {
             "type": "integer",
-            "minimum": 1.0,
+            "minimum": 1,
             "title": "Slide Order",
             "default": 1
           },
@@ -28638,6 +29180,160 @@
             "type": "array",
             "title": "Actions",
             "default": []
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "from_emp_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Emp Name"
+          },
+          "from_terr_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Terr Name"
+          },
+          "from_terr_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Terr Code"
+          },
+          "year": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Year"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "month": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Month"
+          },
+          "resolved_by_emp_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By Emp Name"
+          },
+          "resolved_by_terr_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By Terr Name"
+          },
+          "resolved_by_terr_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resolved By Terr Code"
+          },
+          "from_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Date"
+          },
+          "to_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Date"
+          },
+          "leave_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Leave Type"
+          },
+          "to_emp_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "To Emp Name"
           }
         },
         "type": "object",

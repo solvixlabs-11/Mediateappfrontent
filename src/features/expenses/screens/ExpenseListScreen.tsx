@@ -17,6 +17,7 @@ import { ExpenseDto, ExpenseSummaryDto, expensesApi } from "../api/expensesApi";
 import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
 import { colors, radii, spacing } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 export function ExpenseListScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -63,19 +64,12 @@ export function ExpenseListScreen() {
   return (
     <SafeAreaView style={styles.screenContainer} edges={["top", "bottom"]}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#0F172A" />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Expense Claims</Text>
-          <Text style={styles.subtitle}>Track DA, TA, and reimbursements</Text>
-        </View>
-      </View>
+      <ScreenHeader
+        title="Expense Claims"
+        subtitle="Track DA, TA & reimbursements"
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
 
       {/* Monthly Summary Cards */}
       {summary && (

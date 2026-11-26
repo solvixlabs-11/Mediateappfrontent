@@ -10,7 +10,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { AttendanceCard } from "../../attendance/components/AttendanceCard";
 import {
   DcrDailySummaryDto,
@@ -23,8 +23,8 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
-import { Header } from "../../../shared/components/Header";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 type PlanTab = "PLANS" | "CALL_LOG" | "FOLLOW_UPS";
 
@@ -113,11 +113,13 @@ export function PlanVisitsScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Top Header with Mediate Logo & MR Role Badge */}
-      <Header
-        title="Daily Planning & DCR"
-        subtitle="Field execution, calls & follow-ups"
-        rightAction={
+      {/* Top Header */}
+      <ScreenHeader
+        title="Planning & Visits"
+        subtitle="Daily schedule, calls & follow-ups"
+        variant="navy"
+        onBack={navigation?.canGoBack && navigation.canGoBack() ? () => navigation.goBack() : undefined}
+        rightElement={
           <TouchableOpacity
             style={styles.newDcrBtn}
             onPress={() => {
@@ -131,8 +133,9 @@ export function PlanVisitsScreen() {
               navigation.navigate(ROUTES.DcrForm);
             }}
             activeOpacity={0.8}
+            accessibilityLabel="Log Call"
           >
-            <Ionicons name="add" size={16} color="#fff" />
+            <Feather name="plus" size={15} color={colors.surface} />
             <Text style={styles.newDcrBtnText}>Log Call</Text>
           </TouchableOpacity>
         }
@@ -141,11 +144,12 @@ export function PlanVisitsScreen() {
       <FlatList
         data={[]}
         renderItem={() => null}
+        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleRefresh}
-            tintColor={colors.primary}
+            tintColor={colors.navy}
           />
         }
         ListHeaderComponent={
@@ -153,40 +157,41 @@ export function PlanVisitsScreen() {
             {/* Daily Attendance Card */}
             <AttendanceCard onStatusChanged={(att) => setIsPunchedIn(!!att?.check_in_time)} />
 
-            {/* KPI Summary Tiles */}
-            {summary && (
-              <View style={styles.kpiRow}>
-                <View style={styles.kpiTile}>
-                  <Text style={styles.kpiNumber}>{summary.total_calls}</Text>
-                  <Text style={styles.kpiLabel}>Calls Done</Text>
-                </View>
-                <View style={styles.kpiTile}>
-                  <Text style={[styles.kpiNumber, { color: colors.success }]}>
-                    {summary.geofence_verified_count}
-                  </Text>
-                  <Text style={styles.kpiLabel}>Geofence OK</Text>
-                </View>
-                <View style={styles.kpiTile}>
-                  <Text style={[styles.kpiNumber, { color: colors.primary }]}>
-                    ₹{Math.round(summary.total_pob_amount).toLocaleString("en-IN")}
-                  </Text>
-                  <Text style={styles.kpiLabel}>Total POB</Text>
-                </View>
+            {/* Bento KPI Summary Row */}
+            <View style={styles.kpiCard}>
+              <View style={styles.kpiCol}>
+                <Text style={styles.kpiNumber}>{summary?.total_calls ?? 0}</Text>
+                <Text style={styles.kpiLabel}>Calls Done</Text>
               </View>
-            )}
+              <View style={styles.kpiDivider} />
+              <View style={styles.kpiCol}>
+                <Text style={[styles.kpiNumber, { color: colors.teal }]}>
+                  {summary?.geofence_verified_count ?? 0}
+                </Text>
+                <Text style={styles.kpiLabel}>Geofence OK</Text>
+              </View>
+              <View style={styles.kpiDivider} />
+              <View style={styles.kpiCol}>
+                <Text style={[styles.kpiNumber, { color: colors.brandBlue }]}>
+                  ₹{Math.round(summary?.total_pob_amount ?? 0).toLocaleString("en-IN")}
+                </Text>
+                <Text style={styles.kpiLabel}>Total POB</Text>
+              </View>
+            </View>
 
-            {/* Tab Navigation */}
+            {/* Segmented Pill Tabs Navigation */}
             <View style={styles.tabNav}>
               {(
                 [
-                  { id: "PLANS", label: `Plan (${plans.length})`, icon: "calendar" },
-                  { id: "CALL_LOG", label: `Calls (${visits.length})`, icon: "checkmark-done" },
+                  { id: "PLANS" as const, label: "Plan", count: plans.length, icon: "calendar" as const },
+                  { id: "CALL_LOG" as const, label: "Calls", count: visits.length, icon: "check-circle" as const },
                   {
-                    id: "FOLLOW_UPS",
-                    label: `Follow-ups (${followUps.filter((f) => f.status === "PENDING").length})`,
-                    icon: "alarm",
+                    id: "FOLLOW_UPS" as const,
+                    label: "Follow-ups",
+                    count: followUps.filter((f) => f.status === "PENDING").length,
+                    icon: "clock" as const,
                   },
-                ] as const
+                ]
               ).map((tab) => {
                 const active = activeTab === tab.id;
                 return (
@@ -194,15 +199,21 @@ export function PlanVisitsScreen() {
                     key={tab.id}
                     style={[styles.tabNavItem, active && styles.tabNavItemActive]}
                     onPress={() => setActiveTab(tab.id)}
+                    activeOpacity={0.8}
                   >
-                    <Ionicons
-                      name={tab.icon as any}
+                    <Feather
+                      name={tab.icon}
                       size={14}
-                      color={active ? colors.primary : colors.textSecondary}
+                      color={active ? colors.brandBlue : colors.textMuted}
                     />
                     <Text style={[styles.tabNavText, active && styles.tabNavTextActive]}>
                       {tab.label}
                     </Text>
+                    <View style={[styles.tabCountPill, active && styles.tabCountPillActive]}>
+                      <Text style={[styles.tabCountText, active && styles.tabCountTextActive]}>
+                        {tab.count}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 );
               })}
@@ -211,17 +222,19 @@ export function PlanVisitsScreen() {
             {/* Tab Contents */}
             {isLoading && !isRefreshing ? (
               <View style={styles.centerLoading}>
-                <ActivityIndicator size="large" color={colors.primary} />
+                <ActivityIndicator size="large" color={colors.navy} />
               </View>
             ) : activeTab === "PLANS" ? (
               /* PLANS LIST */
               <View style={styles.tabContentList}>
                 {plans.length === 0 ? (
                   <View style={styles.emptyBox}>
-                    <Ionicons name="calendar-outline" size={40} color={colors.grey} />
+                    <View style={styles.emptyIconCircle}>
+                      <Feather name="calendar" size={28} color={colors.teal} />
+                    </View>
                     <Text style={styles.emptyTitle}>No planned calls for today</Text>
                     <Text style={styles.emptyDesc}>
-                      You can log calls directly using the "Log Call" button above.
+                      You can log calls directly using the "+ Log Call" button above.
                     </Text>
                   </View>
                 ) : (
@@ -263,7 +276,7 @@ export function PlanVisitsScreen() {
                             onPress={() => handleLogCallFromPlan(p)}
                             activeOpacity={0.8}
                           >
-                            <Ionicons name="call" size={14} color="#fff" />
+                            <Feather name="phone-call" size={14} color={colors.surface} />
                             <Text style={styles.callActionBtnText}>Record DCR Call</Text>
                           </TouchableOpacity>
                         )}
@@ -277,7 +290,9 @@ export function PlanVisitsScreen() {
               <View style={styles.tabContentList}>
                 {visits.length === 0 ? (
                   <View style={styles.emptyBox}>
-                    <Ionicons name="document-text-outline" size={40} color={colors.grey} />
+                    <View style={styles.emptyIconCircle}>
+                      <Feather name="file-text" size={28} color={colors.brandBlue} />
+                    </View>
                     <Text style={styles.emptyTitle}>No calls submitted today</Text>
                     <Text style={styles.emptyDesc}>
                       Submit your first field call to see it recorded here.
@@ -302,10 +317,10 @@ export function PlanVisitsScreen() {
                             v.is_geofence_verified ? styles.statusCompleted : styles.statusPending,
                           ]}
                         >
-                          <Ionicons
-                            name={v.is_geofence_verified ? "shield-checkmark" : "alert-circle"}
+                          <Feather
+                            name={v.is_geofence_verified ? "check-circle" : "alert-circle"}
                             size={12}
-                            color={v.is_geofence_verified ? colors.success : colors.warning}
+                            color={v.is_geofence_verified ? colors.teal : colors.orange}
                           />
                           <Text
                             style={[
@@ -328,11 +343,11 @@ export function PlanVisitsScreen() {
                       {v.post_call_analysis ? (
                         <View style={styles.postCallSummaryBox}>
                           <Text style={styles.outcomeTag}>
-                            Outcome: {v.post_call_analysis.call_outcome.replace("_", " ")}
+                            Outcome: {v.post_call_analysis.call_outcome.replace(/_/g, " ")}
                           </Text>
                           {v.post_call_analysis.doctor_feedback ? (
                             <Text style={styles.feedbackText}>
-                              "{v.post_call_analysis.doctor_feedback}"
+                              &quot;{v.post_call_analysis.doctor_feedback}&quot;
                             </Text>
                           ) : null}
                         </View>
@@ -353,7 +368,9 @@ export function PlanVisitsScreen() {
               <View style={styles.tabContentList}>
                 {followUps.length === 0 ? (
                   <View style={styles.emptyBox}>
-                    <Ionicons name="alarm-outline" size={40} color={colors.grey} />
+                    <View style={styles.emptyIconCircle}>
+                      <Feather name="clock" size={28} color={colors.orange} />
+                    </View>
                     <Text style={styles.emptyTitle}>No pending follow-ups</Text>
                     <Text style={styles.emptyDesc}>
                       Follow-ups created during DCR calls will appear here.
@@ -397,7 +414,7 @@ export function PlanVisitsScreen() {
                             onPress={() => handleCompleteFollowUp(f.id)}
                             activeOpacity={0.8}
                           >
-                            <Ionicons name="checkmark-circle" size={14} color={colors.primary} />
+                            <Feather name="check" size={14} color={colors.surface} />
                             <Text style={styles.completeBtnText}>Mark as Done</Text>
                           </TouchableOpacity>
                         )}
@@ -419,135 +436,153 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
-    backgroundColor: colors.surface,
-  },
-  title: {
-    ...typography.title,
-    fontSize: 20,
-    color: colors.navy,
-  },
-  subtitle: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
   newDcrBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
+    gap: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: radii.full,
   },
   newDcrBtnText: {
-    ...typography.button,
-    color: "#fff",
+    color: colors.surface,
     fontSize: 12,
+    fontWeight: "700",
   },
   scrollHeader: {
     padding: spacing.md,
-    paddingBottom: spacing.xl * 2,
+    paddingBottom: 40,
   },
-  kpiRow: {
+  kpiCard: {
     flexDirection: "row",
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  kpiTile: {
-    flex: 1,
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    alignItems: "center",
+    borderRadius: radii.xl,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
+    ...shadows.card,
+  },
+  kpiCol: {
+    flex: 1,
+    alignItems: "center",
   },
   kpiNumber: {
-    ...typography.title,
-    fontSize: 18,
-    color: colors.navy,
+    fontSize: 20,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   kpiLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.textMuted,
     marginTop: 2,
+  },
+  kpiDivider: {
+    width: 1,
+    backgroundColor: colors.border,
+    marginVertical: 4,
   },
   tabNav: {
     flexDirection: "row",
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.xs,
+    borderRadius: radii.xl,
+    padding: 6,
     marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
+    gap: 6,
+    ...shadows.sm,
   },
   tabNavItem: {
     flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: radii.lg,
+    backgroundColor: colors.background,
   },
   tabNavItemActive: {
-    backgroundColor: colors.lightPrimary,
+    backgroundColor: colors.bluePastel,
   },
   tabNavText: {
-    ...typography.caption,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "600",
-    color: colors.textSecondary,
+    color: colors.textMuted,
   },
   tabNavTextActive: {
-    color: colors.primary,
+    color: colors.brandBlue,
     fontWeight: "700",
+  },
+  tabCountPill: {
+    backgroundColor: colors.border,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: radii.full,
+  },
+  tabCountPillActive: {
+    backgroundColor: colors.brandBlue,
+  },
+  tabCountText: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: colors.textMuted,
+  },
+  tabCountTextActive: {
+    color: colors.surface,
   },
   tabContentList: {
     marginTop: spacing.xs,
   },
   centerLoading: {
-    padding: spacing.xl * 2,
-    alignItems: "center",
-  },
-  emptyBox: {
+    padding: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: spacing.xl * 2,
+  },
+  emptyBox: {
     backgroundColor: colors.surface,
-    borderRadius: radii.xl,
-    paddingHorizontal: spacing.lg,
+    borderRadius: radii.xxl,
+    padding: spacing.xl,
+    alignItems: "center",
+    justifyContent: "center",
     borderWidth: 1,
     borderColor: colors.border,
+    marginTop: spacing.sm,
+    ...shadows.sm,
+  },
+  emptyIconCircle: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.tealPastel,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
   },
   emptyTitle: {
-    ...typography.title,
-    fontSize: 15,
-    color: colors.navy,
-    marginTop: spacing.md,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   emptyDesc: {
-    ...typography.body,
     fontSize: 13,
-    color: colors.textSecondary,
+    color: colors.textMuted,
     textAlign: "center",
-    marginTop: 4,
+    marginTop: 6,
+    lineHeight: 18,
   },
   itemCard: {
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     padding: spacing.md,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
+    ...shadows.sm,
   },
   itemHeader: {
     flexDirection: "row",
@@ -559,123 +594,116 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   itemName: {
-    ...typography.subheading,
-    fontSize: 14,
-    color: colors.navy,
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.textInk,
   },
   itemSub: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 3,
   },
   statusPill: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 3,
-    paddingHorizontal: spacing.xs + 2,
-    paddingVertical: 2,
-    borderRadius: radii.sm,
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.full,
   },
   statusPillText: {
-    ...typography.caption,
     fontSize: 10,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   statusCompleted: {
-    backgroundColor: "#DEF7EC",
+    backgroundColor: colors.tealPastel,
   },
   statusCompletedText: {
-    ...typography.caption,
-    fontSize: 10,
-    fontWeight: "600",
-    color: colors.success,
+    color: colors.teal,
   },
   statusPlanned: {
-    backgroundColor: colors.lightPrimary,
+    backgroundColor: colors.bluePastel,
   },
   statusPlannedText: {
-    ...typography.caption,
-    fontSize: 10,
-    fontWeight: "600",
-    color: colors.primary,
+    color: colors.brandBlue,
   },
   statusPending: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: colors.orangePastel,
   },
   statusPendingText: {
-    ...typography.caption,
-    fontSize: 10,
-    fontWeight: "600",
-    color: "#B45309",
+    color: colors.orange,
   },
   callActionBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.xs,
-    backgroundColor: colors.primary,
-    borderRadius: radii.md,
-    paddingVertical: spacing.xs + 2,
-    marginTop: spacing.sm,
+    gap: 6,
+    backgroundColor: colors.navy,
+    borderRadius: radii.lg,
+    paddingVertical: 10,
+    marginTop: spacing.md,
   },
   callActionBtnText: {
-    ...typography.button,
-    color: "#fff",
-    fontSize: 12,
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.surface,
   },
   callRemarks: {
-    ...typography.body,
     fontSize: 13,
-    color: colors.textPrimary,
+    color: colors.textMuted,
     marginTop: spacing.sm,
+    lineHeight: 18,
   },
   postCallSummaryBox: {
-    backgroundColor: colors.background,
+    backgroundColor: colors.inputBackground,
     borderRadius: radii.md,
     padding: spacing.sm,
     marginTop: spacing.sm,
   },
   outcomeTag: {
-    ...typography.caption,
-    fontWeight: "600",
-    color: colors.navy,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.brandBlue,
+    textTransform: "capitalize",
   },
   feedbackText: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    fontSize: 12,
     fontStyle: "italic",
+    color: colors.textMuted,
     marginTop: 2,
   },
   pobRow: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 4,
+    gap: 6,
     marginTop: spacing.sm,
     paddingTop: spacing.xs,
     borderTopWidth: 1,
-    borderTopColor: colors.background,
+    borderTopColor: colors.inputBackground,
   },
   pobLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.textMuted,
   },
   pobVal: {
-    ...typography.subheading,
     fontSize: 13,
-    color: colors.navy,
+    fontWeight: "800",
+    color: colors.teal,
   },
   completeBtn: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 4,
-    marginTop: spacing.sm,
-    paddingTop: spacing.xs,
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: colors.teal,
+    borderRadius: radii.lg,
+    paddingVertical: 10,
+    marginTop: spacing.md,
   },
   completeBtnText: {
-    ...typography.caption,
-    fontWeight: "600",
-    color: colors.primary,
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.surface,
   },
 });

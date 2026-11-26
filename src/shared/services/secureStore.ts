@@ -2,6 +2,7 @@ import * as SecureStore from "expo-secure-store";
 
 const ACCESS_TOKEN_KEY = "mediate_access_token";
 const REFRESH_TOKEN_KEY = "mediate_refresh_token";
+const MPIN_KEY = "mediate_user_mpin";
 
 export const secureStorage = {
   async getAccessToken(): Promise<string | null> {
@@ -26,6 +27,26 @@ export const secureStorage = {
 
   async setRefreshToken(token: string): Promise<void> {
     await SecureStore.setItemAsync(REFRESH_TOKEN_KEY, token);
+  },
+
+  async getMpin(): Promise<string | null> {
+    try {
+      return await SecureStore.getItemAsync(MPIN_KEY);
+    } catch {
+      return null;
+    }
+  },
+
+  async setMpin(mpin: string): Promise<void> {
+    await SecureStore.setItemAsync(MPIN_KEY, mpin);
+  },
+
+  async clearMpin(): Promise<void> {
+    try {
+      await SecureStore.deleteItemAsync(MPIN_KEY);
+    } catch {
+      // Ignore
+    }
   },
 
   async clearTokens(): Promise<void> {

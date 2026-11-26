@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -9,25 +12,27 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { expensesApi } from "../api/expensesApi";
 import { mastersApi } from "../../masters/api/mastersApi";
-import { colors, radii, spacing } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
 
 interface ExpenseTypeOption {
   label: string;
   value: "DAILY_ALLOWANCE" | "TRAVEL_FARE" | "LODGING" | "MISCELLANEOUS";
-  icon: keyof typeof Ionicons.glyphMap;
+  icon: keyof typeof Feather.glyphMap;
 }
 
-const DEFAULT_EXPENSE_ICONS: Record<string, keyof typeof Ionicons.glyphMap> = {
-  DAILY_ALLOWANCE: "cash-outline",
-  TRAVEL_FARE: "car-outline",
-  LODGING: "bed-outline",
-  MISCELLANEOUS: "receipt-outline",
+const DEFAULT_EXPENSE_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
+  DAILY_ALLOWANCE: "dollar-sign",
+  TRAVEL_FARE: "navigation",
+  LODGING: "home",
+  MISCELLANEOUS: "file-text",
 };
 
 export function AddExpenseScreen() {
@@ -35,10 +40,10 @@ export function AddExpenseScreen() {
   const todayStr = new Date().toISOString().split("T")[0];
   const [expenseDate, setExpenseDate] = useState<string>(todayStr);
   const [expenseTypesList, setExpenseTypesList] = useState<ExpenseTypeOption[]>([
-    { label: "Daily Allowance (DA)", value: "DAILY_ALLOWANCE", icon: "cash-outline" },
-    { label: "Travel Fare (TA)", value: "TRAVEL_FARE", icon: "car-outline" },
-    { label: "Hotel / Lodging", value: "LODGING", icon: "bed-outline" },
-    { label: "Miscellaneous", value: "MISCELLANEOUS", icon: "receipt-outline" },
+    { label: "Daily Allowance (DA)", value: "DAILY_ALLOWANCE", icon: "dollar-sign" },
+    { label: "Travel Fare (TA)", value: "TRAVEL_FARE", icon: "navigation" },
+    { label: "Hotel / Lodging", value: "LODGING", icon: "home" },
+    { label: "Miscellaneous", value: "MISCELLANEOUS", icon: "file-text" },
   ]);
   const [expenseType, setExpenseType] = useState<
     "DAILY_ALLOWANCE" | "TRAVEL_FARE" | "LODGING" | "MISCELLANEOUS"
@@ -52,7 +57,7 @@ export function AddExpenseScreen() {
           const mapped: ExpenseTypeOption[] = res.map((i) => ({
             label: i.name,
             value: i.code as "DAILY_ALLOWANCE" | "TRAVEL_FARE" | "LODGING" | "MISCELLANEOUS",
-            icon: DEFAULT_EXPENSE_ICONS[i.code] || "receipt-outline",
+            icon: DEFAULT_EXPENSE_ICONS[i.code] || "file-text",
           }));
           setExpenseTypesList(mapped);
           setExpenseType(mapped[0].value);
@@ -60,6 +65,7 @@ export function AddExpenseScreen() {
       })
       .catch(() => {});
   }, []);
+
   const [amount, setAmount] = useState<string>("");
   const [description, setDescription] = useState<string>("");
   const [hasReceipt, setHasReceipt] = useState<boolean>(false);
@@ -79,7 +85,6 @@ export function AddExpenseScreen() {
         setHasReceipt(true);
       }
     } catch {
-      // Fallback toggle
       setHasReceipt(!hasReceipt);
     }
   };
@@ -122,136 +127,193 @@ export function AddExpenseScreen() {
 
   return (
     <SafeAreaView style={styles.screenContainer} edges={["top", "bottom"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#0F172A" />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Submit Expense Claim</Text>
-          <Text style={styles.subtitle}>Daily allowance, fuel, travel & lodging</Text>
-        </View>
-      </View>
+      <StatusBar style="light" />
 
-      <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
-        {/* Category Selector */}
-        <Text style={styles.label}>Expense Category *</Text>
-        <View style={styles.categoryGrid}>
-          {expenseTypesList.map((cat) => {
-            const isSelected = expenseType === cat.value;
-            return (
-              <TouchableOpacity
-                key={cat.value}
-                style={[styles.categoryTile, isSelected && styles.categoryTileSelected]}
-                onPress={() => setExpenseType(cat.value)}
-                activeOpacity={0.8}
-              >
-                <Ionicons
-                  name={cat.icon}
-                  size={20}
-                  color={isSelected ? colors.primary : "#64748B"}
-                />
-                <Text
-                  style={[
-                    styles.categoryTileText,
-                    isSelected && styles.categoryTileTextSelected,
-                  ]}
-                >
-                  {cat.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+      <ScreenHeader
+        title="Submit Expense Claim"
+        subtitle="Daily allowance, fuel, travel & lodging"
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
 
-        {/* Date Field */}
-        <Text style={styles.label}>Expense Date (YYYY-MM-DD) *</Text>
-        <View style={styles.inputWrapper}>
-          <Ionicons name="calendar-outline" size={18} color="#64748B" style={styles.inputIcon} />
-          <TextInput
-            style={styles.textInput}
-            value={expenseDate}
-            onChangeText={setExpenseDate}
-            placeholder="2026-10-02"
-            placeholderTextColor="#94A3B8"
-          />
-        </View>
-
-        {/* Amount Field */}
-        <Text style={styles.label}>Claim Amount (₹) *</Text>
-        <View style={styles.inputWrapper}>
-          <Text style={styles.currencyPrefix}>₹</Text>
-          <TextInput
-            style={styles.textInput}
-            value={amount}
-            onChangeText={setAmount}
-            placeholder="e.g. 450"
-            placeholderTextColor="#94A3B8"
-            keyboardType="numeric"
-          />
-        </View>
-
-        {/* Description Field */}
-        <Text style={styles.label}>Remarks / Route Details</Text>
-        <TextInput
-          style={styles.textArea}
-          value={description}
-          onChangeText={setDescription}
-          placeholder="e.g. Dadar to Thane clinic travel fare via local train & cab"
-          placeholderTextColor="#94A3B8"
-          multiline
-          numberOfLines={3}
-          textAlignVertical="top"
-        />
-
-        {/* Receipt Attachment Toggle */}
-        <TouchableOpacity
-          style={styles.receiptToggle}
-          activeOpacity={0.8}
-          onPress={handlePickReceipt}
-        >
-          <Ionicons
-            name={hasReceipt ? "checkbox" : "camera-outline"}
-            size={22}
-            color={hasReceipt ? colors.primary : "#94A3B8"}
-          />
-          <View style={styles.receiptToggleTextGroup}>
-            <Text style={styles.receiptToggleTitle}>Attach Bill / Receipt Photo</Text>
-            <Text style={styles.receiptToggleSubtitle}>
-              {hasReceipt
-                ? receiptUri
-                  ? "Receipt image selected"
-                  : "Paper bill verified"
-                : "Tap to capture or choose receipt image"}
-            </Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+      <ScrollView
+        contentContainerStyle={styles.body}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Category Selector Card */}
+        <View style={styles.sectionCard}>
+          <View style={styles.cardHeaderRow}>
+            <View style={styles.cardIconBox}>
+              <Feather name="grid" size={16} color={colors.brandBlue} />
+            </View>
+            <Text style={styles.cardTitle}>Expense Category</Text>
           </View>
-        </TouchableOpacity>
-      </ScrollView>
 
-      {/* Footer Submit Button */}
+          <View style={styles.categoryGrid}>
+            {expenseTypesList.map((cat) => {
+              const isSelected = expenseType === cat.value;
+              return (
+                <TouchableOpacity
+                  key={cat.value}
+                  style={[styles.categoryTile, isSelected && styles.categoryTileSelected]}
+                  onPress={() => setExpenseType(cat.value)}
+                  activeOpacity={0.8}
+                >
+                  <View
+                    style={[
+                      styles.catIconBadge,
+                      isSelected && styles.catIconBadgeSelected,
+                    ]}
+                  >
+                    <Feather
+                      name={cat.icon}
+                      size={16}
+                      color={isSelected ? colors.surface : colors.brandBlue}
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.categoryTileText,
+                      isSelected && styles.categoryTileTextSelected,
+                    ]}
+                    numberOfLines={2}
+                  >
+                    {cat.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
+
+        {/* Expense Amount & Details Card */}
+        <View style={styles.sectionCard}>
+          <View style={styles.cardHeaderRow}>
+            <View style={[styles.cardIconBox, { backgroundColor: colors.tealPastel }]}>
+              <Feather name="credit-card" size={16} color={colors.teal} />
+            </View>
+            <Text style={styles.cardTitle}>Claim Details</Text>
+          </View>
+
+          <View style={styles.fieldBlock}>
+            <Text style={styles.label}>
+              Expense Date (YYYY-MM-DD) <Text style={styles.required}>*</Text>
+            </Text>
+            <View style={styles.inputWrapper}>
+              <Feather name="calendar" size={16} color={colors.textMuted} />
+              <TextInput
+                style={styles.textInput}
+                value={expenseDate}
+                onChangeText={setExpenseDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor={colors.textFaint}
+              />
+            </View>
+          </View>
+
+          <View style={styles.fieldBlock}>
+            <Text style={styles.label}>
+              Claim Amount (₹) <Text style={styles.required}>*</Text>
+            </Text>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.currencyPrefix}>₹</Text>
+              <TextInput
+                style={[styles.textInput, styles.amountInput]}
+                value={amount}
+                onChangeText={setAmount}
+                placeholder="0.00"
+                placeholderTextColor={colors.textFaint}
+                keyboardType="numeric"
+              />
+            </View>
+          </View>
+
+          <View style={styles.fieldBlock}>
+            <Text style={styles.label}>Remarks / Route Details</Text>
+            <TextInput
+              style={styles.textArea}
+              value={description}
+              onChangeText={setDescription}
+              placeholder="e.g. Travel route details, outstation allowance note..."
+              placeholderTextColor={colors.textFaint}
+              multiline
+              numberOfLines={3}
+              textAlignVertical="top"
+            />
+          </View>
+        </View>
+
+        {/* Receipt Upload Card */}
+        <View style={styles.sectionCard}>
+          <View style={styles.cardHeaderRow}>
+            <View style={[styles.cardIconBox, { backgroundColor: colors.orangePastel }]}>
+              <Feather name="paperclip" size={16} color={colors.orange} />
+            </View>
+            <Text style={styles.cardTitle}>Bill / Receipt Attachment</Text>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.receiptBox, hasReceipt && styles.receiptBoxAttached]}
+            activeOpacity={0.8}
+            onPress={handlePickReceipt}
+          >
+            {receiptUri ? (
+              <View style={styles.receiptPreviewWrap}>
+                <Image source={{ uri: receiptUri }} style={styles.receiptPreviewImg} />
+                <View style={styles.receiptOverlayBadge}>
+                  <Feather name="refresh-cw" size={13} color={colors.surface} />
+                  <Text style={styles.receiptOverlayText}>Change Receipt</Text>
+                </View>
+              </View>
+            ) : (
+              <View style={styles.receiptPlaceholder}>
+                <View style={styles.receiptIconCircle}>
+                  <Feather
+                    name={hasReceipt ? "check-circle" : "camera"}
+                    size={24}
+                    color={hasReceipt ? colors.successGreen : colors.navy}
+                  />
+                </View>
+                <Text style={styles.receiptTitle}>
+                  {hasReceipt ? "Paper Bill Verified" : "Attach Bill / Receipt Photo"}
+                </Text>
+                <Text style={styles.receiptSubtitle}>
+                  Tap to choose receipt image from gallery
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+      </KeyboardAvoidingView>
+
+      {/* Footer Submit Bar */}
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.cancelBtn}
           onPress={() => navigation.goBack()}
           disabled={isSubmitting}
+          activeOpacity={0.8}
         >
           <Text style={styles.cancelBtnText}>Cancel</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.submitBtn}
+          style={[styles.submitBtn, isSubmitting && { opacity: 0.7 }]}
           onPress={handleSubmit}
           disabled={isSubmitting}
+          activeOpacity={0.8}
         >
           {isSubmitting ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color={colors.surface} />
           ) : (
             <>
-              <Ionicons name="cloud-upload-outline" size={18} color="#FFFFFF" />
+              <Feather name="upload-cloud" size={16} color={colors.surface} />
               <Text style={styles.submitBtnText}>Submit Claim</Text>
             </>
           )}
@@ -264,160 +326,242 @@ export function AddExpenseScreen() {
 const styles = StyleSheet.create({
   screenContainer: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: "#E2E8F0",
-    backgroundColor: "#FFFFFF",
-    gap: 12,
-  },
-  backButton: {
-    padding: 4,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#0F172A",
-  },
-  subtitle: {
-    fontSize: 12,
-    color: "#64748B",
-    marginTop: 2,
+    backgroundColor: colors.background,
   },
   body: {
     padding: spacing.lg,
-    gap: 6,
+    paddingBottom: spacing.xxxl,
+    gap: spacing.lg,
   },
-  label: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#334155",
-    marginTop: 8,
-    marginBottom: 4,
+  sectionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
+  },
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  cardIconBox: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.md,
+    backgroundColor: colors.bluePastel,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardTitle: {
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   categoryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
-    marginBottom: 6,
+    gap: spacing.sm,
   },
   categoryTile: {
-    flexBasis: "48%",
+    width: "48.5%",
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    padding: spacing.sm,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
-    backgroundColor: "#F8FAFC",
+    gap: spacing.sm,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    borderWidth: 1.5,
+    borderColor: colors.borderLight,
   },
   categoryTileSelected: {
-    borderColor: colors.primary,
-    backgroundColor: "#ECFDF5",
+    backgroundColor: colors.bluePastel,
+    borderColor: colors.brandBlue,
+  },
+  catIconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.md,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  catIconBadgeSelected: {
+    backgroundColor: colors.brandBlue,
   },
   categoryTileText: {
+    flex: 1,
+    ...typography.caption,
     fontSize: 12,
-    fontWeight: "600",
-    color: "#64748B",
-    flexShrink: 1,
+    fontWeight: "700",
+    color: colors.textInk,
   },
   categoryTileTextSelected: {
-    color: colors.primary,
+    color: colors.brandBlue,
+    fontWeight: "800",
+  },
+  fieldBlock: {
+    marginBottom: spacing.md,
+  },
+  label: {
+    ...typography.caption,
+    fontSize: 12,
     fontWeight: "700",
+    color: colors.navy,
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  required: {
+    color: colors.accentRed,
   },
   inputWrapper: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: colors.inputBackground,
     borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: radii.md,
-    backgroundColor: "#F8FAFC",
-    paddingHorizontal: spacing.sm,
-    height: 44,
-  },
-  inputIcon: {
-    marginRight: 6,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.md,
+    minHeight: 48,
+    gap: spacing.sm,
   },
   currencyPrefix: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#0F172A",
-    marginRight: 6,
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.navy,
   },
   textInput: {
     flex: 1,
+    ...typography.body,
     fontSize: 14,
-    color: "#0F172A",
+    color: colors.textInk,
+    fontWeight: "600",
+  },
+  amountInput: {
+    fontSize: 18,
+    fontWeight: "800",
   },
   textArea: {
+    backgroundColor: colors.inputBackground,
     borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: radii.md,
-    backgroundColor: "#F8FAFC",
-    padding: spacing.sm,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    ...typography.body,
     fontSize: 14,
-    color: "#0F172A",
-    minHeight: 70,
+    color: colors.textInk,
+    minHeight: 84,
   },
-  receiptToggle: {
+  receiptBox: {
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: colors.brandBlue,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.inputBackground,
+    minHeight: 130,
+    overflow: "hidden",
+  },
+  receiptBoxAttached: {
+    borderColor: colors.successGreen,
+    padding: 0,
+  },
+  receiptPreviewWrap: {
+    width: "100%",
+    height: 160,
+    position: "relative",
+  },
+  receiptPreviewImg: {
+    width: "100%",
+    height: "100%",
+    resizeMode: "cover",
+  },
+  receiptOverlayBadge: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
     flexDirection: "row",
     alignItems: "center",
-    gap: 10,
-    backgroundColor: "#F1F5F9",
-    padding: spacing.sm,
-    borderRadius: radii.md,
-    marginTop: 10,
+    backgroundColor: "rgba(15, 21, 56, 0.85)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.full,
+    gap: 6,
   },
-  receiptToggleTextGroup: {
-    flex: 1,
-  },
-  receiptToggleTitle: {
+  receiptOverlayText: {
+    color: colors.surface,
     fontSize: 12,
     fontWeight: "700",
-    color: "#0F172A",
   },
-  receiptToggleSubtitle: {
-    fontSize: 11,
-    color: "#64748B",
+  receiptPlaceholder: {
+    alignItems: "center",
+  },
+  receiptIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.bluePastel,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.sm,
+  },
+  receiptTitle: {
+    ...typography.heading,
+    fontSize: 14,
+    fontWeight: "800",
+    color: colors.textInk,
+  },
+  receiptSubtitle: {
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 2,
   },
   footer: {
     flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    gap: 12,
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
     borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
-    backgroundColor: "#FFFFFF",
+    borderTopColor: colors.borderLight,
+    gap: spacing.md,
+    ...shadows.soft,
   },
   cancelBtn: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    flex: 1,
+    minHeight: 48,
+    borderRadius: radii.lg,
+    backgroundColor: colors.inputBackground,
+    alignItems: "center",
+    justifyContent: "center",
   },
   cancelBtnText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#64748B",
-  },
-  submitBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: radii.md,
-  },
-  submitBtnText: {
+    ...typography.button,
     fontSize: 14,
     fontWeight: "700",
-    color: "#FFFFFF",
+    color: colors.textInk,
+  },
+  submitBtn: {
+    flex: 2,
+    flexDirection: "row",
+    minHeight: 48,
+    borderRadius: radii.lg,
+    backgroundColor: colors.navy,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.sm,
+    ...shadows.soft,
+  },
+  submitBtnText: {
+    ...typography.button,
+    fontSize: 14,
+    fontWeight: "800",
+    color: colors.surface,
   },
 });

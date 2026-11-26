@@ -14,8 +14,8 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { ProductDto, ProductVisualAidDto, productsApi } from "../api/productsApi";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
-import { Header } from "../../../shared/components/Header";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 interface ProductsCatalogModalProps {
   visible: boolean;
@@ -158,13 +158,12 @@ export const ProductsCatalogScreen: React.FC<ProductsCatalogModalProps> = ({
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           {/* Header */}
-          <View style={styles.header}>
-            <TouchableOpacity onPress={onClose} style={styles.backBtn}>
-              <Ionicons name="arrow-back" size={24} color={colors.textPrimary} />
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>Products & E-Detailing</Text>
-            <View style={{ width: 24 }} />
-          </View>
+          <ScreenHeader
+            title="Products & E-Detailing"
+            subtitle="Brand catalog, PTR/PTS & visual aids"
+            variant="navy"
+            onBack={onClose}
+          />
 
           {/* Search bar */}
           <View style={styles.searchBar}>
@@ -430,16 +429,12 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radii.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
   },
   cardHeader: {
     flexDirection: "row",

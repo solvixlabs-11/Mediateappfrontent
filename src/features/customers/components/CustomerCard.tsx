@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { Feather } from "@expo/vector-icons";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
 
 export interface CustomerCardData {
   id: number;
@@ -24,47 +24,34 @@ interface CustomerCardProps {
 }
 
 export function CustomerCard({ data, onPress, onCallPress }: CustomerCardProps) {
-  const getIconName = () => {
+  const getIconMeta = () => {
     switch (data.type) {
       case "DOCTOR":
-        return "person";
+        return { name: "user" as const, color: colors.brandBlue, bg: colors.bluePastel };
       case "CHEMIST":
-        return "flask";
+        return { name: "shopping-bag" as const, color: colors.teal, bg: colors.tealPastel };
       case "HOSPITAL":
-        return "business";
+        return { name: "plus-square" as const, color: colors.purple, bg: colors.purplePastel };
       case "STOCKIST":
-        return "cube";
+        return { name: "package" as const, color: colors.orange, bg: colors.orangePastel };
       default:
-        return "medkit";
+        return { name: "user" as const, color: colors.brandBlue, bg: colors.bluePastel };
     }
   };
 
-  const getTypeColor = () => {
-    switch (data.type) {
-      case "DOCTOR":
-        return colors.primary;
-      case "CHEMIST":
-        return colors.secondary;
-      case "HOSPITAL":
-        return colors.navy;
-      case "STOCKIST":
-        return "#D97706";
-      default:
-        return colors.primary;
-    }
-  };
+  const iconMeta = getIconMeta();
 
   return (
     <TouchableOpacity
       style={styles.card}
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.75}
       disabled={!onPress}
     >
       <View style={styles.topRow}>
         <View style={styles.iconAndTitle}>
-          <View style={[styles.avatar, { backgroundColor: `${getTypeColor()}15` }]}>
-            <Ionicons name={getIconName()} size={20} color={getTypeColor()} />
+          <View style={[styles.avatar, { backgroundColor: iconMeta.bg }]}>
+            <Feather name={iconMeta.name} size={18} color={iconMeta.color} />
           </View>
           <View style={styles.nameBlock}>
             <Text style={styles.name} numberOfLines={1}>
@@ -94,10 +81,10 @@ export function CustomerCard({ data, onPress, onCallPress }: CustomerCardProps) 
               data.inGeofence ? styles.geofenceIn : styles.geofenceOut,
             ]}
           >
-            <Ionicons
-              name={data.inGeofence ? "checkmark-circle" : "alert-circle"}
+            <Feather
+              name={data.inGeofence ? "check-circle" : "alert-circle"}
               size={12}
-              color={data.inGeofence ? colors.secondary : colors.error}
+              color={data.inGeofence ? colors.teal : colors.accentRed}
             />
             <Text
               style={[
@@ -120,7 +107,7 @@ export function CustomerCard({ data, onPress, onCallPress }: CustomerCardProps) 
       {/* Address & Meta */}
       {data.address ? (
         <View style={styles.infoRow}>
-          <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
+          <Feather name="map-pin" size={13} color={colors.textFaint} />
           <Text style={styles.infoText} numberOfLines={1}>
             {data.address}
           </Text>
@@ -129,15 +116,17 @@ export function CustomerCard({ data, onPress, onCallPress }: CustomerCardProps) 
 
       {/* Footer: Phone / Code */}
       <View style={styles.footerRow}>
-        <Text style={styles.codeText}>{data.code || `#${data.id}`}</Text>
+        <View style={styles.codePill}>
+          <Text style={styles.codeText}>{data.code || `#${data.id}`}</Text>
+        </View>
 
         {data.phone ? (
           <TouchableOpacity
             style={styles.callButton}
             onPress={() => onCallPress && onCallPress(data.phone!)}
-            activeOpacity={0.6}
+            activeOpacity={0.7}
           >
-            <Ionicons name="call" size={12} color={colors.primary} />
+            <Feather name="phone" size={13} color={colors.brandBlue} />
             <Text style={styles.callText}>{data.phone}</Text>
           </TouchableOpacity>
         ) : (
@@ -151,11 +140,12 @@ export function CustomerCard({ data, onPress, onCallPress }: CustomerCardProps) 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     padding: spacing.md,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
+    ...shadows.card,
   },
   topRow: {
     flexDirection: "row",
@@ -169,9 +159,9 @@ const styles = StyleSheet.create({
     marginRight: spacing.sm,
   },
   avatar: {
-    width: 38,
-    height: 38,
-    borderRadius: radii.md,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     alignItems: "center",
     justifyContent: "center",
     marginRight: spacing.sm,
@@ -180,27 +170,26 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    ...typography.subheading,
     fontSize: 15,
-    color: colors.navy,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   subheading: {
-    ...typography.caption,
     fontSize: 12,
-    color: colors.textSecondary,
-    marginTop: 1,
+    fontWeight: "500",
+    color: colors.textMuted,
+    marginTop: 2,
   },
   badge: {
-    backgroundColor: colors.lightPrimary,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 2,
+    backgroundColor: colors.bluePastel,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: radii.full,
   },
   badgeText: {
-    ...typography.caption,
     fontSize: 11,
-    fontWeight: "600",
-    color: colors.primary,
+    fontWeight: "700",
+    color: colors.brandBlue,
   },
   distanceRow: {
     flexDirection: "row",
@@ -213,77 +202,79 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    paddingHorizontal: spacing.xs + 2,
-    paddingVertical: 2,
-    borderRadius: radii.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.full,
   },
   geofenceIn: {
-    backgroundColor: "#DEF7EC",
+    backgroundColor: colors.tealPastel,
   },
   geofenceOut: {
-    backgroundColor: "#FDE8E8",
+    backgroundColor: "#FEE2E2",
   },
   geofenceText: {
-    ...typography.caption,
     fontSize: 11,
-    fontWeight: "600",
+    fontWeight: "700",
   },
   geofenceInText: {
-    color: colors.secondary,
+    color: colors.teal,
   },
   geofenceOutText: {
-    color: colors.error,
+    color: colors.accentRed,
   },
   distanceText: {
-    ...typography.caption,
     fontSize: 11,
-    color: colors.textSecondary,
-    fontWeight: "500",
+    color: colors.textMuted,
+    fontWeight: "600",
   },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    marginTop: spacing.xs + 2,
+    gap: 6,
+    marginTop: 8,
   },
   infoText: {
-    ...typography.caption,
-    color: colors.textSecondary,
+    fontSize: 12,
+    color: colors.textMuted,
     flex: 1,
   },
   footerRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: spacing.sm,
-    paddingTop: spacing.xs,
+    marginTop: spacing.md,
+    paddingTop: spacing.sm,
     borderTopWidth: 1,
-    borderTopColor: colors.background,
+    borderTopColor: colors.inputBackground,
+  },
+  codePill: {
+    backgroundColor: colors.inputBackground,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.sm,
   },
   codeText: {
-    ...typography.caption,
-    color: colors.grey,
-    fontWeight: "600",
     fontSize: 11,
+    fontWeight: "700",
+    color: colors.textFaint,
+    letterSpacing: 0.5,
   },
   callButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    backgroundColor: colors.lightPrimary,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 3,
-    borderRadius: radii.sm,
+    gap: 6,
+    backgroundColor: colors.bluePastel,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.md,
   },
   callText: {
-    ...typography.caption,
-    color: colors.primary,
-    fontWeight: "600",
-    fontSize: 11,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.brandBlue,
   },
   extraText: {
-    ...typography.caption,
-    color: colors.textSecondary,
     fontSize: 11,
+    color: colors.textFaint,
   },
 });

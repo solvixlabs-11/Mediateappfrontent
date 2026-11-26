@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,16 +12,16 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/types";
 import { useMasterStore } from "../../masters/store";
 import { EntityPicker } from "../components/EntityPicker";
-import { LocationCard } from "../components/LocationCard";
 import { AutoDetectLocationCard } from "../../../shared/components/AutoDetectLocationCard";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 import { customersApi } from "../api/customersApi";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
 
 type CustomerFormRouteProp = RouteProp<RootStackParamList, "CustomerForm">;
 
@@ -43,6 +45,15 @@ export function CustomerFormScreen() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const customerTypeName =
+    customerType === "DOCTOR"
+      ? "Doctor"
+      : customerType === "CHEMIST"
+      ? "Chemist"
+      : customerType === "HOSPITAL"
+      ? "Hospital"
+      : "Stockist";
 
   const handleSubmit = async () => {
     if (!fullName.trim()) {
@@ -115,202 +126,232 @@ export function CustomerFormScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.navy} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {mode === "edit" ? "Edit" : "Add New"}{" "}
-          {customerType === "DOCTOR"
-            ? "Doctor"
-            : customerType === "CHEMIST"
-            ? "Chemist"
-            : customerType === "HOSPITAL"
-            ? "Hospital"
-            : "Stockist"}
-        </Text>
-        <View style={{ width: 24 }} />
-      </View>
+      {/* Signature Navy Header */}
+      <ScreenHeader
+        title={`${mode === "edit" ? "Edit" : "New"} ${customerTypeName}`}
+        subtitle={`Directory enrollment & profile`}
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-        {/* Name */}
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>
-            {customerType === "CHEMIST"
-              ? "Shop Name"
-              : customerType === "HOSPITAL"
-              ? "Hospital Name"
-              : "Full Name"}{" "}
-            <Text style={styles.required}>*</Text>
-          </Text>
-          <TextInput
-            style={styles.input}
-            placeholder={
-              customerType === "DOCTOR"
-                ? "e.g. Dr. Full Name"
-                : customerType === "CHEMIST"
-                ? "e.g. Apollo Pharmacy"
-                : "e.g. City General Hospital"
-            }
-            placeholderTextColor={colors.textSecondary}
-            value={fullName}
-            onChangeText={setFullName}
-          />
-        </View>
-
-        {/* Qualification (Doctors only) */}
-        {customerType === "DOCTOR" && (
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Qualifications</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. MBBS, MD (Cardiology)"
-              placeholderTextColor={colors.textSecondary}
-              value={qualification}
-              onChangeText={setQualification}
-            />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* Card 1: Basic Identity */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeaderRow}>
+            <View style={styles.sectionIconBadge}>
+              <Feather name="user-check" size={16} color={colors.brandBlue} />
+            </View>
+            <Text style={styles.sectionTitle}>Basic Information</Text>
           </View>
-        )}
 
-        {/* Specialization (Doctors only) */}
-        {customerType === "DOCTOR" && (
-          <EntityPicker
-            label="Specialization"
-            placeholder="Select specialization..."
-            items={specializations.map((s) => ({
-              id: s.name,
-              label: s.name,
-              sublabel: s.description || undefined,
-            }))}
-            selectedValue={specialization}
-            onValueChange={setSpecialization}
-          />
-        )}
-
-        {/* Category Dropdown (Doctors only) */}
-        {customerType === "DOCTOR" && (
-          <EntityPicker
-            label="Doctor Category / Tier"
-            placeholder="Select category..."
-            items={
-              customerCategories.length > 0
-                ? customerCategories.map((c) => ({
-                    id: c.code,
-                    label: c.name,
-                    sublabel: c.description || undefined,
-                  }))
-                : [
-                    { id: "A", label: "Core (Tier 1 - High Volume)" },
-                    { id: "B", label: "General (Tier 2 - Regular)" },
-                    { id: "C", label: "Potential (Tier 3 - Developmental)" },
-                  ]
-            }
-            selectedValue={category}
-            onValueChange={setCategory}
-            required
-          />
-        )}
-
-        {/* Territory Picker */}
-        {territories.length > 0 && (
-          <EntityPicker
-            label="Assigned Territory"
-            placeholder="Select territory..."
-            items={territories.map((t) => ({
-              id: t.id,
-              label: t.name,
-              sublabel: `HQ: ${t.headquarters}`,
-            }))}
-            selectedValue={territoryId}
-            onValueChange={setTerritoryId}
-          />
-        )}
-
-        {/* Contact Details */}
-        <View style={styles.row}>
-          <View style={[styles.fieldGroup, { flex: 1, marginRight: spacing.sm }]}>
+          {/* Full / Entity Name */}
+          <View style={styles.fieldGroup}>
             <Text style={styles.label}>
-              Phone <Text style={styles.required}>*</Text>
+              {customerType === "CHEMIST"
+                ? "Pharmacy / Shop Name"
+                : customerType === "HOSPITAL"
+                ? "Hospital Name"
+                : "Doctor Full Name"}{" "}
+              <Text style={styles.required}>*</Text>
             </Text>
             <TextInput
               style={styles.input}
-              placeholder="Mobile number"
-              placeholderTextColor={colors.textSecondary}
-              value={phone}
-              onChangeText={setPhone}
-              keyboardType="phone-pad"
-              maxLength={15}
+              placeholder={
+                customerType === "DOCTOR"
+                  ? "e.g. Dr. Full Name"
+                  : customerType === "CHEMIST"
+                  ? "e.g. Apollo Pharmacy"
+                  : "e.g. City General Hospital"
+              }
+              placeholderTextColor={colors.textFaint}
+              value={fullName}
+              onChangeText={setFullName}
             />
           </View>
 
-          <View style={[styles.fieldGroup, { flex: 1.2 }]}>
-            <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="doctor@example.com"
-              placeholderTextColor={colors.textSecondary}
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
+          {/* Clinic / Practice Name (Doctor only) */}
+          {customerType === "DOCTOR" && (
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Clinic / Hospital Affiliation</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. Sharma Heart & Care Clinic"
+                placeholderTextColor={colors.textFaint}
+                value={clinicName}
+                onChangeText={setClinicName}
+              />
+            </View>
+          )}
         </View>
 
-        {/* Clinic / Practice Name */}
+        {/* Card 2: Professional & Classification (Doctor only) */}
         {customerType === "DOCTOR" && (
-          <View style={styles.fieldGroup}>
-            <Text style={styles.label}>Clinic / Consulting Chamber Name</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Sharma Heart & Care Clinic"
-              placeholderTextColor={colors.textSecondary}
-              value={clinicName}
-              onChangeText={setClinicName}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeaderRow}>
+              <View style={[styles.sectionIconBadge, { backgroundColor: colors.tealPastel }]}>
+                <Feather name="award" size={16} color={colors.teal} />
+              </View>
+              <Text style={styles.sectionTitle}>Qualifications & Tier</Text>
+            </View>
+
+            {/* Qualifications */}
+            <View style={styles.fieldGroup}>
+              <Text style={styles.label}>Qualifications</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. MBBS, MD (Cardiology)"
+                placeholderTextColor={colors.textFaint}
+                value={qualification}
+                onChangeText={setQualification}
+              />
+            </View>
+
+            {/* Specialization */}
+            <EntityPicker
+              label="Specialization"
+              placeholder="Select specialization..."
+              items={specializations.map((s) => ({
+                id: s.name,
+                label: s.name,
+                sublabel: s.description || undefined,
+              }))}
+              selectedValue={specialization}
+              onValueChange={setSpecialization}
+            />
+
+            {/* Category / Tier */}
+            <EntityPicker
+              label="Doctor Category / Tier"
+              placeholder="Select category..."
+              items={
+                customerCategories.length > 0
+                  ? customerCategories.map((c) => ({
+                      id: c.code,
+                      label: c.name,
+                      sublabel: c.description || undefined,
+                    }))
+                  : [
+                      { id: "A", label: "Core (Tier 1 - High Volume)" },
+                      { id: "B", label: "General (Tier 2 - Regular)" },
+                      { id: "C", label: "Potential (Tier 3 - Developmental)" },
+                    ]
+              }
+              selectedValue={category}
+              onValueChange={setCategory}
+              required
             />
           </View>
         )}
 
-        {/* Auto-Detect Location Card */}
-        <AutoDetectLocationCard
-          latitude={latitude}
-          longitude={longitude}
-          detectedAddress={address}
-          onLocationDetected={(geo) => {
-            setLatitude(geo.latitude);
-            setLongitude(geo.longitude);
-            if (geo.address) {
-              setAddress(geo.address);
-            }
-          }}
-          title="Auto-Detect Location (GPS)"
-          subtitle={`Capture GPS tag and auto-fill ${customerType === "DOCTOR" ? "clinic" : customerType === "CHEMIST" ? "shop" : "premises"} address`}
-        />
+        {/* Card 3: Contact & Assignment */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeaderRow}>
+            <View style={[styles.sectionIconBadge, { backgroundColor: colors.orangePastel }]}>
+              <Feather name="phone-call" size={16} color={colors.orange} />
+            </View>
+            <Text style={styles.sectionTitle}>Contact & Territory</Text>
+          </View>
 
-        {/* Full Address */}
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>
-            {customerType === "DOCTOR"
-              ? "Clinic Address"
-              : customerType === "CHEMIST"
-              ? "Shop Address"
-              : customerType === "HOSPITAL"
-              ? "Hospital Address"
-              : "Address"}
-          </Text>
-          <TextInput
-            style={[styles.input, styles.textArea]}
-            placeholder="Room/Shop no., Building, Road, Landmark..."
-            placeholderTextColor={colors.textSecondary}
-            value={address}
-            onChangeText={setAddress}
-            multiline
-            numberOfLines={2}
+          {/* Contact Details Row */}
+          <View style={styles.row}>
+            <View style={[styles.fieldGroup, { flex: 1, marginRight: spacing.sm }]}>
+              <Text style={styles.label}>
+                Phone Number <Text style={styles.required}>*</Text>
+              </Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Mobile number"
+                placeholderTextColor={colors.textFaint}
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                maxLength={15}
+              />
+            </View>
+
+            <View style={[styles.fieldGroup, { flex: 1.1 }]}>
+              <Text style={styles.label}>Email Address</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="email@example.com"
+                placeholderTextColor={colors.textFaint}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+          </View>
+
+          {/* Territory Picker */}
+          {territories.length > 0 && (
+            <EntityPicker
+              label="Assigned Territory"
+              placeholder="Select territory..."
+              items={territories.map((t) => ({
+                id: t.id,
+                label: t.name,
+                sublabel: `HQ: ${t.headquarters}`,
+              }))}
+              selectedValue={territoryId}
+              onValueChange={setTerritoryId}
+            />
+          )}
+        </View>
+
+        {/* Card 4: Location & Address */}
+        <View style={styles.sectionCard}>
+          <View style={styles.sectionHeaderRow}>
+            <View style={[styles.sectionIconBadge, { backgroundColor: colors.purplePastel }]}>
+              <Feather name="map-pin" size={16} color={colors.purple} />
+            </View>
+            <Text style={styles.sectionTitle}>Geotag & Address</Text>
+          </View>
+
+          {/* Auto-Detect Location Card */}
+          <AutoDetectLocationCard
+            latitude={latitude}
+            longitude={longitude}
+            detectedAddress={address}
+            onLocationDetected={(geo) => {
+              setLatitude(geo.latitude);
+              setLongitude(geo.longitude);
+              if (geo.address) {
+                setAddress(geo.address);
+              }
+            }}
+            title="Auto-Detect GPS Location"
+            subtitle={`Geotag premises & auto-fill address`}
           />
+
+          {/* Full Address */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>
+              {customerType === "DOCTOR"
+                ? "Clinic / Chamber Address"
+                : customerType === "CHEMIST"
+                ? "Pharmacy Address"
+                : "Premises Address"}
+            </Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Room/Shop no., Building, Road, Landmark..."
+              placeholderTextColor={colors.textFaint}
+              value={address}
+              onChangeText={setAddress}
+              multiline
+              numberOfLines={3}
+            />
+          </View>
         </View>
 
         {/* Submit Button */}
@@ -321,17 +362,18 @@ export function CustomerFormScreen() {
           activeOpacity={0.8}
         >
           {isSubmitting ? (
-            <ActivityIndicator color="#fff" size="small" />
+            <ActivityIndicator color={colors.surface} size="small" />
           ) : (
             <>
-              <Ionicons name="checkmark-circle-outline" size={20} color="#fff" />
+              <Feather name="check" size={18} color={colors.surface} />
               <Text style={styles.submitBtnText}>
-                {mode === "edit" ? "Save Changes" : "Create Record"}
+                {mode === "edit" ? "Save Changes" : `Create ${customerTypeName}`}
               </Text>
             </>
           )}
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -341,27 +383,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  headerTitle: {
-    ...typography.title,
-    fontSize: 18,
-    color: colors.navy,
-  },
   scroll: {
     flex: 1,
   },
   scrollContent: {
     padding: spacing.lg,
-    paddingBottom: spacing.xl * 2,
+    paddingBottom: spacing.xxxl * 2,
+    gap: spacing.lg,
+  },
+  sectionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
+  },
+  sectionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: spacing.lg,
+    gap: spacing.sm,
+  },
+  sectionIconBadge: {
+    width: 32,
+    height: 32,
+    borderRadius: radii.md,
+    backgroundColor: colors.bluePastel,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionTitle: {
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   fieldGroup: {
     marginBottom: spacing.md,
@@ -371,49 +427,50 @@ const styles = StyleSheet.create({
   },
   label: {
     ...typography.caption,
-    fontWeight: "600",
+    fontSize: 12,
+    fontWeight: "700",
     color: colors.navy,
-    marginBottom: spacing.xs,
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   required: {
-    color: colors.error,
+    color: colors.accentRed,
   },
   input: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.inputBackground,
     borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radii.md,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     ...typography.body,
     fontSize: 14,
-    color: colors.text,
+    color: colors.textInk,
   },
   textArea: {
-    minHeight: 64,
+    minHeight: 76,
     textAlignVertical: "top",
   },
   submitBtn: {
-    backgroundColor: colors.primary,
-    borderRadius: radii.md,
-    paddingVertical: spacing.md,
+    backgroundColor: colors.navy,
+    borderRadius: radii.lg,
+    paddingVertical: spacing.lg,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: spacing.xs,
-    marginTop: spacing.lg,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
+    gap: spacing.sm,
+    marginTop: spacing.sm,
+    ...shadows.soft,
   },
   submitBtnDisabled: {
     opacity: 0.7,
   },
   submitBtnText: {
-    ...typography.body,
-    fontWeight: "700",
-    color: "#fff",
+    ...typography.button,
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.surface,
+    letterSpacing: 0.5,
   },
 });

@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { customersApi } from "../api/customersApi";
@@ -23,6 +23,8 @@ import { mastersApi } from "../../masters/api/mastersApi";
 import { dcrApi } from "../../dcr/api/dcrApi";
 import { getCurrentGeoLocation, GeoLocationResult } from "../../../shared/utils/location";
 import { AutoDetectLocationCard } from "../../../shared/components/AutoDetectLocationCard";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
 
 interface AreaMapping {
   id: number;
@@ -32,6 +34,13 @@ interface AreaMapping {
   state: string;
   pincode: string;
 }
+
+const STEPS = [
+  { id: 1, title: "Basic Info", icon: "user" as const },
+  { id: 2, title: "Specialty", icon: "award" as const },
+  { id: 3, title: "Address", icon: "map-pin" as const },
+  { id: 4, title: "Verify & Rate", icon: "check-circle" as const },
+];
 
 export function NewDoctorVisitScreen() {
   const navigation = useNavigation();
@@ -96,7 +105,7 @@ export function NewDoctorVisitScreen() {
   }>({
     latitude: 23.075341,
     longitude: 72.531375,
-    address: "793 Chanakyapuri Ahmedabad Gujarat India 380061",
+    address: "Auto-detecting current GPS...",
   });
 
   useEffect(() => {
@@ -152,13 +161,13 @@ export function NewDoctorVisitScreen() {
         setGpsLocation({
           latitude: loc.latitude,
           longitude: loc.longitude,
-          address: loc.address || "Field Location, Ahmedabad",
+          address: loc.address || "Field Location",
         });
       }
     });
   }, []);
 
-  // CRITICAL FUNCTION: When Area is Selected, Auto-populate City, District, State, Pincode
+  // When Area is Selected, Auto-populate City, District, State, Pincode
   const handleSelectArea = (area: AreaMapping) => {
     setSelectedArea(area);
     setAreaText(area.name);
@@ -300,44 +309,80 @@ export function NewDoctorVisitScreen() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={["top", "left", "right"]}>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
       <StatusBar style="light" />
 
-      {/* Header Bar */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => {
-            if (currentStep > 1) setCurrentStep(currentStep - 1);
-            else navigation.goBack();
-          }}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
+      {/* Signature Navy Header */}
+      <ScreenHeader
+        title="New Doctor Visit"
+        subtitle={`Step ${currentStep} of 4 • ${STEPS[currentStep - 1].title}`}
+        variant="navy"
+        onBack={() => {
+          if (currentStep > 1) setCurrentStep(currentStep - 1);
+          else navigation.goBack();
+        }}
+        rightElement={
+          <View style={styles.stepBadge}>
+            <Text style={styles.stepBadgeText}>{currentStep}/4</Text>
+          </View>
+        }
+      />
 
-        <View style={styles.headerTitleBlock}>
-          <Text style={styles.headerTitle}>New Doctor Visit</Text>
-          <Text style={styles.headerSubtitle}>
-            Step {currentStep} of 4 •{" "}
-            {currentStep === 1
-              ? "Basic Info"
-              : currentStep === 2
-              ? "Doctor Qualification"
-              : currentStep === 3
-              ? "Address Details"
-              : "Photo & Rating"}
-          </Text>
-        </View>
-
-        <View style={styles.stepBadge}>
-          <Text style={styles.stepBadgeText}>{currentStep}/4</Text>
-        </View>
-      </View>
-
-      {/* Progress Track */}
-      <View style={styles.progressBarTrack}>
-        <View style={[styles.progressBarFill, { width: `${(currentStep / 4) * 100}%` }]} />
+      {/* Modern Stepper Indicator */}
+      <View style={styles.stepperContainer}>
+        {STEPS.map((s, idx) => {
+          const isActive = s.id === currentStep;
+          const isDone = s.id < currentStep;
+          return (
+            <React.Fragment key={s.id}>
+              <TouchableOpacity
+                style={[
+                  styles.stepPill,
+                  isActive && styles.stepPillActive,
+                  isDone && styles.stepPillDone,
+                ]}
+                onPress={() => setCurrentStep(s.id)}
+                activeOpacity={0.7}
+              >
+                <View
+                  style={[
+                    styles.stepIconCircle,
+                    isActive && styles.stepIconCircleActive,
+                    isDone && styles.stepIconCircleDone,
+                  ]}
+                >
+                  {isDone ? (
+                    <Feather name="check" size={12} color={colors.surface} />
+                  ) : (
+                    <Feather
+                      name={s.icon}
+                      size={12}
+                      color={isActive ? colors.surface : colors.textMuted}
+                    />
+                  )}
+                </View>
+                <Text
+                  style={[
+                    styles.stepPillText,
+                    isActive && styles.stepPillTextActive,
+                    isDone && styles.stepPillTextDone,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {s.title}
+                </Text>
+              </TouchableOpacity>
+              {idx < STEPS.length - 1 && (
+                <View
+                  style={[
+                    styles.stepConnectorLine,
+                    isDone && styles.stepConnectorLineDone,
+                  ]}
+                />
+              )}
+            </React.Fragment>
+          );
+        })}
       </View>
 
       {/* Form Content */}
@@ -349,14 +394,24 @@ export function NewDoctorVisitScreen() {
         {/* ================= STEP 1: DOCTOR BASIC INFO ================= */}
         {currentStep === 1 && (
           <View style={styles.cardBox}>
-            <Text style={styles.sectionHeaderTitle}>DOCTOR BASIC INFORMATION</Text>
+            <View style={styles.cardHeaderRow}>
+              <View style={styles.cardIconBox}>
+                <Feather name="user" size={16} color={colors.brandBlue} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>Doctor Identity</Text>
+                <Text style={styles.cardSubtitle}>Full name and hospital / clinic affiliation</Text>
+              </View>
+            </View>
 
             <View style={styles.fieldBlock}>
-              <Text style={styles.fieldLabelPrimary}>Doctor Full Name *</Text>
+              <Text style={styles.fieldLabelPrimary}>
+                Doctor Full Name <Text style={styles.required}>*</Text>
+              </Text>
               <TextInput
-                style={styles.underlineInput}
+                style={styles.inputField}
                 placeholder="e.g. Dr. Full Name"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textFaint}
                 value={doctorName}
                 onChangeText={setDoctorName}
               />
@@ -365,20 +420,22 @@ export function NewDoctorVisitScreen() {
             <View style={styles.fieldBlock}>
               <Text style={styles.fieldLabel}>Clinic / Hospital Name</Text>
               <TextInput
-                style={styles.underlineInput}
+                style={styles.inputField}
                 placeholder="e.g. Sharma Heart & Care Clinic"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textFaint}
                 value={clinicName}
                 onChangeText={setClinicName}
               />
             </View>
 
             <View style={styles.fieldBlock}>
-              <Text style={styles.fieldLabelPrimary}>Mobile / Phone Number *</Text>
+              <Text style={styles.fieldLabelPrimary}>
+                Mobile / Phone Number <Text style={styles.required}>*</Text>
+              </Text>
               <TextInput
-                style={styles.underlineInput}
+                style={styles.inputField}
                 placeholder="e.g. 9876543210"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textFaint}
                 keyboardType="phone-pad"
                 value={phone}
                 onChangeText={setPhone}
@@ -388,9 +445,9 @@ export function NewDoctorVisitScreen() {
             <View style={styles.fieldBlock}>
               <Text style={styles.fieldLabel}>Email Address</Text>
               <TextInput
-                style={styles.underlineInput}
+                style={styles.inputField}
                 placeholder="e.g. doctor@clinic.com"
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={colors.textFaint}
                 keyboardType="email-address"
                 autoCapitalize="none"
                 value={email}
@@ -402,98 +459,74 @@ export function NewDoctorVisitScreen() {
 
         {/* ================= STEP 2: DOCTOR QUALIFICATION ================= */}
         {currentStep === 2 && (
-          <View>
-            <Text style={styles.sectionHeaderTitle}>DOCTOR QUALIFICTION</Text>
-
-            <View style={styles.cardBox}>
-              {/* Speciality */}
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>Speciality</Text>
-                <TouchableOpacity
-                  style={styles.underlineDropdown}
-                  onPress={() => setIsSpecialityPickerOpen(true)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.valueText}>{speciality}</Text>
-                  <View style={styles.iconsRow}>
-                    {speciality ? (
-                      <TouchableOpacity onPress={() => setSpeciality("")}>
-                        <Ionicons name="close" size={18} color="#64748B" />
-                      </TouchableOpacity>
-                    ) : null}
-                    <Ionicons name="chevron-down" size={18} color="#64748B" />
-                  </View>
-                </TouchableOpacity>
+          <View style={styles.cardBox}>
+            <View style={styles.cardHeaderRow}>
+              <View style={[styles.cardIconBox, { backgroundColor: colors.tealPastel }]}>
+                <Feather name="award" size={16} color={colors.teal} />
               </View>
-
-              {/* Qualification */}
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>Qualification</Text>
-                <TouchableOpacity
-                  style={styles.underlineDropdown}
-                  onPress={() => setIsQualificationPickerOpen(true)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.valueText}>{qualification}</Text>
-                  <View style={styles.iconsRow}>
-                    {qualification ? (
-                      <TouchableOpacity onPress={() => setQualification("")}>
-                        <Ionicons name="close" size={18} color="#64748B" />
-                      </TouchableOpacity>
-                    ) : null}
-                    <Ionicons name="chevron-down" size={18} color="#64748B" />
-                  </View>
-                </TouchableOpacity>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.cardTitle}>Specialization & Tier</Text>
+                <Text style={styles.cardSubtitle}>Doctor specialty, degrees and customer tier</Text>
               </View>
+            </View>
 
-              {/* Category */}
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>Category</Text>
-                <TouchableOpacity
-                  style={styles.underlineDropdown}
-                  onPress={() => setIsCategoryPickerOpen(true)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.valueText}>{category}</Text>
-                  <View style={styles.iconsRow}>
-                    {category ? (
-                      <TouchableOpacity onPress={() => setCategory("")}>
-                        <Ionicons name="close" size={18} color="#64748B" />
-                      </TouchableOpacity>
-                    ) : null}
-                    <Ionicons name="chevron-down" size={18} color="#64748B" />
-                  </View>
-                </TouchableOpacity>
-              </View>
+            {/* Speciality */}
+            <View style={styles.fieldBlock}>
+              <Text style={styles.fieldLabel}>Specialization</Text>
+              <TouchableOpacity
+                style={styles.dropdownCard}
+                onPress={() => setIsSpecialityPickerOpen(true)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.dropdownValue}>{speciality || "Select specialty"}</Text>
+                <Feather name="chevron-down" size={18} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
 
-              {/* Type */}
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>Type</Text>
-                <TouchableOpacity
-                  style={styles.underlineDropdown}
-                  onPress={() => setIsDoctorTypePickerOpen(true)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.valueText}>{doctorType}</Text>
-                  <View style={styles.iconsRow}>
-                    {doctorType ? (
-                      <TouchableOpacity onPress={() => setDoctorType("")}>
-                        <Ionicons name="close" size={18} color="#64748B" />
-                      </TouchableOpacity>
-                    ) : null}
-                    <Ionicons name="chevron-down" size={18} color="#64748B" />
-                  </View>
-                </TouchableOpacity>
-              </View>
+            {/* Qualification */}
+            <View style={styles.fieldBlock}>
+              <Text style={styles.fieldLabel}>Degree / Qualification</Text>
+              <TouchableOpacity
+                style={styles.dropdownCard}
+                onPress={() => setIsQualificationPickerOpen(true)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.dropdownValue}>{qualification || "Select qualification"}</Text>
+                <Feather name="chevron-down" size={18} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Category */}
+            <View style={styles.fieldBlock}>
+              <Text style={styles.fieldLabel}>Customer Category (Tier)</Text>
+              <TouchableOpacity
+                style={styles.dropdownCard}
+                onPress={() => setIsCategoryPickerOpen(true)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.dropdownValue}>{category || "Select tier"}</Text>
+                <Feather name="chevron-down" size={18} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            {/* Type */}
+            <View style={styles.fieldBlock}>
+              <Text style={styles.fieldLabel}>Doctor Type</Text>
+              <TouchableOpacity
+                style={styles.dropdownCard}
+                onPress={() => setIsDoctorTypePickerOpen(true)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.dropdownValue}>{doctorType || "Select type"}</Text>
+                <Feather name="chevron-down" size={18} color={colors.textMuted} />
+              </TouchableOpacity>
             </View>
           </View>
         )}
 
         {/* ================= STEP 3: ADDRESS DETAILS & AUTO-FILL ================= */}
         {currentStep === 3 && (
-          <View>
-            <Text style={styles.sectionHeaderTitle}>ADDRESS DETAILS</Text>
-
+          <View style={{ gap: spacing.lg }}>
             <AutoDetectLocationCard
               latitude={gpsLocation.latitude}
               longitude={gpsLocation.longitude}
@@ -503,123 +536,81 @@ export function NewDoctorVisitScreen() {
             />
 
             <View style={styles.cardBox}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: colors.purplePastel }]}>
+                  <Feather name="map-pin" size={16} color={colors.purple} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>Clinic Address & Beat</Text>
+                  <Text style={styles.cardSubtitle}>Territory, area mapping & postal code</Text>
+                </View>
+              </View>
+
               <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>Address Line 1</Text>
+                <Text style={styles.fieldLabel}>Premises / Room No.</Text>
                 <TextInput
-                  style={styles.underlineInput}
-                  placeholder=""
+                  style={styles.inputField}
+                  placeholder="e.g. Suite 204, 2nd Floor"
+                  placeholderTextColor={colors.textFaint}
                   value={addressLine1}
                   onChangeText={setAddressLine1}
                 />
               </View>
 
               <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>Address Line 2</Text>
+                <Text style={styles.fieldLabel}>Building / Complex</Text>
                 <TextInput
-                  style={styles.underlineInput}
-                  placeholder=""
+                  style={styles.inputField}
+                  placeholder="e.g. Medical Enclave, Cross Road 3"
+                  placeholderTextColor={colors.textFaint}
                   value={addressLine2}
                   onChangeText={setAddressLine2}
                 />
               </View>
 
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>Address Line 3</Text>
-                <TextInput
-                  style={styles.underlineInput}
-                  placeholder=""
-                  value={addressLine3}
-                  onChangeText={setAddressLine3}
-                />
-              </View>
-
-              {/* SHOW ALL Switch Toggle */}
-              <View style={styles.toggleRow}>
-                <View>
-                  <Text style={styles.toggleTitle}>SHOW ALL</Text>
-                  <Text style={styles.toggleSubtitle}>Areas, Cities, District</Text>
-                </View>
-                <Switch
-                  value={showAllToggle}
-                  onValueChange={setShowAllToggle}
-                  trackColor={{ false: "#CBD5E1", true: "#1B64DA" }}
-                  thumbColor="#FFFFFF"
-                />
-              </View>
-
               {/* Area * (With Auto-Fill Trigger) */}
               <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabelPrimary}>Area*</Text>
+                <Text style={styles.fieldLabelPrimary}>
+                  Territory Area <Text style={styles.required}>*</Text>
+                </Text>
                 <TouchableOpacity
-                  style={[styles.underlineDropdown, { borderBottomColor: areaText ? "#E11D48" : "#CBD5E1" }]}
+                  style={[styles.dropdownCard, !areaText && styles.dropdownCardError]}
                   onPress={() => setIsAreaPickerOpen(true)}
                   activeOpacity={0.7}
                 >
-                  <Text style={[styles.valueText, !areaText && { color: "#94A3B8" }]}>
+                  <Text style={[styles.dropdownValue, !areaText && { color: colors.textFaint }]}>
                     {areaText || "Select Area..."}
                   </Text>
                   {areaText ? (
                     <TouchableOpacity onPress={handleClearArea}>
-                      <Ionicons name="close" size={20} color="#E11D48" />
+                      <Feather name="x" size={18} color={colors.accentRed} />
                     </TouchableOpacity>
                   ) : (
-                    <Ionicons name="chevron-down" size={18} color="#64748B" />
+                    <Feather name="chevron-down" size={18} color={colors.textMuted} />
                   )}
                 </TouchableOpacity>
-                {!areaText && <Text style={styles.errorText}>Area required</Text>}
               </View>
 
-              {/* City * (Auto-filled) */}
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>City*</Text>
-                <View style={styles.underlineDropdown}>
-                  <Text style={[styles.valueText, { color: cityText ? "#64748B" : "#94A3B8" }]}>
-                    {cityText || ""}
-                  </Text>
-                  {cityText ? (
-                    <TouchableOpacity onPress={() => setCityText("")}>
-                      <Ionicons name="close" size={18} color="#94A3B8" />
-                    </TouchableOpacity>
-                  ) : null}
+              {/* Auto-filled Location Details */}
+              <View style={styles.twoColRow}>
+                <View style={[styles.fieldBlock, { flex: 1 }]}>
+                  <Text style={styles.fieldLabel}>City</Text>
+                  <View style={styles.readOnlyBox}>
+                    <Text style={styles.readOnlyText}>{cityText || "—"}</Text>
+                  </View>
                 </View>
-              </View>
 
-              {/* District * (Auto-filled) */}
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>District*</Text>
-                <View style={styles.underlineDropdown}>
-                  <Text style={[styles.valueText, { color: districtText ? "#64748B" : "#94A3B8" }]}>
-                    {districtText || ""}
-                  </Text>
-                  {districtText ? (
-                    <TouchableOpacity onPress={() => setDistrictText("")}>
-                      <Ionicons name="close" size={18} color="#94A3B8" />
-                    </TouchableOpacity>
-                  ) : null}
+                <View style={[styles.fieldBlock, { flex: 1 }]}>
+                  <Text style={styles.fieldLabel}>Pincode</Text>
+                  <TextInput
+                    style={styles.inputField}
+                    placeholder="380061"
+                    placeholderTextColor={colors.textFaint}
+                    value={pincodeText}
+                    onChangeText={setPincodeText}
+                    keyboardType="numeric"
+                  />
                 </View>
-              </View>
-
-              {/* State * (Auto-filled) */}
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>State *</Text>
-                <View style={styles.underlineDropdown}>
-                  <Text style={[styles.valueText, { color: stateText ? "#64748B" : "#94A3B8" }]}>
-                    {stateText || ""}
-                  </Text>
-                  <Ionicons name="chevron-down" size={18} color="#64748B" />
-                </View>
-              </View>
-
-              {/* Pincode */}
-              <View style={styles.fieldBlock}>
-                <Text style={styles.fieldLabel}>Pincode</Text>
-                <TextInput
-                  style={styles.underlineInput}
-                  placeholder=""
-                  value={pincodeText}
-                  onChangeText={setPincodeText}
-                  keyboardType="numeric"
-                />
               </View>
             </View>
           </View>
@@ -627,85 +618,113 @@ export function NewDoctorVisitScreen() {
 
         {/* ================= STEP 4: CAPTURE PHOTO, REMARKS & RATING ================= */}
         {currentStep === 4 && (
-          <View>
-            {/* Capture Photo Header */}
-            <View style={styles.photoHeaderRow}>
-              <Text style={styles.sectionHeaderTitle}>CAPTURE PHOTO</Text>
+          <View style={{ gap: spacing.lg }}>
+            {/* Photo Capture Card */}
+            <View style={styles.cardBox}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: colors.orangePastel }]}>
+                  <Feather name="camera" size={16} color={colors.orange} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>Clinic Verification Photo</Text>
+                  <Text style={styles.cardSubtitle}>Capture clinic nameboard or prescription pad</Text>
+                </View>
+              </View>
+
               <TouchableOpacity
-                style={styles.cameraFloatingButton}
+                style={styles.photoDashedBox}
                 onPress={handleCapturePhoto}
                 activeOpacity={0.8}
               >
-                <Ionicons name="camera" size={20} color="#FFFFFF" />
+                {capturedPhotoUri ? (
+                  <View style={styles.photoPreviewWrapper}>
+                    <Image source={{ uri: capturedPhotoUri }} style={styles.capturedPhoto} />
+                    <View style={styles.retakeBadge}>
+                      <Feather name="refresh-cw" size={14} color={colors.surface} />
+                      <Text style={styles.retakeText}>Retake Photo</Text>
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.photoPlaceholder}>
+                    <View style={styles.cameraIconCircle}>
+                      <Feather name="camera" size={28} color={colors.navy} />
+                    </View>
+                    <Text style={styles.photoTapText}>Tap to Capture Photo</Text>
+                    <Text style={styles.photoHintText}>GPS timestamp & geotag will be embedded</Text>
+                  </View>
+                )}
               </TouchableOpacity>
             </View>
 
-            {/* Photo Illustration / Preview Container */}
-            <View style={styles.photoContainer}>
-              {capturedPhotoUri ? (
-                <Image source={{ uri: capturedPhotoUri }} style={styles.capturedPhoto} />
-              ) : (
-                <View style={styles.photoIllustrationWrapper}>
-                  <View style={styles.photoIllustrationCircle}>
-                    <Ionicons name="image-outline" size={48} color="#6366F1" />
-                  </View>
-                  <Text style={styles.capturePhotoText}>Capture Photo</Text>
+            {/* Remarks & Rating Card */}
+            <View style={styles.cardBox}>
+              <View style={styles.cardHeaderRow}>
+                <View style={[styles.cardIconBox, { backgroundColor: colors.successGreenPastel }]}>
+                  <Feather name="star" size={16} color={colors.successGreen} />
                 </View>
-              )}
-            </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.cardTitle}>Remarks & Call Rating</Text>
+                  <Text style={styles.cardSubtitle}>Initial feedback and impression</Text>
+                </View>
+              </View>
 
-            {/* Remarks & Rating Section */}
-            <Text style={[styles.sectionHeaderTitle, { marginTop: 24 }]}>REMARKS & RATING</Text>
+              {/* Remarks Text Area */}
+              <View style={styles.fieldBlock}>
+                <Text style={styles.fieldLabel}>Visit Remarks</Text>
+                <TextInput
+                  style={[styles.inputField, styles.textArea]}
+                  placeholder="Enter introductory visit discussion, prescription potential..."
+                  placeholderTextColor={colors.textFaint}
+                  value={remarks}
+                  onChangeText={setRemarks}
+                  multiline
+                  numberOfLines={3}
+                />
+              </View>
 
-            {/* Outlined Remarks Box */}
-            <View style={styles.outlinedRemarksBox}>
-              <TextInput
-                style={styles.remarksTextInput}
-                placeholder="Remarks"
-                placeholderTextColor="#94A3B8"
-                value={remarks}
-                onChangeText={setRemarks}
-                multiline
-              />
-            </View>
-
-            {/* 5-Star Rating */}
-            <View style={styles.starsContainer}>
-              <View style={styles.starsRow}>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <TouchableOpacity
-                    key={star}
-                    onPress={() => setRating(star)}
-                    activeOpacity={0.7}
-                    style={{ padding: 4 }}
-                  >
-                    <Ionicons
-                      name={star <= rating ? "star" : "star-outline"}
-                      size={38}
-                      color={star <= rating ? "#F59E0B" : "#94A3B8"}
-                    />
-                  </TouchableOpacity>
-                ))}
+              {/* 5-Star Rating */}
+              <View style={styles.starsWrapper}>
+                <Text style={styles.ratingPrompt}>Rate Introductory Interest</Text>
+                <View style={styles.starsRow}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <TouchableOpacity
+                      key={star}
+                      onPress={() => setRating(star)}
+                      activeOpacity={0.7}
+                      style={styles.starTouch}
+                    >
+                      <Ionicons
+                        name={star <= rating ? "star" : "star-outline"}
+                        size={36}
+                        color={star <= rating ? "#F59E0B" : colors.border}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             </View>
           </View>
         )}
       </ScrollView>
 
-      {/* Bottom Step Bar */}
+      {/* Docked Modern Bottom Bar */}
       <View style={styles.bottomBar}>
         {currentStep > 1 ? (
           <TouchableOpacity
             style={styles.prevBtn}
             onPress={() => setCurrentStep(currentStep - 1)}
+            activeOpacity={0.8}
           >
-            <Text style={styles.prevBtnText}>PREV</Text>
+            <Feather name="arrow-left" size={16} color={colors.textInk} />
+            <Text style={styles.prevBtnText}>Previous</Text>
           </TouchableOpacity>
         ) : (
-          <View style={{ width: 60 }} />
+          <View style={{ width: 44 }} />
         )}
 
-        <Text style={styles.stepText}>STEP {currentStep} OF 4</Text>
+        <View style={styles.stepIndicatorTextContainer}>
+          <Text style={styles.stepCurrentLabel}>STEP {currentStep} OF 4</Text>
+        </View>
 
         {currentStep < 4 ? (
           <TouchableOpacity
@@ -721,99 +740,55 @@ export function NewDoctorVisitScreen() {
               }
               setCurrentStep(currentStep + 1);
             }}
+            activeOpacity={0.8}
           >
-            <Text style={styles.nextBtnText}>NEXT</Text>
+            <Text style={styles.nextBtnText}>Next</Text>
+            <Feather name="arrow-right" size={16} color={colors.surface} />
           </TouchableOpacity>
         ) : (
           <TouchableOpacity
-            style={styles.finishBtn}
+            style={[styles.finishBtn, isSubmitting && { opacity: 0.7 }]}
             onPress={handleSubmit}
             disabled={isSubmitting}
+            activeOpacity={0.8}
           >
             {isSubmitting ? (
-              <ActivityIndicator color="#FFFFFF" size="small" />
+              <ActivityIndicator color={colors.surface} size="small" />
             ) : (
-              <Text style={styles.finishBtnText}>FINISH</Text>
+              <>
+                <Feather name="check" size={16} color={colors.surface} />
+                <Text style={styles.finishBtnText}>Submit</Text>
+              </>
             )}
           </TouchableOpacity>
         )}
       </View>
 
-      {/* ================= AREA PICKER MODAL (AUTO-FILLS CITY, DISTRICT, STATE, PINCODE) ================= */}
-      <Modal visible={isAreaPickerOpen} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Area (Auto-fills Location)</Text>
-              <TouchableOpacity onPress={() => setIsAreaPickerOpen(false)}>
-                <Ionicons name="close" size={24} color="#64748B" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.searchBox}>
-              <Ionicons name="search" size={18} color="#94A3B8" />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search area (e.g. Ghatlodiya, Navrangpura)..."
-                value={areaSearchQuery}
-                onChangeText={setAreaSearchQuery}
-              />
-            </View>
-
-            <FlatList
-              data={filteredAreas}
-              keyExtractor={(item) => item.id.toString()}
-              style={{ maxHeight: 340 }}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.areaItemRow}
-                  onPress={() => handleSelectArea(item)}
-                >
-                  <View style={styles.areaPinCircle}>
-                    <Ionicons name="location-sharp" size={16} color="#1B64DA" />
-                  </View>
-                  <View style={{ flex: 1, marginLeft: 10 }}>
-                    <Text style={styles.areaItemName}>{item.name}</Text>
-                    <Text style={styles.areaItemSub}>
-                      {item.city}, {item.district}, {item.state} • {item.pincode}
-                    </Text>
-                  </View>
-                  <Ionicons name="arrow-forward-circle" size={22} color="#1B64DA" />
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </View>
-      </Modal>
-
-      {/* Speciality Modal */}
+      {/* Specialty Picker Modal */}
       <Modal visible={isSpecialityPickerOpen} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Speciality</Text>
+              <Text style={styles.modalTitle}>Select Specialization</Text>
               <TouchableOpacity onPress={() => setIsSpecialityPickerOpen(false)}>
-                <Ionicons name="close" size={22} color="#64748B" />
+                <Feather name="x" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
             <FlatList
               data={specialitiesList}
-              keyExtractor={(it) => it}
-              style={{ maxHeight: 320 }}
+              keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={styles.itemRow}
+                  style={styles.modalItemRow}
                   onPress={() => {
                     setSpeciality(item);
                     setIsSpecialityPickerOpen(false);
                   }}
                 >
-                  <Text style={[styles.itemName, speciality === item && styles.itemNameActive]}>
+                  <Text style={[styles.modalItemText, item === speciality && styles.modalItemTextActive]}>
                     {item}
                   </Text>
-                  {speciality === item && (
-                    <Ionicons name="checkmark-circle" size={20} color="#1B64DA" />
-                  )}
+                  {item === speciality && <Feather name="check" size={18} color={colors.brandBlue} />}
                 </TouchableOpacity>
               )}
             />
@@ -821,34 +796,31 @@ export function NewDoctorVisitScreen() {
         </View>
       </Modal>
 
-      {/* Qualification Modal */}
+      {/* Qualification Picker Modal */}
       <Modal visible={isQualificationPickerOpen} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Qualification</Text>
+              <Text style={styles.modalTitle}>Select Degree / Qualification</Text>
               <TouchableOpacity onPress={() => setIsQualificationPickerOpen(false)}>
-                <Ionicons name="close" size={22} color="#64748B" />
+                <Feather name="x" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
             <FlatList
               data={qualificationsList}
-              keyExtractor={(it) => it}
-              style={{ maxHeight: 320 }}
+              keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={styles.itemRow}
+                  style={styles.modalItemRow}
                   onPress={() => {
                     setQualification(item);
                     setIsQualificationPickerOpen(false);
                   }}
                 >
-                  <Text style={[styles.itemName, qualification === item && styles.itemNameActive]}>
+                  <Text style={[styles.modalItemText, item === qualification && styles.modalItemTextActive]}>
                     {item}
                   </Text>
-                  {qualification === item && (
-                    <Ionicons name="checkmark-circle" size={20} color="#1B64DA" />
-                  )}
+                  {item === qualification && <Feather name="check" size={18} color={colors.brandBlue} />}
                 </TouchableOpacity>
               )}
             />
@@ -856,34 +828,31 @@ export function NewDoctorVisitScreen() {
         </View>
       </Modal>
 
-      {/* Category Modal */}
+      {/* Category Picker Modal */}
       <Modal visible={isCategoryPickerOpen} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Select Category</Text>
+              <Text style={styles.modalTitle}>Select Customer Category</Text>
               <TouchableOpacity onPress={() => setIsCategoryPickerOpen(false)}>
-                <Ionicons name="close" size={22} color="#64748B" />
+                <Feather name="x" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
             <FlatList
-              data={categoriesList}
-              keyExtractor={(it) => it}
-              style={{ maxHeight: 320 }}
+              data={categoriesList.length > 0 ? categoriesList : ["A", "B", "C"]}
+              keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={styles.itemRow}
+                  style={styles.modalItemRow}
                   onPress={() => {
                     setCategory(item);
                     setIsCategoryPickerOpen(false);
                   }}
                 >
-                  <Text style={[styles.itemName, category === item && styles.itemNameActive]}>
+                  <Text style={[styles.modalItemText, item === category && styles.modalItemTextActive]}>
                     {item}
                   </Text>
-                  {category === item && (
-                    <Ionicons name="checkmark-circle" size={20} color="#1B64DA" />
-                  )}
+                  {item === category && <Feather name="check" size={18} color={colors.brandBlue} />}
                 </TouchableOpacity>
               )}
             />
@@ -898,27 +867,67 @@ export function NewDoctorVisitScreen() {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Select Doctor Type</Text>
               <TouchableOpacity onPress={() => setIsDoctorTypePickerOpen(false)}>
-                <Ionicons name="close" size={22} color="#64748B" />
+                <Feather name="x" size={20} color={colors.textMuted} />
               </TouchableOpacity>
             </View>
             <FlatList
-              data={doctorTypesList}
-              keyExtractor={(it) => it}
-              style={{ maxHeight: 320 }}
+              data={doctorTypesList.length > 0 ? doctorTypesList : ["Consultant", "Surgeon", "General"]}
+              keyExtractor={(item) => item}
               renderItem={({ item }) => (
                 <TouchableOpacity
-                  style={styles.itemRow}
+                  style={styles.modalItemRow}
                   onPress={() => {
                     setDoctorType(item);
                     setIsDoctorTypePickerOpen(false);
                   }}
                 >
-                  <Text style={[styles.itemName, doctorType === item && styles.itemNameActive]}>
+                  <Text style={[styles.modalItemText, item === doctorType && styles.modalItemTextActive]}>
                     {item}
                   </Text>
-                  {doctorType === item && (
-                    <Ionicons name="checkmark-circle" size={20} color="#1B64DA" />
-                  )}
+                  {item === doctorType && <Feather name="check" size={18} color={colors.brandBlue} />}
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Area Search & Select Modal */}
+      <Modal visible={isAreaPickerOpen} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Select Territory Area</Text>
+              <TouchableOpacity onPress={() => setIsAreaPickerOpen(false)}>
+                <Feather name="x" size={20} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.searchBox}>
+              <Feather name="search" size={16} color={colors.textMuted} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search area..."
+                placeholderTextColor={colors.textFaint}
+                value={areaSearchQuery}
+                onChangeText={setAreaSearchQuery}
+              />
+            </View>
+            <FlatList
+              data={filteredAreas}
+              keyExtractor={(item) => String(item.id)}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.areaItemRow}
+                  onPress={() => handleSelectArea(item)}
+                >
+                  <View style={styles.areaPinCircle}>
+                    <Feather name="map-pin" size={14} color={colors.brandBlue} />
+                  </View>
+                  <View style={{ flex: 1, marginLeft: 10 }}>
+                    <Text style={styles.areaItemName}>{item.name}</Text>
+                    <Text style={styles.areaItemSub}>{item.city} • {item.pincode}</Text>
+                  </View>
+                  {item.name === areaText && <Feather name="check" size={18} color={colors.brandBlue} />}
                 </TouchableOpacity>
               )}
             />
@@ -932,344 +941,438 @@ export function NewDoctorVisitScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#1E293B",
-  },
-  header: {
-    height: 56,
-    backgroundColor: "#1E293B",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  backBtn: {
-    padding: 4,
-  },
-  headerTitleBlock: {
-    flex: 1,
-  },
-  headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "700",
-  },
-  headerSubtitle: {
-    color: "#94A3B8",
-    fontSize: 11,
-    marginTop: 1,
+    backgroundColor: colors.background,
   },
   stepBadge: {
-    backgroundColor: "rgba(255,255,255,0.12)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: radii.full,
   },
   stepBadgeText: {
-    color: "#FFFFFF",
+    color: colors.surface,
     fontSize: 12,
+    fontWeight: "800",
+  },
+  stepperContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+  },
+  stepPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: radii.full,
+    backgroundColor: colors.inputBackground,
+    gap: 4,
+  },
+  stepPillActive: {
+    backgroundColor: colors.bluePastel,
+  },
+  stepPillDone: {
+    backgroundColor: colors.tealPastel,
+  },
+  stepIconCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.borderLight,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stepIconCircleActive: {
+    backgroundColor: colors.brandBlue,
+  },
+  stepIconCircleDone: {
+    backgroundColor: colors.teal,
+  },
+  stepPillText: {
+    ...typography.caption,
+    fontSize: 11,
     fontWeight: "700",
+    color: colors.textMuted,
   },
-  progressBarTrack: {
-    height: 3,
-    backgroundColor: "#334155",
-    width: "100%",
+  stepPillTextActive: {
+    color: colors.brandBlue,
+    fontWeight: "800",
   },
-  progressBarFill: {
-    height: "100%",
-    backgroundColor: "#1B64DA",
+  stepPillTextDone: {
+    color: colors.teal,
+    fontWeight: "800",
+  },
+  stepConnectorLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: colors.borderLight,
+    marginHorizontal: 4,
+  },
+  stepConnectorLineDone: {
+    backgroundColor: colors.teal,
   },
   container: {
     flex: 1,
-    backgroundColor: "#F8FAFC",
   },
   content: {
-    padding: 16,
-    paddingBottom: 32,
-  },
-  sectionHeaderTitle: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: "#1E293B",
-    letterSpacing: 0.5,
-    marginBottom: 16,
+    padding: spacing.lg,
+    paddingBottom: spacing.xxxl * 2,
   },
   cardBox: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
-    padding: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: colors.borderLight,
+    ...shadows.soft,
+  },
+  cardHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    marginBottom: spacing.lg,
+  },
+  cardIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: colors.bluePastel,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cardTitle: {
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
+  },
+  cardSubtitle: {
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.textMuted,
   },
   fieldBlock: {
-    marginBottom: 18,
-  },
-  fieldLabelPrimary: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#E11D48",
-    marginBottom: 4,
+    marginBottom: spacing.md,
   },
   fieldLabel: {
+    ...typography.caption,
     fontSize: 12,
-    fontWeight: "600",
-    color: "#64748B",
-    marginBottom: 4,
-  },
-  underlineInput: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#CBD5E1",
-    paddingVertical: 6,
-    fontSize: 14,
-    color: "#1E293B",
-    fontWeight: "500",
-  },
-  underlineDropdown: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderBottomWidth: 1,
-    borderBottomColor: "#CBD5E1",
-    paddingVertical: 8,
-    minHeight: 38,
-  },
-  valueText: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#1E293B",
-    flex: 1,
-  },
-  iconsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  toggleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-    marginBottom: 16,
-  },
-  toggleTitle: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: "#1E293B",
+    fontWeight: "700",
+    color: colors.navy,
+    marginBottom: 6,
+    textTransform: "uppercase",
     letterSpacing: 0.5,
   },
-  toggleSubtitle: {
-    fontSize: 11,
-    color: "#64748B",
-    marginTop: 2,
+  fieldLabelPrimary: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.navy,
+    marginBottom: 6,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
-  errorText: {
-    fontSize: 11,
-    color: "#E11D48",
-    marginTop: 4,
+  required: {
+    color: colors.accentRed,
   },
-
-  // Step 4 Styles
-  photoHeaderRow: {
+  inputField: {
+    backgroundColor: colors.inputBackground,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
+  },
+  textArea: {
+    minHeight: 76,
+    textAlignVertical: "top",
+  },
+  dropdownCard: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    backgroundColor: colors.inputBackground,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
   },
-  cameraFloatingButton: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: "#F97316",
+  dropdownCardError: {
+    borderColor: colors.accentRed,
+  },
+  dropdownValue: {
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
+    fontWeight: "600",
+  },
+  twoColRow: {
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+  readOnlyBox: {
+    backgroundColor: colors.borderLight,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    justifyContent: "center",
+  },
+  readOnlyText: {
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textMuted,
+    fontWeight: "600",
+  },
+  photoDashedBox: {
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: colors.brandBlue,
+    borderRadius: radii.xl,
+    padding: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 3,
+    backgroundColor: colors.inputBackground,
+    overflow: "hidden",
+    minHeight: 180,
   },
-  photoContainer: {
+  photoPreviewWrapper: {
     width: "100%",
-    height: 220,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 8,
+    height: 180,
+    borderRadius: radii.lg,
     overflow: "hidden",
     position: "relative",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#E2E8F0",
   },
   capturedPhoto: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
   },
-  photoIllustrationWrapper: {
+  retakeBadge: {
+    position: "absolute",
+    bottom: 10,
+    right: 10,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-  },
-  photoIllustrationCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: "#EEF2FF",
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 12,
-  },
-  capturePhotoText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#1E293B",
-  },
-  outlinedRemarksBox: {
-    borderWidth: 1,
-    borderColor: "#CBD5E1",
-    borderRadius: 4,
+    backgroundColor: "rgba(15, 21, 56, 0.85)",
     paddingHorizontal: 12,
-    paddingVertical: 10,
-    backgroundColor: "#FFFFFF",
-    minHeight: 64,
+    paddingVertical: 6,
+    borderRadius: radii.full,
+    gap: 6,
   },
-  remarksTextInput: {
-    fontSize: 14,
-    color: "#1E293B",
-  },
-  starsContainer: {
-    alignItems: "center",
-    marginVertical: 24,
-  },
-  starsRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-
-  // Bottom Navigation Bar
-  bottomBar: {
-    height: 54,
-    backgroundColor: "#FFFFFF",
-    borderTopWidth: 1,
-    borderTopColor: "#E2E8F0",
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-  },
-  prevBtn: {
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-  },
-  prevBtnText: {
-    color: "#64748B",
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  stepText: {
-    color: "#334155",
+  retakeText: {
+    color: colors.surface,
     fontSize: 12,
     fontWeight: "700",
   },
-  nextBtn: {
-    paddingVertical: 8,
+  photoPlaceholder: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cameraIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: colors.bluePastel,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
+  },
+  photoTapText: {
+    ...typography.heading,
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.textInk,
+  },
+  photoHintText: {
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  starsWrapper: {
+    alignItems: "center",
+    paddingTop: spacing.md,
+  },
+  ratingPrompt: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.textMuted,
+    marginBottom: 8,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  starsRow: {
+    flexDirection: "row",
+    gap: 8,
+  },
+  starTouch: {
+    padding: 4,
+  },
+  bottomBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: colors.surface,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderLight,
+    ...shadows.soft,
+  },
+  prevBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
     paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: radii.lg,
+    backgroundColor: colors.inputBackground,
+  },
+  prevBtnText: {
+    ...typography.caption,
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.textInk,
+  },
+  stepIndicatorTextContainer: {
+    alignItems: "center",
+  },
+  stepCurrentLabel: {
+    ...typography.caption,
+    fontSize: 12,
+    fontWeight: "800",
+    color: colors.textMuted,
+    letterSpacing: 0.5,
+  },
+  nextBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.navy,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: radii.lg,
+    ...shadows.soft,
   },
   nextBtnText: {
-    color: "#16A34A",
+    ...typography.button,
     fontSize: 14,
     fontWeight: "800",
+    color: colors.surface,
   },
   finishBtn: {
-    backgroundColor: "#16A34A",
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-    borderRadius: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.successGreen,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: radii.lg,
+    ...shadows.soft,
   },
   finishBtnText: {
-    color: "#FFFFFF",
-    fontSize: 13,
+    ...typography.button,
+    fontSize: 14,
     fontWeight: "800",
+    color: colors.surface,
   },
-
-  // Modals
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: colors.backdrop,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: spacing.xl,
   },
   modalCard: {
     width: "100%",
-    maxWidth: 340,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 12,
-    padding: 16,
-    elevation: 8,
+    maxWidth: 360,
+    maxHeight: "80%",
+    backgroundColor: colors.surface,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
+    ...shadows.medium,
   },
   modalHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 12,
+    marginBottom: spacing.md,
   },
   modalTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#1E293B",
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   searchBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#F1F5F9",
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    marginBottom: 10,
-    gap: 8,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.md,
+    gap: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    fontSize: 13,
-    color: "#1E293B",
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
+  },
+  modalItemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+  },
+  modalItemText: {
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textInk,
+    fontWeight: "600",
+  },
+  modalItemTextActive: {
+    color: colors.brandBlue,
+    fontWeight: "800",
   },
   areaItemRow: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 10,
+    paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
+    borderBottomColor: colors.borderLight,
   },
   areaPinCircle: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: "#EEF2FF",
+    backgroundColor: colors.bluePastel,
     alignItems: "center",
     justifyContent: "center",
   },
   areaItemName: {
-    fontSize: 13,
+    ...typography.body,
+    fontSize: 14,
     fontWeight: "700",
-    color: "#1E293B",
+    color: colors.textInk,
   },
   areaItemSub: {
-    fontSize: 11,
-    color: "#64748B",
+    ...typography.caption,
+    fontSize: 12,
+    color: colors.textMuted,
     marginTop: 2,
-  },
-  itemRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#F1F5F9",
-  },
-  itemName: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#334155",
-  },
-  itemNameActive: {
-    color: "#1B64DA",
-    fontWeight: "700",
   },
 });

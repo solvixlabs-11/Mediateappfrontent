@@ -17,11 +17,11 @@ import { usersApi } from "../api/usersApi";
 import { ManagerSummary, UserDetail } from "../types";
 import { Button } from "../../../shared/components/Button";
 import { Card } from "../../../shared/components/Card";
-import { Header } from "../../../shared/components/Header";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 import { Input } from "../../../shared/components/Input";
 import { ScreenContainer } from "../../../shared/components/ScreenContainer";
 import { StatusChip } from "../../../shared/components/StatusChip";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { colors, radii, spacing, typography } from "../../../theme";
 
 export function UsersListScreen() {
   const [users, setUsers] = useState<UserDetail[]>([]);
@@ -265,9 +265,10 @@ export function UsersListScreen() {
 
   return (
     <ScreenContainer>
-      <Header
+      <ScreenHeader
         title="User Management"
         subtitle={`System Accounts (${totalCount} Total)`}
+        variant="navy"
       />
 
       {/* Search and Action Bar */}

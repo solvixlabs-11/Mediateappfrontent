@@ -14,7 +14,7 @@ export const leavesApi = {
   },
 
   apply: async (payload: LeaveApplyPayload): Promise<LeaveDto> => {
-    const res = await apiClient.post<LeaveDto>("/api/v1/leaves/apply", payload);
+    const res = await apiClient.post<LeaveDto>("/api/v1/leaves", payload);
     return res.data;
   },
 

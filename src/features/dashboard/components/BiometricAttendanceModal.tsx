@@ -9,11 +9,15 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 import { attendanceApi, AttendanceDto } from "../../attendance/api/attendanceApi";
 import { dcrApi } from "../../dcr/api/dcrApi";
 import { getCurrentGeoLocation } from "../../../shared/utils/location";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
+import { PrimaryButton } from "../../../shared/components/PrimaryButton";
 
-interface BiometricAttendanceModalProps {
+export interface BiometricAttendanceModalProps {
   visible: boolean;
   onClose: () => void;
   onAttendanceUpdated?: () => void;
@@ -24,24 +28,36 @@ export function BiometricAttendanceModal({
   onClose,
   onAttendanceUpdated,
 }: BiometricAttendanceModalProps) {
+  const insets = useSafeAreaInsets();
   const [attendance, setAttendance] = useState<AttendanceDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locationName, setLocationName] = useState<string>("Ahmedabad");
 
   // Live calculation states
   const [currentTimeFormatted, setCurrentTimeFormatted] = useState<string>("");
   const [workingTimeFormatted, setWorkingTimeFormatted] = useState<string>("00 : 00");
   const [visitsDoneCount, setVisitsDoneCount] = useState<number>(0);
   const [totalPlannedVisitsCount, setTotalPlannedVisitsCount] = useState<number>(1);
-  const [lastPunchInDisplay, setLastPunchInDisplay] = useState<string>("Empty");
+  const [lastPunchInDisplay, setLastPunchInDisplay] = useState<string | null>(null);
 
   const formatDateTime = (date: Date) => {
-    const dd = String(date.getDate()).padStart(2, "0");
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const yyyy = date.getFullYear();
-    const hh = String(date.getHours()).padStart(2, "0");
-    const min = String(date.getMinutes()).padStart(2, "0");
-    return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+    const months = [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+    const day = date.getDate();
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    const formattedHours = String(hours).padStart(2, "0");
+
+    return `${day} ${month} ${year} · ${formattedHours}:${minutes} ${ampm}`;
   };
 
   const loadData = async () => {
@@ -58,15 +74,24 @@ export function BiometricAttendanceModal({
         const checkInDate = new Date(todayAtt.check_in_time);
         setLastPunchInDisplay(formatDateTime(checkInDate));
 
-        // Calculate working duration
         const diffMs = Math.max(0, now.getTime() - checkInDate.getTime());
         const hrs = String(Math.floor(diffMs / (1000 * 60 * 60))).padStart(2, "0");
         const mins = String(Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, "0");
         setWorkingTimeFormatted(`${hrs} : ${mins}`);
       } else {
-        setLastPunchInDisplay("Empty");
+        setLastPunchInDisplay(null);
         setWorkingTimeFormatted("00 : 00");
       }
+
+      // Fetch location preview
+      getCurrentGeoLocation()
+        .then((loc) => {
+          if (loc?.address) {
+            const shortLoc = loc.address.split(",")[0] || "Ahmedabad";
+            setLocationName(shortLoc);
+          }
+        })
+        .catch(() => {});
 
       // 2. Fetch Today's Visits
       const todayStr = now.toISOString().split("T")[0];
@@ -85,7 +110,7 @@ export function BiometricAttendanceModal({
       }
     } catch {
       setAttendance(null);
-      setLastPunchInDisplay("Empty");
+      setLastPunchInDisplay(null);
     } finally {
       setIsLoading(false);
     }
@@ -106,13 +131,13 @@ export function BiometricAttendanceModal({
         latitude: loc?.latitude || 23.075341,
         longitude: loc?.longitude || 72.531375,
         accuracy: loc?.accuracy || 10,
-        address: loc?.address || "Chanakyapuri, Ahmedabad, Gujarat",
+        address: loc?.address || "Ahmedabad, Gujarat",
         mock_location_flag: loc?.mock_location_flag || false,
         remarks: "MR Daily Attendance Punch In",
         client_uuid: `att-in-${Date.now()}`,
       });
 
-      Alert.alert("Punch In Successful 🎉", "Your shift punch in has been recorded with GPS verification.");
+      Alert.alert("Punch In Successful", "Your attendance has been recorded with GPS verification.");
       onAttendanceUpdated?.();
       onClose();
     } catch (err: any) {
@@ -131,13 +156,13 @@ export function BiometricAttendanceModal({
         latitude: loc?.latitude || 23.075341,
         longitude: loc?.longitude || 72.531375,
         accuracy: loc?.accuracy || 10,
-        address: loc?.address || "Chanakyapuri, Ahmedabad, Gujarat",
+        address: loc?.address || "Ahmedabad, Gujarat",
         mock_location_flag: loc?.mock_location_flag || false,
         remarks: "MR Daily Attendance Punch Out",
       });
 
       Alert.alert(
-        "Punch Out Successful 👏",
+        "Punch Out Successful",
         `Today's total working time: ${workingTimeFormatted} (${visitsDoneCount} visits completed).`
       );
       onAttendanceUpdated?.();
@@ -154,107 +179,133 @@ export function BiometricAttendanceModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.modalBackdrop}>
-          <TouchableWithoutFeedback>
-            <View style={styles.bottomSheetCard}>
-              {isLoading ? (
-                <View style={styles.loadingContainer}>
-                  <ActivityIndicator size="large" color="#E11D48" />
-                  <Text style={styles.loadingText}>Fetching shift details...</Text>
-                </View>
-              ) : isCheckedOut ? (
-                /* ================= ALREADY PUNCHED OUT ================= */
-                <View style={styles.contentBox}>
-                  <Text style={styles.sheetTitle}>Punch Out</Text>
-                  <Text style={styles.infoLine}>You have already punched out for today.</Text>
-                  <Text style={styles.infoLine}>Your today working time is {workingTimeFormatted}</Text>
-                  <Text style={styles.infoLine}>
-                    You have done {visitsDoneCount} visit out of {totalPlannedVisitsCount}
-                  </Text>
-                  <View style={styles.dividerLine} />
-                  <View style={styles.btnRow}>
-                    <TouchableOpacity style={styles.fullWidthCloseBtn} onPress={onClose}>
-                      <Text style={styles.closeBtnText}>Close</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ) : isCheckedIn ? (
-                /* ================= PUNCH OUT CONFIRMATION (MATCHES SCREENSHOT 2) ================= */
-                <View style={styles.contentBox}>
-                  <Text style={styles.sheetTitle}>Punch Out</Text>
-                  <Text style={styles.promptText}>Are you sure want to punch out?</Text>
+      <View style={styles.modalBackdrop}>
+        <TouchableWithoutFeedback onPress={onClose}>
+          <View style={styles.dismissOverlay} />
+        </TouchableWithoutFeedback>
 
-                  <Text style={styles.detailLine}>Your standard working time should be 1 hour</Text>
-                  <Text style={styles.detailLine}>Your today working time is {workingTimeFormatted}</Text>
-                  <Text style={styles.detailLine}>
-                    You have done {visitsDoneCount} visit out of {totalPlannedVisitsCount}
-                  </Text>
+        <View
+          style={[
+            styles.sheetCard,
+            { paddingBottom: Math.max(insets.bottom, spacing.xl) },
+          ]}
+        >
+          {/* Top Drag Handle */}
+          <View style={styles.dragHandle} />
 
-                  <View style={styles.dividerLine} />
-
-                  <View style={styles.btnRow}>
-                    <TouchableOpacity
-                      style={styles.cancelBtn}
-                      onPress={onClose}
-                      disabled={isSubmitting}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={styles.cancelBtnText}>Cancel</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.confirmPunchBtn}
-                      onPress={handleConfirmPunchOut}
-                      disabled={isSubmitting}
-                      activeOpacity={0.8}
-                    >
-                      {isSubmitting ? (
-                        <ActivityIndicator color="#FFFFFF" size="small" />
-                      ) : (
-                        <Text style={styles.confirmPunchBtnText}>Punch out</Text>
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              ) : (
-                /* ================= PUNCH IN CONFIRMATION (MATCHES SCREENSHOT 1) ================= */
-                <View style={styles.contentBox}>
-                  <Text style={styles.sheetTitle}>Punch In</Text>
-                  <Text style={styles.promptText}>Are you sure want to punch in?</Text>
-
-                  <Text style={styles.detailLine}>Last punch In {lastPunchInDisplay}</Text>
-                  <Text style={styles.detailLine}>punch In {currentTimeFormatted}</Text>
-
-                  <View style={styles.btnRow}>
-                    <TouchableOpacity
-                      style={styles.cancelBtn}
-                      onPress={onClose}
-                      disabled={isSubmitting}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={styles.cancelBtnText}>Cancel</Text>
-                    </TouchableOpacity>
-
-                    <TouchableOpacity
-                      style={styles.confirmPunchBtn}
-                      onPress={handleConfirmPunchIn}
-                      disabled={isSubmitting}
-                      activeOpacity={0.8}
-                    >
-                      {isSubmitting ? (
-                        <ActivityIndicator color="#FFFFFF" size="small" />
-                      ) : (
-                        <Text style={styles.confirmPunchBtnText}>Punch In</Text>
-                      )}
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color={colors.accentRed} />
+              <Text style={styles.loadingText}>Fetching shift details...</Text>
             </View>
-          </TouchableWithoutFeedback>
+          ) : isCheckedOut ? (
+            /* Already Punched Out State */
+            <View style={styles.contentBox}>
+              <View style={styles.redIconTile}>
+                <Feather name="check-circle" size={24} color={colors.accentRed} />
+              </View>
+              <Text style={styles.sheetTitle}>Punched out for today</Text>
+              <Text style={styles.dateTimeText}>{currentTimeFormatted}</Text>
+
+              <View style={styles.locationPill}>
+                <Feather name="map" size={16} color={colors.brandBlue} />
+                <Text style={styles.locationPillText}>
+                  Location: {locationName} · GPS on
+                </Text>
+              </View>
+
+              <Text style={styles.summaryText}>
+                Total working time: {workingTimeFormatted} ({visitsDoneCount} of {totalPlannedVisitsCount} visits completed).
+              </Text>
+
+              <PrimaryButton
+                title="Close"
+                onPress={onClose}
+                variant="outline"
+                style={styles.fullWidthBtn}
+              />
+            </View>
+          ) : isCheckedIn ? (
+            /* Punch Out Confirmation */
+            <View style={styles.contentBox}>
+              <View style={styles.redIconTile}>
+                <Feather name="navigation" size={24} color={colors.accentRed} />
+              </View>
+
+              <Text style={styles.sheetTitle}>Punch out now?</Text>
+              <Text style={styles.dateTimeText}>{currentTimeFormatted}</Text>
+
+              <View style={styles.locationPill}>
+                <Feather name="map" size={16} color={colors.brandBlue} />
+                <Text style={styles.locationPillText}>
+                  Location: {locationName} · GPS on
+                </Text>
+              </View>
+
+              {lastPunchInDisplay && (
+                <Text style={styles.lastPunchText}>
+                  Last punch in: {lastPunchInDisplay}
+                </Text>
+              )}
+
+              <View style={styles.actionRow}>
+                <PrimaryButton
+                  title="Cancel"
+                  onPress={onClose}
+                  variant="outline"
+                  style={styles.halfBtn}
+                />
+                <PrimaryButton
+                  title="Punch Out"
+                  onPress={handleConfirmPunchOut}
+                  isLoading={isSubmitting}
+                  variant="red"
+                  style={styles.halfBtn}
+                />
+              </View>
+            </View>
+          ) : (
+            /* Punch In Confirmation (Matches Screenshot 6 exactly) */
+            <View style={styles.contentBox}>
+              <View style={styles.redIconTile}>
+                <Feather name="navigation" size={24} color={colors.accentRed} />
+              </View>
+
+              <Text style={styles.sheetTitle}>Punch in now?</Text>
+              <Text style={styles.dateTimeText}>{currentTimeFormatted}</Text>
+
+              <View style={styles.locationPill}>
+                <Feather name="map" size={16} color={colors.brandBlue} />
+                <Text style={styles.locationPillText}>
+                  Location: {locationName} · GPS on
+                </Text>
+              </View>
+
+              {lastPunchInDisplay && (
+                <Text style={styles.lastPunchText}>
+                  Last punch in: {lastPunchInDisplay}
+                </Text>
+              )}
+
+              <View style={styles.actionRow}>
+                <PrimaryButton
+                  title="Cancel"
+                  onPress={onClose}
+                  variant="outline"
+                  style={styles.halfBtn}
+                />
+                <PrimaryButton
+                  title="Punch In"
+                  onPress={handleConfirmPunchIn}
+                  isLoading={isSubmitting}
+                  variant="red"
+                  style={styles.halfBtn}
+                />
+              </View>
+            </View>
+          )}
         </View>
-      </TouchableWithoutFeedback>
+      </View>
     </Modal>
   );
 }
@@ -262,115 +313,106 @@ export function BiometricAttendanceModal({
 const styles = StyleSheet.create({
   modalBackdrop: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.45)",
     justifyContent: "flex-end",
+    backgroundColor: colors.backdrop,
   },
-  bottomSheetCard: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 28,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 10,
+  dismissOverlay: {
+    ...StyleSheet.absoluteFill,
+  },
+  sheetCard: {
+    backgroundColor: colors.surface,
+    borderTopLeftRadius: radii.sheet,
+    borderTopRightRadius: radii.sheet,
+    paddingTop: spacing.md,
+    paddingHorizontal: spacing.xl,
+    ...shadows.sheet,
+  },
+  dragHandle: {
+    width: 44,
+    height: 4,
+    borderRadius: radii.full,
+    backgroundColor: colors.border,
+    alignSelf: "center",
+    marginBottom: spacing.lg,
   },
   contentBox: {
-    width: "100%",
+    alignItems: "flex-start",
+  },
+  redIconTile: {
+    width: 54,
+    height: 54,
+    borderRadius: 18,
+    backgroundColor: colors.accentRedPastel,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
   },
   sheetTitle: {
-    fontSize: 18,
+    ...typography.heading,
+    fontSize: 22,
     fontWeight: "800",
-    color: "#0F172A",
-    marginBottom: 8,
+    color: colors.textInk,
+    marginBottom: 4,
   },
-  promptText: {
+  dateTimeText: {
+    ...typography.body,
     fontSize: 14,
-    color: "#334155",
-    fontWeight: "500",
-    marginBottom: 12,
+    color: colors.textMuted,
+    marginBottom: spacing.lg,
   },
-  detailLine: {
-    fontSize: 13,
-    color: "#334155",
-    marginBottom: 4,
-    lineHeight: 20,
-  },
-  infoLine: {
-    fontSize: 13,
-    color: "#475569",
-    marginBottom: 4,
-  },
-  dividerLine: {
-    height: 1,
-    backgroundColor: "#E2E8F0",
-    marginVertical: 18,
+  locationPill: {
     width: "100%",
-  },
-  btnRow: {
+    height: 48,
+    borderRadius: radii.lg,
+    backgroundColor: colors.inputBackground,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    gap: 14,
-    marginTop: 16,
-  },
-  cancelBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 6,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.xl,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    backgroundColor: "#FFFFFF",
-    alignItems: "center",
-    justifyContent: "center",
+    borderColor: colors.borderLight,
   },
-  cancelBtnText: {
-    fontSize: 14,
+  locationPillText: {
+    ...typography.bodyMedium,
+    fontSize: 13,
+    color: colors.textInk,
+    marginLeft: spacing.sm,
     fontWeight: "600",
-    color: "#E11D48",
   },
-  confirmPunchBtn: {
+  lastPunchText: {
+    ...typography.caption,
+    color: colors.textFaint,
+    marginBottom: spacing.md,
+  },
+  summaryText: {
+    ...typography.body,
+    color: colors.textMuted,
+    marginBottom: spacing.xl,
+  },
+  actionRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+    gap: spacing.md,
+    marginTop: spacing.sm,
+  },
+  halfBtn: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 6,
-    backgroundColor: "#E11D48",
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#E11D48",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3,
-    elevation: 3,
+    height: 50,
   },
-  confirmPunchBtnText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-  fullWidthCloseBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 6,
-    backgroundColor: "#1B64DA",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  closeBtnText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#FFFFFF",
+  fullWidthBtn: {
+    width: "100%",
+    height: 50,
   },
   loadingContainer: {
-    paddingVertical: 28,
+    paddingVertical: spacing.xxxl,
     alignItems: "center",
     justifyContent: "center",
+    width: "100%",
   },
   loadingText: {
-    marginTop: 10,
-    fontSize: 13,
-    color: "#64748B",
+    ...typography.body,
+    color: colors.textMuted,
+    marginTop: spacing.md,
   },
 });

@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { TourProgramDto, toursApi } from "../api/toursApi";
 import { colors, radii, spacing } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 export function TourPlannerScreen() {
   const navigation = useNavigation();
@@ -97,20 +98,13 @@ export function TourPlannerScreen() {
 
   return (
     <SafeAreaView style={styles.screenContainer} edges={["top", "bottom"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#0F172A" />
-        </TouchableOpacity>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Monthly Tour Program (TP)</Text>
-          <Text style={styles.subtitle}>Plan field beats & outstation doctor itineraries</Text>
-        </View>
-      </View>
+      {/* Top Header */}
+      <ScreenHeader
+        title="Tour Planner"
+        subtitle="Plan field beats & doctor itineraries"
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
 
       {isLoading ? (
         <View style={styles.loadingContainer}>

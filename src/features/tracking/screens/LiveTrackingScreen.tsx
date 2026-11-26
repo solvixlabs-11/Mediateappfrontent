@@ -20,6 +20,7 @@ import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-ico
 import { useNavigation } from "@react-navigation/native";
 import { WebView } from "react-native-webview";
 import { usersApi } from "../../users/api/usersApi";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 const RNWebView = WebView as unknown as React.ComponentType<any>;
 
@@ -286,16 +287,12 @@ export function LiveTrackingScreen() {
       <StatusBar style="light" />
 
       {/* Top Header Bar */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Live Tracking</Text>
-      </View>
+      <ScreenHeader
+        title="Live Tracking"
+        subtitle="Field staff GPS & route telemetry"
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
 
       {/* Select Options Accordion Card */}
       <View style={styles.optionsCard}>

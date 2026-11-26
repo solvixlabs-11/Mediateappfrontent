@@ -8,11 +8,14 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
+import { Feather } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { API_BASE_URL } from "../../../api/client";
 import { ROUTES } from "../../../navigation/routes";
@@ -20,19 +23,18 @@ import { authApi } from "../../auth/api/authApi";
 import { useAuthStore } from "../../auth/store";
 import { usersApi } from "../../users/api/usersApi";
 import { UserDetail } from "../../users/types";
-import { Button } from "../../../shared/components/Button";
-import { Card } from "../../../shared/components/Card";
-import { Header } from "../../../shared/components/Header";
-import { Input } from "../../../shared/components/Input";
-import { ScreenContainer } from "../../../shared/components/ScreenContainer";
-import { StatusChip } from "../../../shared/components/StatusChip";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
+import { PinDots } from "../../../shared/components/PinDots";
+import { Keypad } from "../../../shared/components/Keypad";
+import { secureStorage } from "../../../shared/services/secureStore";
 import { ProductsCatalogScreen } from "../../products/screens/ProductsCatalogScreen";
 import { OrdersScreen } from "../../orders/screens/OrdersScreen";
 import { NotificationsModal } from "../../notifications/screens/NotificationsScreen";
+import appConfig from "../../../../app.json";
 
 export function ProfileScreen() {
   const navigation = useNavigation<any>();
+  const insets = useSafeAreaInsets();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
@@ -40,7 +42,7 @@ export function ProfileScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
 
-  // Edit Modal State
+  // Edit Contact Modal State
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editName, setEditName] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -53,10 +55,21 @@ export function ProfileScreen() {
   const [confirmPw, setConfirmPw] = useState("");
   const [isChangingPw, setIsChangingPw] = useState(false);
 
+  // Change MPIN Modal State
+  const [isMpinModalVisible, setIsMpinModalVisible] = useState(false);
+  const [mpinStep, setMpinStep] = useState<1 | 2>(1);
+  const [firstMpin, setFirstMpin] = useState("");
+  const [confirmMpin, setConfirmMpin] = useState("");
+  const [mpinError, setMpinError] = useState("");
+  const [hasMpinShake, setHasMpinShake] = useState(false);
+  const [isSavingMpin, setIsSavingMpin] = useState(false);
+
   // Enterprise Feature Modals State
   const [isProductsVisible, setIsProductsVisible] = useState(false);
   const [isOrdersVisible, setIsOrdersVisible] = useState(false);
   const [isNotifsVisible, setIsNotifsVisible] = useState(false);
+
+  const appVersion = appConfig?.expo?.version || "1.0.0";
 
   const fetchProfile = async () => {
     try {
@@ -146,6 +159,7 @@ export function ProfileScreen() {
     }
 
     try {
+      setIsChangingPw(true);
       await authApi.changePassword({
         old_password: currentPw,
         new_password: newPw,
@@ -179,11 +193,26 @@ export function ProfileScreen() {
             try {
               await authApi.logoutAll();
             } catch {
-              // Ignore network failure to ensure clean logout
+              // Ignore network failure
             } finally {
               await logout();
             }
           },
+        },
+      ]
+    );
+  };
+
+  const handleSignOut = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out from Mediate Healthcare?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Sign Out",
+          style: "destructive",
+          onPress: () => logout(),
         },
       ]
     );
@@ -195,15 +224,67 @@ export function ProfileScreen() {
     });
   };
 
+  // MPIN Keypad handlers
+  const activeMpin = mpinStep === 1 ? firstMpin : confirmMpin;
+
+  const handleMpinDigit = async (digit: string) => {
+    if (activeMpin.length >= 4) return;
+    setHasMpinShake(false);
+    setMpinError("");
+
+    const newPin = activeMpin + digit;
+
+    if (mpinStep === 1) {
+      setFirstMpin(newPin);
+      if (newPin.length === 4) {
+        setTimeout(() => {
+          setMpinStep(2);
+        }, 180);
+      }
+    } else {
+      setConfirmMpin(newPin);
+      if (newPin.length === 4) {
+        if (newPin === firstMpin) {
+          try {
+            setIsSavingMpin(true);
+            await secureStorage.setMpin(newPin);
+            Alert.alert("Success", "Your 4-digit MPIN has been updated successfully!");
+            setIsMpinModalVisible(false);
+            setFirstMpin("");
+            setConfirmMpin("");
+            setMpinStep(1);
+          } catch {
+            Alert.alert("Error", "Could not save MPIN to secure storage.");
+          } finally {
+            setIsSavingMpin(false);
+          }
+        } else {
+          setHasMpinShake(true);
+          setMpinError("MPIN does not match. Try again.");
+          setTimeout(() => {
+            setConfirmMpin("");
+          }, 600);
+        }
+      }
+    }
+  };
+
+  const handleMpinDelete = () => {
+    setHasMpinShake(false);
+    setMpinError("");
+    if (mpinStep === 1) {
+      setFirstMpin((prev) => prev.slice(0, -1));
+    } else {
+      setConfirmMpin((prev) => prev.slice(0, -1));
+    }
+  };
+
   if (isLoading) {
     return (
-      <ScreenContainer>
-        <Header title="My Profile" subtitle="Mediate Healthcare" />
-        <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading profile data...</Text>
-        </View>
-      </ScreenContainer>
+      <View style={[styles.container, styles.loadingCenter]}>
+        <ActivityIndicator size="large" color={colors.navy} />
+        <Text style={styles.loadingText}>Loading profile...</Text>
+      </View>
     );
   }
 
@@ -211,312 +292,508 @@ export function ProfileScreen() {
     ? `${API_BASE_URL}${profile.profile_picture_url}`
     : null;
 
+  const initials = profile?.full_name
+    ?.split(" ")
+    .map((n) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase() || "MR";
+
   return (
-    <ScreenContainer>
-      <Header
-        title="My Profile"
-        subtitle={`Role: ${profile?.role.name || user?.role || "Representative"}`}
-      />
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        {/* User Hero Avatar Card */}
-        <Card style={styles.avatarCard}>
-          <View style={styles.avatarWrapper}>
-            {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+    <View style={styles.container}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingBottom: Math.max(insets.bottom + 36, 48) },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* HERO SECTION with Curved Bottom and Decorative Translucent Circles */}
+        <LinearGradient
+          colors={colors.navyGradient}
+          start={{ x: 0.1, y: 0.1 }}
+          end={{ x: 0.9, y: 0.9 }}
+          style={[styles.heroGradient, { paddingTop: Math.max(insets.top + 10, 36) }]}
+        >
+          {/* Decorative Translucent Circles */}
+          <View style={styles.decorativeCircleLeft} pointerEvents="none" />
+          <View style={styles.decorativeCircleRight} pointerEvents="none" />
+
+          {/* Top Bar with Back Button & Centered Title */}
+          <View style={styles.heroTopBar}>
+            {navigation?.canGoBack && navigation.canGoBack() ? (
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                style={styles.heroBackBtn}
+                activeOpacity={0.7}
+                accessibilityLabel="Go back"
+                hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              >
+                <Feather name="chevron-left" size={22} color={colors.surface} />
+              </TouchableOpacity>
             ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Text style={styles.avatarInitials}>
-                  {profile?.full_name
-                    ?.split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .substring(0, 2)
-                    .toUpperCase() || "MH"}
-                </Text>
-              </View>
+              <View style={styles.heroBackPlaceholder} />
             )}
+            <Text style={styles.heroTitle}>My Profile</Text>
+            <View style={styles.heroBackPlaceholder} />
+          </View>
+
+          {/* Large Centered Avatar with Translucent Ring & Red Camera Badge */}
+          <View style={styles.avatarContainer}>
+            <View style={styles.avatarRing}>
+              {avatarUrl ? (
+                <Image source={{ uri: avatarUrl }} style={styles.avatarImage} />
+              ) : (
+                <View style={styles.avatarFallback}>
+                  <Text style={styles.avatarInitialsText}>{initials}</Text>
+                </View>
+              )}
+            </View>
+
             <TouchableOpacity
               style={styles.cameraBadge}
               onPress={handlePickImage}
               disabled={isUploadingPhoto}
               activeOpacity={0.8}
+              accessibilityLabel="Change profile picture"
             >
               {isUploadingPhoto ? (
                 <ActivityIndicator size="small" color={colors.surface} />
               ) : (
-                <Ionicons name="camera" size={16} color={colors.surface} />
+                <Feather name="camera" size={15} color={colors.surface} />
               )}
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.userName}>{profile?.full_name}</Text>
-          <Text style={styles.userEmail}>{profile?.email}</Text>
+          {/* User Name & Email */}
+          <Text style={styles.userName} numberOfLines={2}>
+            {profile?.full_name}
+          </Text>
+          <Text style={styles.userEmail} numberOfLines={1}>
+            {profile?.email}
+          </Text>
 
-          <View style={styles.chipRow}>
-            <StatusChip
-              status={profile?.role.code || user?.role || "MR"}
-              label={profile?.role.name || "Medical Representative"}
-            />
-            {profile?.is_active && (
-              <View style={styles.activePill}>
-                <Ionicons name="checkmark-circle" size={14} color={colors.success} />
-                <Text style={styles.activeText}>Active</Text>
-              </View>
-            )}
-          </View>
-
-          <TouchableOpacity
-            style={styles.editProfileBtn}
-            onPress={() => setIsEditModalVisible(true)}
-          >
-            <Ionicons name="pencil" size={14} color={colors.primary} />
-            <Text style={styles.editProfileBtnText}>Edit Contact Details</Text>
-          </TouchableOpacity>
-        </Card>
-
-        {/* Contact Information */}
-        <Card style={styles.sectionCard}>
-          <Text style={styles.cardHeaderTitle}>Contact Information</Text>
-          <View style={styles.infoRow}>
-            <Ionicons name="mail-outline" size={18} color={colors.navy} />
-            <View style={styles.infoTextContainer}>
-              <Text style={styles.infoLabel}>Official Email</Text>
-              <Text style={styles.infoValue}>{profile?.email}</Text>
-            </View>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.infoRow}>
-            <Ionicons name="call-outline" size={18} color={colors.navy} />
-            <View style={styles.infoTextContainer}>
-              <Text style={styles.infoLabel}>Mobile Number</Text>
-              <Text style={styles.infoValue}>{profile?.phone || "Not configured"}</Text>
-            </View>
-          </View>
-        </Card>
-
-        {/* Reporting Manager Section (Feature 33 for MRs) */}
-        {profile?.role.code === "MR" && (
-          <Card style={styles.sectionCard}>
-            <Text style={styles.cardHeaderTitle}>Reporting Manager</Text>
-            {profile.current_manager ? (
-              <View style={styles.managerCard}>
-                <View style={styles.managerInfo}>
-                  <View style={styles.managerIconCircle}>
-                    <Ionicons name="person" size={20} color={colors.primary} />
-                  </View>
-                  <View style={styles.managerDetails}>
-                    <Text style={styles.managerName}>{profile.current_manager.full_name}</Text>
-                    <Text style={styles.managerSubtext}>{profile.current_manager.email}</Text>
-                    {profile.current_manager.phone && (
-                      <Text style={styles.managerPhone}>{profile.current_manager.phone}</Text>
-                    )}
-                  </View>
-                </View>
-
-                {profile.current_manager.phone && (
-                  <TouchableOpacity
-                    style={styles.callManagerBtn}
-                    onPress={() => handleCallManager(profile.current_manager!.phone!)}
-                  >
-                    <Ionicons name="call" size={16} color={colors.surface} />
-                    <Text style={styles.callManagerBtnText}>Call Manager</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ) : (
-              <View style={styles.noManagerBox}>
-                <Ionicons name="alert-circle-outline" size={20} color={colors.grey} />
-                <Text style={styles.noManagerText}>
-                  No reporting manager is currently assigned. Please contact Head Office.
-                </Text>
-              </View>
-            )}
-          </Card>
-        )}
-
-        {/* Enterprise Operations & Modules */}
-        <Card style={styles.sectionCard}>
-          <Text style={styles.cardHeaderTitle}>Enterprise Modules</Text>
-
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => setIsProductsVisible(true)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.actionLeft}>
-              <Ionicons name="tablet-landscape-outline" size={20} color={colors.primary} />
-              <Text style={styles.actionLabel}>Products & E-Detailing</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => setIsOrdersVisible(true)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.actionLeft}>
-              <Ionicons name="bag-handle-outline" size={20} color="#0D9488" />
-              <Text style={styles.actionLabel}>Commercial Orders & POB</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => navigation.navigate(ROUTES.ReportsCatalog as any)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.actionLeft}>
-              <Ionicons name="bar-chart-outline" size={20} color="#7C3AED" />
-              <Text style={styles.actionLabel}>Performance & Coverage Reports</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => setIsNotifsVisible(true)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.actionLeft}>
-              <Ionicons name="notifications-outline" size={20} color="#D97706" />
-              <Text style={styles.actionLabel}>Notification Center</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
-          </TouchableOpacity>
-        </Card>
-
-        {/* Security & Authentication */}
-        <Card style={styles.sectionCard}>
-          <Text style={styles.cardHeaderTitle}>Security & Sessions</Text>
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={() => setIsPwModalVisible(true)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.actionLeft}>
-              <Ionicons name="key-outline" size={20} color={colors.navy} />
-              <Text style={styles.actionLabel}>Change Login Password</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
-          </TouchableOpacity>
-
-          <View style={styles.divider} />
-
-          <TouchableOpacity
-            style={styles.actionRow}
-            onPress={handleLogoutAll}
-            activeOpacity={0.7}
-          >
-            <View style={styles.actionLeft}>
-              <Ionicons name="shield-half-outline" size={20} color={colors.danger} />
-              <Text style={[styles.actionLabel, { color: colors.danger }]}>
-                Log Out All Other Devices
+          {/* Role Chip and Status Chip */}
+          <View style={styles.chipsRow}>
+            <View style={styles.roleChip}>
+              <Text style={styles.roleChipText}>
+                {profile?.role.name || user?.role || "Medical Representative"}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.grey} />
-          </TouchableOpacity>
-        </Card>
 
-        {/* Sign Out Button */}
-        <Button
-          title="Sign Out"
-          variant="danger"
-          onPress={logout}
-          style={styles.signOutBtn}
-        />
+            <View
+              style={[
+                styles.statusChip,
+                profile?.is_active === false && styles.statusChipInactive,
+              ]}
+            >
+              <View
+                style={[
+                  styles.statusDot,
+                  profile?.is_active === false && styles.statusDotInactive,
+                ]}
+              />
+              <Text style={styles.statusChipText}>
+                {profile?.is_active === false ? "Inactive" : "Active"}
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
+
+        {/* CONTACT CARD (Overlapping Hero) */}
+        <View style={styles.contactCard}>
+          <View style={styles.contactCardHeader}>
+            <Text style={styles.contactCardTitle}>Contact</Text>
+            <TouchableOpacity
+              style={styles.editBtn}
+              onPress={() => setIsEditModalVisible(true)}
+              activeOpacity={0.75}
+              accessibilityLabel="Edit contact details"
+            >
+              <Feather name="edit-2" size={13} color={colors.brandBlue} />
+              <Text style={styles.editBtnText}>Edit</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.contactRow}>
+            <View style={[styles.contactIconBox, { backgroundColor: colors.bluePastel }]}>
+              <Feather name="mail" size={17} color={colors.brandBlue} />
+            </View>
+            <View style={styles.contactTextCol}>
+              <Text style={styles.contactLabel}>Official email</Text>
+              <Text style={styles.contactValue} numberOfLines={1}>
+                {profile?.email || user?.email}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.cardDivider} />
+
+          <View style={styles.contactRow}>
+            <View style={[styles.contactIconBox, { backgroundColor: colors.tealPastel }]}>
+              <Feather name="phone" size={17} color={colors.teal} />
+            </View>
+            <View style={styles.contactTextCol}>
+              <Text style={styles.contactLabel}>Mobile number</Text>
+              <Text style={styles.contactValue} numberOfLines={1}>
+                {profile?.phone || "Not configured"}
+              </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* REPORTING MANAGER SECTION */}
+        {profile?.role.code === "MR" && (
+          <View style={styles.sectionWrapper}>
+            <Text style={styles.sectionLabel}>REPORTING MANAGER</Text>
+            <View style={styles.sectionCard}>
+              {profile.current_manager ? (
+                <View style={styles.managerRow}>
+                  <View style={styles.managerAvatar}>
+                    <Feather name="user" size={20} color={colors.surface} />
+                  </View>
+                  <View style={styles.managerTextCol}>
+                    <Text style={styles.managerName}>{profile.current_manager.full_name}</Text>
+                    <Text style={styles.managerEmail}>{profile.current_manager.email}</Text>
+                    {profile.current_manager.phone ? (
+                      <Text style={styles.managerPhone}>{profile.current_manager.phone}</Text>
+                    ) : null}
+                  </View>
+                  {profile.current_manager.phone ? (
+                    <TouchableOpacity
+                      style={styles.callManagerFab}
+                      onPress={() => handleCallManager(profile.current_manager!.phone!)}
+                      activeOpacity={0.8}
+                      accessibilityLabel="Call reporting manager"
+                    >
+                      <Feather name="phone" size={20} color={colors.surface} />
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+              ) : (
+                <View style={styles.emptyManagerRow}>
+                  <Feather name="info" size={16} color={colors.textFaint} />
+                  <Text style={styles.emptyManagerText}>
+                    No reporting manager currently assigned.
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        {/* WORKSPACE SECTION */}
+        <View style={styles.sectionWrapper}>
+          <Text style={styles.sectionLabel}>WORKSPACE</Text>
+          <View style={styles.menuCard}>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => setIsProductsVisible(true)}
+              activeOpacity={0.7}
+              accessibilityLabel="Open Products and E-Detailing"
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: colors.bluePastel }]}>
+                <Feather name="tablet" size={17} color={colors.brandBlue} />
+              </View>
+              <Text style={styles.menuLabel}>Products & E-Detailing</Text>
+              <Feather name="chevron-right" size={18} color={colors.textFaint} />
+            </TouchableOpacity>
+
+            <View style={styles.cardDivider} />
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => setIsOrdersVisible(true)}
+              activeOpacity={0.7}
+              accessibilityLabel="Open Commercial Orders and POB"
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: colors.tealPastel }]}>
+                <Feather name="shopping-bag" size={17} color={colors.teal} />
+              </View>
+              <Text style={styles.menuLabel}>Commercial Orders & POB</Text>
+              <Feather name="chevron-right" size={18} color={colors.textFaint} />
+            </TouchableOpacity>
+
+            <View style={styles.cardDivider} />
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => navigation.navigate(ROUTES.ReportsCatalog as any)}
+              activeOpacity={0.7}
+              accessibilityLabel="Open Performance and Reports"
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: colors.purplePastel }]}>
+                <Feather name="bar-chart-2" size={17} color={colors.purple} />
+              </View>
+              <Text style={styles.menuLabel}>Performance & Reports</Text>
+              <Feather name="chevron-right" size={18} color={colors.textFaint} />
+            </TouchableOpacity>
+
+            <View style={styles.cardDivider} />
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => setIsNotifsVisible(true)}
+              activeOpacity={0.7}
+              accessibilityLabel="Open Notification Center"
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: colors.orangePastel }]}>
+                <Feather name="bell" size={17} color={colors.orange} />
+              </View>
+              <Text style={styles.menuLabel}>Notification Center</Text>
+              <Feather name="chevron-right" size={18} color={colors.textFaint} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* SECURITY & SESSIONS SECTION */}
+        <View style={styles.sectionWrapper}>
+          <Text style={styles.sectionLabel}>SECURITY & SESSIONS</Text>
+          <View style={styles.menuCard}>
+            {/* Change MPIN with SecureStore Integration */}
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => {
+                setMpinStep(1);
+                setFirstMpin("");
+                setConfirmMpin("");
+                setMpinError("");
+                setIsMpinModalVisible(true);
+              }}
+              activeOpacity={0.7}
+              accessibilityLabel="Change MPIN"
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: colors.bluePastel }]}>
+                <Feather name="grid" size={17} color={colors.brandBlue} />
+              </View>
+              <Text style={styles.menuLabel}>Change MPIN</Text>
+              <Feather name="chevron-right" size={18} color={colors.textFaint} />
+            </TouchableOpacity>
+
+            <View style={styles.cardDivider} />
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => setIsPwModalVisible(true)}
+              activeOpacity={0.7}
+              accessibilityLabel="Change Login Password"
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: colors.inputBackground }]}>
+                <Feather name="lock" size={17} color={colors.navy} />
+              </View>
+              <Text style={styles.menuLabel}>Change Login Password</Text>
+              <Feather name="chevron-right" size={18} color={colors.textFaint} />
+            </TouchableOpacity>
+
+            <View style={styles.cardDivider} />
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={handleLogoutAll}
+              activeOpacity={0.7}
+              accessibilityLabel="Log Out All Other Devices"
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: colors.dangerPastel }]}>
+                <Feather name="shield" size={17} color={colors.accentRed} />
+              </View>
+              <Text style={[styles.menuLabel, { color: colors.accentRed }]}>
+                Log Out All Other Devices
+              </Text>
+              <Feather name="chevron-right" size={18} color={colors.textFaint} />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* SIGN OUT BUTTON (White rounded card button with red icon & text) */}
+        <TouchableOpacity
+          style={styles.signOutCard}
+          onPress={handleSignOut}
+          activeOpacity={0.8}
+          accessibilityLabel="Sign out"
+        >
+          <Feather name="log-out" size={18} color={colors.accentRed} />
+          <Text style={styles.signOutCardText}>Sign out</Text>
+        </TouchableOpacity>
+
+        {/* APP VERSION FOOTER */}
+        <Text style={styles.appVersionFooter}>
+          Mediate MR App · version {appVersion}
+        </Text>
       </ScrollView>
 
-      {/* Edit Profile Modal */}
+      {/* EDIT CONTACT DETAILS MODAL */}
       <Modal visible={isEditModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Edit Profile</Text>
-            <Input
-              label="Full Name"
+          <View style={styles.modalSheetContent}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>Edit Contact Details</Text>
+              <TouchableOpacity
+                onPress={() => setIsEditModalVisible(false)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Feather name="x" size={22} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.fieldLabel}>FULL NAME</Text>
+            <TextInput
+              style={styles.inputField}
               value={editName}
               onChangeText={setEditName}
               placeholder="Your Full Name"
+              placeholderTextColor={colors.textFaint}
             />
-            <Input
-              label="Phone Number"
+
+            <Text style={styles.fieldLabel}>PHONE NUMBER</Text>
+            <TextInput
+              style={styles.inputField}
               value={editPhone}
               onChangeText={setEditPhone}
               placeholder="+91..."
+              placeholderTextColor={colors.textFaint}
               keyboardType="phone-pad"
             />
-            <View style={styles.modalActions}>
-              <Button
-                title="Cancel"
-                variant="secondary"
+
+            <View style={styles.modalActionRow}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
                 onPress={() => setIsEditModalVisible(false)}
-                style={styles.modalBtn}
-              />
-              <Button
-                title={isSaving ? "Saving..." : "Save Changes"}
-                variant="primary"
+              >
+                <Text style={styles.modalCancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSaveBtn}
                 onPress={handleSaveProfile}
                 disabled={isSaving}
-                style={styles.modalBtn}
-              />
+              >
+                {isSaving ? (
+                  <ActivityIndicator size="small" color={colors.surface} />
+                ) : (
+                  <Text style={styles.modalSaveBtnText}>Save Changes</Text>
+                )}
+              </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
 
-      {/* Change Password Modal */}
+      {/* CHANGE LOGIN PASSWORD MODAL */}
       <Modal visible={isPwModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Change Password</Text>
-            <Input
-              label="Current Password"
+          <View style={styles.modalSheetContent}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>Change Password</Text>
+              <TouchableOpacity
+                onPress={() => setIsPwModalVisible(false)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Feather name="x" size={22} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.fieldLabel}>CURRENT PASSWORD</Text>
+            <TextInput
+              style={styles.inputField}
               value={currentPw}
               onChangeText={setCurrentPw}
               placeholder="••••••••"
+              placeholderTextColor={colors.textFaint}
               secureTextEntry
             />
-            <Input
-              label="New Password"
+
+            <Text style={styles.fieldLabel}>NEW PASSWORD</Text>
+            <TextInput
+              style={styles.inputField}
               value={newPw}
               onChangeText={setNewPw}
               placeholder="Minimum 6 characters"
+              placeholderTextColor={colors.textFaint}
               secureTextEntry
             />
-            <Input
-              label="Confirm New Password"
+
+            <Text style={styles.fieldLabel}>CONFIRM NEW PASSWORD</Text>
+            <TextInput
+              style={styles.inputField}
               value={confirmPw}
               onChangeText={setConfirmPw}
               placeholder="Re-enter new password"
+              placeholderTextColor={colors.textFaint}
               secureTextEntry
             />
-            <View style={styles.modalActions}>
-              <Button
-                title="Cancel"
-                variant="secondary"
+
+            <View style={styles.modalActionRow}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
                 onPress={() => setIsPwModalVisible(false)}
-                style={styles.modalBtn}
-              />
-              <Button
-                title={isChangingPw ? "Changing..." : "Update Password"}
-                variant="primary"
+              >
+                <Text style={styles.modalCancelBtnText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalSaveBtn}
                 onPress={handleChangePassword}
                 disabled={isChangingPw}
-                style={styles.modalBtn}
+              >
+                {isChangingPw ? (
+                  <ActivityIndicator size="small" color={colors.surface} />
+                ) : (
+                  <Text style={styles.modalSaveBtnText}>Update Password</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* CHANGE MPIN MODAL (Full 2-Step Keypad Flow with SecureStore Integration) */}
+      <Modal visible={isMpinModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalSheetContent, styles.mpinModalContent]}>
+            <View style={styles.modalHeaderRow}>
+              <Text style={styles.modalTitle}>
+                {mpinStep === 1 ? "Create New MPIN" : "Confirm New MPIN"}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setIsMpinModalVisible(false)}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Feather name="x" size={22} color={colors.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.mpinSubtitle}>
+              {mpinStep === 1
+                ? "Enter a 4-digit security PIN for instant quick login."
+                : "Re-enter the 4-digit PIN to confirm and save."}
+            </Text>
+
+            <View style={styles.pinDotsWrap}>
+              <PinDots
+                length={4}
+                value={activeMpin}
+                hasError={hasMpinShake}
+              />
+            </View>
+
+            {mpinError ? (
+              <Text style={styles.mpinErrorText}>{mpinError}</Text>
+            ) : (
+              <Text style={styles.mpinHintText}>
+                {mpinStep === 1 ? "Step 1 of 2" : "Step 2 of 2"}
+              </Text>
+            )}
+
+            <View style={styles.keypadWrapper}>
+              <Keypad
+                onPressDigit={handleMpinDigit}
+                onPressDelete={handleMpinDelete}
+                disabled={isSavingMpin}
               />
             </View>
           </View>
         </View>
       </Modal>
 
-      {/* Enterprise Feature Modals */}
+      {/* ENTERPRISE CATALOG & NOTIFICATION MODALS */}
       <ProductsCatalogScreen
         visible={isProductsVisible}
         onClose={() => setIsProductsVisible(false)}
@@ -535,248 +812,491 @@ export function ProfileScreen() {
         visible={isNotifsVisible}
         onClose={() => setIsNotifsVisible(false)}
       />
-    </ScreenContainer>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  scrollContent: {
-    paddingBottom: spacing.xxl,
-  },
-  centerContainer: {
+  container: {
     flex: 1,
+    backgroundColor: colors.background,
+  },
+  loadingCenter: {
     justifyContent: "center",
     alignItems: "center",
     gap: spacing.sm,
   },
   loadingText: {
-    ...typography.body,
-    color: colors.textSecondary,
-  },
-  avatarCard: {
-    alignItems: "center",
-    paddingVertical: spacing.xl,
-    marginBottom: spacing.md,
-  },
-  avatarWrapper: {
-    position: "relative",
-    marginBottom: spacing.md,
-  },
-  avatarImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    borderWidth: 3,
-    borderColor: colors.primary,
-  },
-  avatarPlaceholder: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: colors.navy,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 3,
-    borderColor: colors.primary,
-  },
-  avatarInitials: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: colors.surface,
-  },
-  cameraBadge: {
-    position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: colors.primary,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: colors.surface,
-  },
-  userName: {
-    ...typography.heading,
-    color: colors.navy,
-    marginBottom: spacing.xs,
-  },
-  userEmail: {
-    ...typography.body,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-  },
-  chipRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    marginBottom: spacing.md,
-  },
-  activePill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#E8F5E9",
-    paddingHorizontal: spacing.sm,
-    paddingVertical: 4,
-    borderRadius: radii.full,
-  },
-  activeText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.success,
-  },
-  editProfileBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.xs,
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
-    borderRadius: radii.sm,
-    backgroundColor: colors.greyLight,
-  },
-  editProfileBtnText: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-  sectionCard: {
-    marginBottom: spacing.md,
-  },
-  cardHeaderTitle: {
-    ...typography.subheading,
-    color: colors.navy,
-    marginBottom: spacing.md,
-  },
-  infoRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    paddingVertical: spacing.xs,
-  },
-  infoTextContainer: {
-    flex: 1,
-  },
-  infoLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-  },
-  infoValue: {
-    ...typography.bodyMedium,
-    color: colors.textPrimary,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: spacing.sm,
-  },
-  managerCard: {
-    backgroundColor: colors.background,
-    borderRadius: radii.md,
-    padding: spacing.md,
-  },
-  managerInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    marginBottom: spacing.md,
-  },
-  managerIconCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.surface,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  managerDetails: {
-    flex: 1,
-  },
-  managerName: {
-    ...typography.subheading,
-    color: colors.navy,
-  },
-  managerSubtext: {
-    ...typography.caption,
-    color: colors.textSecondary,
-  },
-  managerPhone: {
-    fontSize: 13,
-    color: colors.primary,
-    fontWeight: "500",
-    marginTop: 2,
-  },
-  callManagerBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xs,
-    backgroundColor: colors.primary,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.sm,
-  },
-  callManagerBtnText: {
-    color: colors.surface,
-    fontWeight: "600",
     fontSize: 14,
+    color: colors.textMuted,
+    fontWeight: "600",
   },
-  noManagerBox: {
-    flexDirection: "row",
+  scrollContent: {
+    flexGrow: 1,
+  },
+  // HERO SECTION
+  heroGradient: {
+    minHeight: 318,
+    borderBottomLeftRadius: 40,
+    borderBottomRightRadius: 40,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: 42,
+    position: "relative",
+    overflow: "hidden",
     alignItems: "center",
-    gap: spacing.sm,
-    padding: spacing.sm,
-    backgroundColor: colors.greyLight,
-    borderRadius: radii.sm,
   },
-  noManagerText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    flex: 1,
+  decorativeCircleLeft: {
+    position: "absolute",
+    top: -20,
+    left: -40,
+    width: 170,
+    height: 170,
+    borderRadius: 85,
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
   },
-  actionRow: {
+  decorativeCircleRight: {
+    position: "absolute",
+    top: 30,
+    right: -60,
+    width: 230,
+    height: 230,
+    borderRadius: 115,
+    backgroundColor: "rgba(255, 255, 255, 0.05)",
+  },
+  heroTopBar: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: spacing.sm,
+    width: "100%",
+    marginBottom: spacing.md,
   },
-  actionLeft: {
+  heroBackBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: colors.translucentWhite,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  heroBackPlaceholder: {
+    width: 44,
+    height: 44,
+  },
+  heroTitle: {
+    fontSize: 17,
+    fontWeight: "800",
+    color: colors.surface,
+    textAlign: "center",
+  },
+  avatarContainer: {
+    position: "relative",
+    width: 96,
+    height: 96,
+    marginBottom: spacing.xs + 2,
+  },
+  avatarRing: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: colors.surface,
+    borderWidth: 4,
+    borderColor: colors.translucentWhiteHigh,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+  },
+  avatarFallback: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: colors.surface,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  avatarInitialsText: {
+    fontSize: 30,
+    fontWeight: "800",
+    color: colors.navy,
+  },
+  cameraBadge: {
+    position: "absolute",
+    bottom: -2,
+    right: -2,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.accentRed,
+    borderWidth: 3,
+    borderColor: colors.navy,
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.sm,
+  },
+  userName: {
+    fontSize: 21,
+    fontWeight: "800",
+    color: colors.surface,
+    textAlign: "center",
+    marginTop: 4,
+  },
+  userEmail: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: colors.emailSubtitle,
+    textAlign: "center",
+    marginTop: 2,
+  },
+  chipsRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 10,
+  },
+  roleChip: {
+    backgroundColor: colors.translucentWhite,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: radii.full,
+  },
+  roleChipText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.surface,
+  },
+  statusChip: {
+    backgroundColor: colors.successGreen,
+    paddingHorizontal: 14,
+    paddingVertical: 5,
+    borderRadius: radii.full,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  statusChipInactive: {
+    backgroundColor: colors.accentRed,
+  },
+  statusDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.surface,
+  },
+  statusDotInactive: {
+    backgroundColor: colors.surface,
+  },
+  statusChipText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.surface,
+  },
+  // CONTACT CARD
+  contactCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    padding: 18,
+    marginHorizontal: 16,
+    marginTop: -28,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadows.card,
+  },
+  contactCardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.sm,
+  },
+  contactCardTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
+  },
+  editBtn: {
+    backgroundColor: colors.tintBlue,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  editBtnText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.brandBlue,
+  },
+  contactRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
+    paddingVertical: 4,
   },
-  actionLabel: {
-    ...typography.bodyMedium,
-    color: colors.textPrimary,
+  contactIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
   },
-  signOutBtn: {
-    marginTop: spacing.sm,
-    marginBottom: spacing.lg,
+  contactTextCol: {
+    flex: 1,
   },
+  contactLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.textMuted,
+  },
+  contactValue: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textInk,
+    marginTop: 2,
+  },
+  cardDivider: {
+    height: 1,
+    backgroundColor: colors.inputBackground,
+    marginVertical: 10,
+  },
+  // SECTION WRAPPERS & HEADERS
+  sectionWrapper: {
+    marginTop: 18,
+  },
+  sectionLabel: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: colors.textFaint,
+    letterSpacing: 0.8,
+    marginHorizontal: 20,
+    marginBottom: 8,
+    textTransform: "uppercase",
+  },
+  sectionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    padding: 16,
+    marginHorizontal: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadows.card,
+  },
+  // MANAGER ROW
+  managerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  managerAvatar: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: colors.navy,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  managerTextCol: {
+    flex: 1,
+    marginHorizontal: 12,
+  },
+  managerName: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.textInk,
+  },
+  managerEmail: {
+    fontSize: 12,
+    fontWeight: "500",
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  managerPhone: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.teal,
+    marginTop: 2,
+  },
+  callManagerFab: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: colors.successGreen,
+    alignItems: "center",
+    justifyContent: "center",
+    ...shadows.md,
+  },
+  emptyManagerRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 4,
+  },
+  emptyManagerText: {
+    fontSize: 13,
+    color: colors.textMuted,
+    flex: 1,
+  },
+  // MENU CARDS (WORKSPACE & SECURITY)
+  menuCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    marginHorizontal: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    ...shadows.card,
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  menuIconBox: {
+    width: 38,
+    height: 38,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 12,
+  },
+  menuLabel: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textInk,
+  },
+  // SIGN OUT CARD
+  signOutCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    paddingVertical: 14,
+    marginHorizontal: 16,
+    marginTop: 18,
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    ...shadows.card,
+  },
+  signOutCardText: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.accentRed,
+  },
+  appVersionFooter: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: colors.textFaint,
+    textAlign: "center",
+    marginTop: 14,
+  },
+  // MODAL STYLING
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(15, 21, 56, 0.6)",
     justifyContent: "center",
+    alignItems: "center",
     padding: spacing.lg,
   },
-  modalContent: {
+  modalSheetContent: {
+    width: "100%",
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.xl,
+    borderRadius: radii.xxl,
+    padding: spacing.lg,
+    ...shadows.lg,
+  },
+  mpinModalContent: {
+    paddingBottom: spacing.lg,
+  },
+  modalHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: spacing.sm,
   },
   modalTitle: {
-    ...typography.heading,
-    color: colors.navy,
-    marginBottom: spacing.lg,
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.textInk,
   },
-  modalActions: {
+  mpinSubtitle: {
+    fontSize: 13,
+    color: colors.textMuted,
+    lineHeight: 18,
+    marginBottom: spacing.md,
+  },
+  pinDotsWrap: {
+    alignItems: "center",
+    marginVertical: spacing.md,
+  },
+  mpinHintText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.textFaint,
+    textAlign: "center",
+    marginBottom: spacing.md,
+  },
+  mpinErrorText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.accentRed,
+    textAlign: "center",
+    marginBottom: spacing.md,
+  },
+  keypadWrapper: {
+    alignItems: "center",
+    width: "100%",
+  },
+  fieldLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.textMuted,
+    letterSpacing: 0.8,
+    marginBottom: 6,
+    marginTop: spacing.xs,
+  },
+  inputField: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.md,
+    height: 48,
+    fontSize: 14,
+    color: colors.textInk,
+    backgroundColor: colors.inputBackground,
+    marginBottom: spacing.sm,
+  },
+  modalActionRow: {
     flexDirection: "row",
-    gap: spacing.md,
+    justifyContent: "flex-end",
+    gap: spacing.sm,
     marginTop: spacing.md,
   },
-  modalBtn: {
-    flex: 1,
+  modalCancelBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: radii.lg,
+  },
+  modalCancelBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.textMuted,
+  },
+  modalSaveBtn: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: radii.lg,
+    backgroundColor: colors.navy,
+  },
+  modalSaveBtnText: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.surface,
   },
 });

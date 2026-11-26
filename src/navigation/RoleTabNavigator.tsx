@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useAuthStore } from "../features/auth/store";
 import { ComingSoonScreen } from "../features/coming_soon/screens/ComingSoonScreen";
 import { ProfileScreen } from "../features/profile/screens/ProfileScreen";
@@ -16,12 +16,7 @@ import { MrBuddyHomeScreen } from "../features/dashboard/screens/MrBuddyHomeScre
 import { PlanVisitsScreen } from "../features/dcr/screens/PlanVisitsScreen";
 import { TasksListScreen } from "../features/tasks/screens/TasksListScreen";
 import { ReportsCatalogScreen } from "../features/reports/screens/ReportsCatalogScreen";
-import { AttendanceCard } from "../features/attendance/components/AttendanceCard";
-import { Card } from "../shared/components/Card";
-import { Header } from "../shared/components/Header";
-import { ScreenContainer } from "../shared/components/ScreenContainer";
-import { StatusChip } from "../shared/components/StatusChip";
-import { colors, radii, spacing, typography } from "../shared/theme/tokens";
+import { colors, radii, spacing, typography } from "../theme";
 
 const Tab = createBottomTabNavigator();
 
@@ -29,55 +24,20 @@ export function RoleTabNavigator() {
   const user = useAuthStore((s) => s.user);
   const role = user?.role || "MR";
 
-  const screenOptions = ({ route }: { route: { name: string } }) => ({
+  const screenOptions = () => ({
     headerShown: false,
-    tabBarActiveTintColor: "#DC2626",
-    tabBarInactiveTintColor: colors.textSecondary,
+    tabBar: () => null,
     tabBarStyle: {
-      backgroundColor: colors.surface,
-      borderTopColor: colors.border,
-      borderTopWidth: 1,
-      height: 62,
-      paddingBottom: 8,
-      paddingTop: 6,
-    },
-    tabBarLabelStyle: {
-      fontSize: 11,
-      fontWeight: "700" as const,
-    },
-    tabBarIcon: ({ focused, color, size }: { focused: boolean; color: string; size: number }) => {
-      let iconName: keyof typeof Ionicons.glyphMap = "ellipse";
-
-      if (route.name === "Home") {
-        iconName = focused ? "grid" : "grid-outline";
-      } else if (route.name === "Plan") {
-        iconName = focused ? "calendar" : "calendar-outline";
-      } else if (route.name === "Customers") {
-        iconName = focused ? "people" : "people-outline";
-      } else if (route.name === "Team") {
-        iconName = focused ? "people" : "people-outline";
-      } else if (route.name === "Approvals") {
-        iconName = focused ? "checkmark-done-circle" : "checkmark-done-circle-outline";
-      } else if (route.name === "Users") {
-        iconName = focused ? "people-circle" : "people-circle-outline";
-      } else if (route.name === "Masters") {
-        iconName = focused ? "business" : "business-outline";
-      } else if (route.name === "Tasks") {
-        iconName = focused ? "checkbox" : "checkbox-outline";
-      } else if (route.name === "Reports") {
-        iconName = focused ? "bar-chart" : "bar-chart-outline";
-      } else if (route.name === "More") {
-        iconName = focused ? "person" : "person-outline";
-      }
-
-      return <Ionicons name={iconName} size={size || 22} color={color} />;
+      display: "none" as const,
+      height: 0,
+      opacity: 0,
     },
   });
 
   // MR: Home (MR Buddy Grid) | Plan | Customers | Tasks | More
   if (role === "MR") {
     return (
-      <Tab.Navigator screenOptions={screenOptions}>
+      <Tab.Navigator tabBar={() => null} screenOptions={screenOptions}>
         <Tab.Screen name="Home" component={MrBuddyHomeScreen} />
         <Tab.Screen name="Plan" component={PlanVisitsScreen} />
         <Tab.Screen name="Customers" component={CustomersHomeScreen} />
@@ -90,7 +50,7 @@ export function RoleTabNavigator() {
   // MANAGER: Home (MR Buddy Grid) | Team | Approvals | Tasks | More
   if (role === "MANAGER") {
     return (
-      <Tab.Navigator screenOptions={screenOptions}>
+      <Tab.Navigator tabBar={() => null} screenOptions={screenOptions}>
         <Tab.Screen name="Home" component={MrBuddyHomeScreen} />
         <Tab.Screen name="Team" component={MyTeamScreen} />
         <Tab.Screen name="Approvals" component={ApprovalsInboxScreen} />
@@ -102,7 +62,7 @@ export function RoleTabNavigator() {
 
   // ADMIN: Home (MR Buddy Grid) | Users | Masters | Reports | More
   return (
-    <Tab.Navigator screenOptions={screenOptions}>
+    <Tab.Navigator tabBar={() => null} screenOptions={screenOptions}>
       <Tab.Screen name="Home" component={MrBuddyHomeScreen} />
       <Tab.Screen name="Users" component={UsersListScreen} />
       <Tab.Screen name="Masters" component={AdminMastersScreen} />

@@ -18,8 +18,9 @@ import { OrderCreateDto, OrderDto, OrderItemCreateDto, ordersApi } from "../api/
 import { ProductDto, productsApi } from "../../products/api/productsApi";
 import { ChemistDto, StockistDto, customersApi } from "../../customers/api/customersApi";
 import { attendanceApi } from "../../attendance/api/attendanceApi";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
-import { Header } from "../../../shared/components/Header";
+import { formatDateIST, formatDateTimeIST } from "../../../shared/utils/date";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 interface OrdersScreenProps {
   visible?: boolean;
@@ -271,11 +272,7 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ visible, onClose }) 
 
   const renderOrderItem = ({ item }: { item: OrderDto }) => {
     const statusColor = getStatusColor(item.status);
-    const dateFormatted = new Date(item.created_at).toLocaleDateString("en-IN", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    const dateFormatted = formatDateIST(item.created_at);
 
     return (
       <TouchableOpacity
@@ -333,20 +330,21 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ visible, onClose }) 
   const content = (
     <SafeAreaView style={styles.container}>
       {/* Header */}
-      <Header
+      <ScreenHeader
         title="Commercial Orders"
         subtitle="Chemist POB & Stockist Bookings"
-        showBack={!!onClose}
+        variant="navy"
         onBack={onClose}
         rightElement={
           <TouchableOpacity
             style={styles.headerAddBtn}
             onPress={() => setActiveTab(activeTab === "LIST" ? "BOOK" : "LIST")}
+            activeOpacity={0.8}
           >
             <Ionicons
               name={activeTab === "LIST" ? "add-circle" : "list"}
-              size={22}
-              color={colors.primary}
+              size={16}
+              color={colors.surface}
             />
             <Text style={styles.headerAddBtnText}>
               {activeTab === "LIST" ? "New Order" : "History"}
@@ -871,7 +869,7 @@ export const OrdersScreen: React.FC<OrdersScreenProps> = ({ visible, onClose }) 
                   <View>
                     <Text style={styles.detailModalTitle}>{selectedOrder.order_number}</Text>
                     <Text style={styles.detailModalSub}>
-                      Placed on {new Date(selectedOrder.created_at).toLocaleString("en-IN")}
+                      Placed on {formatDateTimeIST(selectedOrder.created_at)}
                     </Text>
                   </View>
                   <TouchableOpacity onPress={() => setSelectedOrder(null)}>
@@ -986,16 +984,17 @@ const styles = StyleSheet.create({
   headerAddBtn: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.lightPrimary,
+    gap: 5,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: radii.full,
   },
   headerAddBtnText: {
     ...typography.caption,
-    color: colors.primaryDark,
+    color: colors.surface,
     fontWeight: "700",
+    fontSize: 12,
   },
   segmentContainer: {
     flexDirection: "row",

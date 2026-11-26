@@ -8,14 +8,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
 import { customersApi, DoctorDto } from "../api/customersApi";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
 
 type CustomerDetailRouteProp = RouteProp<RootStackParamList, "CustomerDetail">;
 
@@ -36,9 +38,6 @@ export function CustomerDetailScreen() {
         if (customerType === "DOCTOR") {
           const data = await customersApi.getDoctor(customerId);
           setDoctor(data);
-        } else {
-          // For chemist, hospital, stockist, list or fetch if needed
-          // For now set fallback representation
         }
       } catch (err: any) {
         setError(err?.message || "Failed to load customer details");
@@ -61,65 +60,90 @@ export function CustomerDetailScreen() {
     }
   };
 
+  const titleLabel =
+    customerType === "DOCTOR"
+      ? "Doctor Profile"
+      : customerType === "CHEMIST"
+      ? "Chemist Profile"
+      : customerType === "HOSPITAL"
+      ? "Hospital Profile"
+      : "Stockist Profile";
+
+  const displayName = doctor?.full_name || customerName || "Customer Profile";
+  const initials = displayName
+    .replace(/^Dr\.?\s*/i, "")
+    .split(" ")
+    .map((n) => n[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase() || "DR";
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.navy} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {customerType === "DOCTOR"
-            ? "Doctor Profile"
-            : customerType === "CHEMIST"
-            ? "Chemist Profile"
-            : customerType === "HOSPITAL"
-            ? "Hospital Profile"
-            : "Stockist Profile"}
-        </Text>
-        <TouchableOpacity
-          onPress={() =>
-            navigation.navigate(ROUTES.DcrForm, {
-              initialCustomerType: customerType,
-              initialCustomerId: customerId,
-            })
-          }
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="add-circle-outline" size={24} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+      <StatusBar style="light" />
+
+      <ScreenHeader
+        title={titleLabel}
+        subtitle={customerType === "DOCTOR" ? "Physician details & affiliations" : "Account details"}
+        variant="navy"
+        onBack={() => navigation.goBack()}
+        rightElement={
+          <TouchableOpacity
+            style={styles.headerActionBtn}
+            onPress={() =>
+              navigation.navigate(ROUTES.DcrForm, {
+                initialCustomerType: customerType,
+                initialCustomerId: customerId,
+              })
+            }
+            activeOpacity={0.8}
+          >
+            <Feather name="plus" size={14} color={colors.surface} />
+            <Text style={styles.headerActionText}>Log Call</Text>
+          </TouchableOpacity>
+        }
+      />
 
       {isLoading ? (
         <View style={styles.centerContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>Loading details...</Text>
+          <ActivityIndicator size="large" color={colors.navy} />
+          <Text style={styles.loadingText}>Loading profile details...</Text>
         </View>
       ) : error ? (
         <View style={styles.centerContainer}>
-          <Ionicons name="alert-circle-outline" size={48} color={colors.error} />
+          <View style={styles.errorIconCircle}>
+            <Feather name="alert-circle" size={32} color={colors.accentRed} />
+          </View>
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity
             style={styles.retryBtn}
             onPress={() => {
               if (customerType === "DOCTOR") {
                 setIsLoading(true);
-                customersApi.getDoctor(customerId).then(setDoctor).finally(() => setIsLoading(false));
+                setError(null);
+                customersApi
+                  .getDoctor(customerId)
+                  .then(setDoctor)
+                  .catch((err: any) => setError(err?.message || "Failed to load"))
+                  .finally(() => setIsLoading(false));
               }
             }}
+            activeOpacity={0.8}
           >
             <Text style={styles.retryBtnText}>Retry</Text>
           </TouchableOpacity>
         </View>
       ) : doctor ? (
-        <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
-          {/* Main Card */}
+        <ScrollView
+          style={styles.scroll}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Main Profile Bento Card */}
           <View style={styles.profileCard}>
             <View style={styles.avatar}>
-              <Ionicons name="person" size={36} color={colors.primary} />
+              <Text style={styles.avatarInitials}>{initials}</Text>
             </View>
 
             <Text style={styles.doctorName}>{doctor.full_name}</Text>
@@ -134,77 +158,104 @@ export function CustomerDetailScreen() {
                 </View>
               ) : null}
               <View style={styles.categoryBadge}>
-                <Text style={styles.categoryText}>Category {doctor.category}</Text>
+                <Text style={styles.categoryText}>Tier {doctor.category}</Text>
               </View>
             </View>
 
-            {/* Quick Actions */}
+            {/* Quick Action Pills */}
             <View style={styles.actionRow}>
               {doctor.phone ? (
                 <TouchableOpacity
-                  style={styles.actionBtn}
+                  style={[styles.actionBtn, { backgroundColor: colors.successGreenPastel }]}
                   onPress={() => handleCall(doctor.phone)}
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="call" size={18} color={colors.primary} />
-                  <Text style={styles.actionBtnText}>Call</Text>
+                  <Feather name="phone" size={16} color={colors.successGreen} />
+                  <Text style={[styles.actionBtnText, { color: colors.successGreen }]}>Call</Text>
                 </TouchableOpacity>
               ) : null}
 
               {doctor.email ? (
                 <TouchableOpacity
-                  style={styles.actionBtn}
+                  style={[styles.actionBtn, { backgroundColor: colors.bluePastel }]}
                   onPress={() => handleEmail(doctor.email)}
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="mail" size={18} color={colors.secondary} />
-                  <Text style={[styles.actionBtnText, { color: colors.secondary }]}>Email</Text>
+                  <Feather name="mail" size={16} color={colors.brandBlue} />
+                  <Text style={[styles.actionBtnText, { color: colors.brandBlue }]}>Email</Text>
                 </TouchableOpacity>
               ) : null}
 
               {doctor.latitude && doctor.longitude ? (
                 <TouchableOpacity
-                  style={styles.actionBtn}
+                  style={[styles.actionBtn, { backgroundColor: colors.orangePastel }]}
                   onPress={() =>
                     Linking.openURL(
                       `https://www.google.com/maps/search/?api=1&query=${doctor.latitude},${doctor.longitude}`
                     )
                   }
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="navigate" size={18} color={colors.navy} />
-                  <Text style={[styles.actionBtnText, { color: colors.navy }]}>Navigate</Text>
+                  <Feather name="navigation" size={16} color={colors.orange} />
+                  <Text style={[styles.actionBtnText, { color: colors.orange }]}>Navigate</Text>
                 </TouchableOpacity>
               ) : null}
             </View>
           </View>
 
-          {/* Details Section */}
-          <View style={styles.section}>
+          {/* Contact & Clinic Card */}
+          <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>Contact & Clinic</Text>
+
             <View style={styles.detailRow}>
-              <Ionicons name="call-outline" size={16} color={colors.textSecondary} />
-              <Text style={styles.detailText}>{doctor.phone || "Not specified"}</Text>
+              <View style={[styles.detailIconBox, { backgroundColor: colors.bluePastel }]}>
+                <Feather name="phone" size={15} color={colors.brandBlue} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.detailLabel}>Phone Number</Text>
+                <Text style={styles.detailText}>{doctor.phone || "Not specified"}</Text>
+              </View>
             </View>
+
             {doctor.email ? (
               <View style={styles.detailRow}>
-                <Ionicons name="mail-outline" size={16} color={colors.textSecondary} />
-                <Text style={styles.detailText}>{doctor.email}</Text>
+                <View style={[styles.detailIconBox, { backgroundColor: colors.tealPastel }]}>
+                  <Feather name="mail" size={15} color={colors.teal} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.detailLabel}>Email Address</Text>
+                  <Text style={styles.detailText}>{doctor.email}</Text>
+                </View>
               </View>
             ) : null}
+
             {doctor.clinic_name ? (
               <View style={styles.detailRow}>
-                <Ionicons name="medkit-outline" size={16} color={colors.textSecondary} />
-                <Text style={styles.detailText}>{doctor.clinic_name}</Text>
+                <View style={[styles.detailIconBox, { backgroundColor: colors.purplePastel }]}>
+                  <Feather name="briefcase" size={15} color={colors.purple} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.detailLabel}>Clinic / Chamber</Text>
+                  <Text style={styles.detailText}>{doctor.clinic_name}</Text>
+                </View>
               </View>
             ) : null}
+
             {doctor.address ? (
-              <View style={styles.detailRow}>
-                <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-                <Text style={styles.detailText}>{doctor.address}</Text>
+              <View style={[styles.detailRow, { borderBottomWidth: 0, paddingBottom: 0 }]}>
+                <View style={[styles.detailIconBox, { backgroundColor: colors.orangePastel }]}>
+                  <Feather name="map-pin" size={15} color={colors.orange} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.detailLabel}>Clinic Address</Text>
+                  <Text style={styles.detailText}>{doctor.address}</Text>
+                </View>
               </View>
             ) : null}
           </View>
 
           {/* Mapped Hospitals */}
-          <View style={styles.section}>
+          <View style={styles.sectionCard}>
             <Text style={styles.sectionTitle}>Hospital Affiliations</Text>
             {doctor.hospitals && doctor.hospitals.length > 0 ? (
               doctor.hospitals.map((h) => (
@@ -230,14 +281,14 @@ export function CustomerDetailScreen() {
             )}
           </View>
 
-          {/* Geofence info */}
+          {/* Geofence Info */}
           {doctor.latitude && doctor.longitude ? (
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Geofence Location</Text>
+            <View style={styles.sectionCard}>
+              <Text style={styles.sectionTitle}>Geofence Verification</Text>
               <View style={styles.geoBox}>
-                <Ionicons name="shield-checkmark" size={18} color={colors.secondary} />
+                <Feather name="shield" size={18} color={colors.successGreen} />
                 <Text style={styles.geoText}>
-                  Coordinates: {doctor.latitude.toFixed(6)}° N, {doctor.longitude.toFixed(6)}° E
+                  {doctor.latitude.toFixed(6)}° N, {doctor.longitude.toFixed(6)}° E
                 </Text>
               </View>
             </View>
@@ -252,15 +303,38 @@ export function CustomerDetailScreen() {
                 initialCustomerId: customerId,
               })
             }
+            activeOpacity={0.8}
           >
-            <Ionicons name="document-text-outline" size={20} color="#fff" />
+            <Feather name="file-plus" size={18} color={colors.surface} />
             <Text style={styles.logVisitText}>Log Visit / DCR</Text>
           </TouchableOpacity>
         </ScrollView>
       ) : (
-        <View style={styles.centerContainer}>
-          <Text style={styles.errorText}>{customerName || "Customer details"}</Text>
-        </View>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <View style={styles.profileCard}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarInitials}>{initials}</Text>
+            </View>
+            <Text style={styles.doctorName}>{displayName}</Text>
+            <View style={styles.categoryBadge}>
+              <Text style={styles.categoryText}>{customerType}</Text>
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={styles.logVisitBtn}
+            onPress={() =>
+              navigation.navigate(ROUTES.DcrForm, {
+                initialCustomerType: customerType,
+                initialCustomerId: customerId,
+              })
+            }
+            activeOpacity={0.8}
+          >
+            <Feather name="file-plus" size={18} color={colors.surface} />
+            <Text style={styles.logVisitText}>Log Visit / DCR</Text>
+          </TouchableOpacity>
+        </ScrollView>
       )}
     </SafeAreaView>
   );
@@ -271,20 +345,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
+  headerActionBtn: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: radii.full,
+    gap: 4,
   },
-  headerTitle: {
-    ...typography.title,
-    fontSize: 18,
-    color: colors.navy,
+  headerActionText: {
+    color: colors.surface,
+    fontSize: 12,
+    fontWeight: "700",
   },
   centerContainer: {
     flex: 1,
@@ -294,143 +367,187 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     ...typography.body,
-    color: colors.textSecondary,
-    marginTop: spacing.sm,
+    color: colors.textMuted,
+    marginTop: spacing.md,
+  },
+  errorIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.accentRedPastel,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
   },
   errorText: {
     ...typography.body,
-    color: colors.textSecondary,
+    color: colors.textInk,
     textAlign: "center",
-    marginTop: spacing.sm,
+    fontWeight: "600",
   },
   retryBtn: {
-    marginTop: spacing.md,
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
+    marginTop: spacing.lg,
+    backgroundColor: colors.navy,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.md,
+    borderRadius: radii.lg,
   },
   retryBtnText: {
-    ...typography.body,
-    fontWeight: "600",
-    color: "#fff",
+    ...typography.button,
+    color: colors.surface,
+    fontWeight: "700",
   },
   scroll: {
     flex: 1,
   },
   scrollContent: {
     padding: spacing.lg,
-    paddingBottom: spacing.xl * 2,
+    paddingBottom: spacing.xxxl * 2,
+    gap: spacing.lg,
   },
   profileCard: {
     backgroundColor: colors.surface,
     borderRadius: radii.xl,
-    padding: spacing.lg,
+    padding: spacing.xl,
     alignItems: "center",
-    marginBottom: spacing.md,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
   },
   avatar: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.lightPrimary,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    backgroundColor: colors.bluePastel,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  avatarInitials: {
+    ...typography.title,
+    fontSize: 24,
+    fontWeight: "800",
+    color: colors.navy,
   },
   doctorName: {
-    ...typography.title,
+    ...typography.heading,
     fontSize: 20,
-    color: colors.navy,
+    fontWeight: "800",
+    color: colors.textInk,
     textAlign: "center",
   },
   qualification: {
     ...typography.body,
-    color: colors.textSecondary,
-    marginTop: 2,
+    fontSize: 13,
+    color: colors.textMuted,
+    marginTop: 4,
+    textAlign: "center",
   },
   badgeRow: {
     flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
     gap: spacing.sm,
-    marginTop: spacing.sm,
+    marginTop: spacing.md,
   },
   specBadge: {
-    backgroundColor: colors.lightPrimary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
+    backgroundColor: colors.bluePastel,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: radii.full,
   },
   specText: {
     ...typography.caption,
-    fontWeight: "600",
-    color: colors.primary,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.brandBlue,
   },
   categoryBadge: {
-    backgroundColor: "#F3F4F6",
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
+    backgroundColor: colors.tealPastel,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: radii.full,
   },
   categoryText: {
     ...typography.caption,
-    fontWeight: "600",
-    color: colors.navy,
+    fontSize: 12,
+    fontWeight: "700",
+    color: colors.teal,
   },
   actionRow: {
     flexDirection: "row",
     gap: spacing.md,
-    marginTop: spacing.lg,
+    marginTop: spacing.xl,
+    width: "100%",
+    justifyContent: "center",
   },
   actionBtn: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     gap: 6,
-    backgroundColor: colors.background,
-    borderWidth: 1,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
+    paddingVertical: 11,
+    borderRadius: radii.lg,
   },
   actionBtnText: {
     ...typography.caption,
-    fontWeight: "600",
-    color: colors.primary,
+    fontSize: 13,
+    fontWeight: "800",
   },
-  section: {
+  sectionCard: {
     backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
+    borderRadius: radii.xl,
+    padding: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
   },
   sectionTitle: {
-    ...typography.subheading,
-    color: colors.navy,
-    marginBottom: spacing.sm,
+    ...typography.heading,
+    fontSize: 16,
+    fontWeight: "800",
+    color: colors.textInk,
+    marginBottom: spacing.md,
   },
   detailRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.sm,
-    paddingVertical: spacing.xs,
+    gap: spacing.md,
+    paddingBottom: spacing.md,
+    marginBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderLight,
+  },
+  detailIconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  detailLabel: {
+    ...typography.caption,
+    fontSize: 11,
+    fontWeight: "700",
+    color: colors.textMuted,
+    textTransform: "uppercase",
+    letterSpacing: 0.4,
   },
   detailText: {
     ...typography.body,
     fontSize: 14,
-    color: colors.text,
-    flex: 1,
+    fontWeight: "600",
+    color: colors.textInk,
+    marginTop: 2,
   },
   hospitalCard: {
-    backgroundColor: colors.background,
-    borderRadius: radii.md,
-    padding: spacing.sm + 2,
-    marginBottom: spacing.xs,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    marginBottom: spacing.sm,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
   },
   hospitalHeader: {
     flexDirection: "row",
@@ -439,62 +556,62 @@ const styles = StyleSheet.create({
   },
   hospitalName: {
     ...typography.body,
-    fontWeight: "600",
-    color: colors.navy,
+    fontSize: 14,
+    fontWeight: "700",
+    color: colors.textInk,
+    flex: 1,
   },
   primaryBadge: {
-    backgroundColor: colors.secondary,
-    paddingHorizontal: spacing.xs + 2,
-    paddingVertical: 2,
-    borderRadius: radii.sm,
+    backgroundColor: colors.successGreenPastel,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radii.full,
   },
   primaryBadgeText: {
-    ...typography.caption,
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: "700",
-    color: "#fff",
+    color: colors.successGreen,
   },
   hospitalMeta: {
     ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
+    fontSize: 12,
+    color: colors.textMuted,
+    marginTop: 4,
   },
   emptyHospitalText: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    fontStyle: "italic",
+    ...typography.body,
+    fontSize: 13,
+    color: colors.textFaint,
   },
   geoBox: {
     flexDirection: "row",
     alignItems: "center",
-    gap: spacing.xs,
-    backgroundColor: "#DEF7EC",
-    padding: spacing.sm,
-    borderRadius: radii.md,
+    gap: spacing.sm,
+    backgroundColor: colors.successGreenPastel,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderRadius: radii.lg,
   },
   geoText: {
     ...typography.caption,
-    color: colors.secondary,
-    fontWeight: "600",
+    fontSize: 13,
+    fontWeight: "700",
+    color: colors.successGreen,
   },
   logVisitBtn: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: colors.navy,
+    borderRadius: radii.lg,
+    paddingVertical: spacing.lg,
     gap: spacing.sm,
-    backgroundColor: colors.primary,
-    borderRadius: radii.md,
-    paddingVertical: spacing.md,
-    marginTop: spacing.sm,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    ...shadows.soft,
   },
   logVisitText: {
-    ...typography.body,
-    fontWeight: "700",
-    color: "#fff",
+    ...typography.button,
+    fontSize: 15,
+    fontWeight: "800",
+    color: colors.surface,
   },
 });

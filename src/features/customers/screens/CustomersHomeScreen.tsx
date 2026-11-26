@@ -4,6 +4,7 @@ import {
   FlatList,
   Linking,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -11,7 +12,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useMasterStore } from "../../masters/store";
 import {
   ChemistDto,
@@ -26,8 +27,8 @@ import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../../../navigation/types";
 import { ROUTES } from "../../../navigation/routes";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
-import { Header } from "../../../shared/components/Header";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 type TabType = "DOCTORS" | "CHEMISTS" | "HOSPITALS" | "STOCKISTS" | "NEARBY";
 
@@ -79,11 +80,9 @@ export function CustomersHomeScreen() {
         });
         setStockists(data);
       } else if (activeTab === "NEARBY") {
-        // Fetch nearby with user's position or HQ default
         const data = await customersApi.getNearbyCustomers({
-          latitude: 19.05195,
-          longitude: 72.82905,
-          radius_meters: 5000,
+          latitude: 19.076,
+          longitude: 72.8777,
         });
         setNearby(data);
       }
@@ -155,14 +154,14 @@ export function CustomersHomeScreen() {
         type: "CHEMIST",
         code: chm.code,
         name: chm.shop_name,
-        subheading: chm.contact_person ? `Contact: ${chm.contact_person}` : "Pharmacy",
-        badgeLabel: "Chemist",
+        subheading: `Contact: ${chm.contact_person || "Pharmacist"}`,
+        badgeLabel: "Pharmacy",
         address: chm.address,
         phone: chm.phone,
       };
       return (
         <CustomerCard
-          key={`chem-${chm.id}`}
+          key={`chm-${chm.id}`}
           data={cardData}
           onPress={() =>
             navigation.navigate(ROUTES.CustomerDetail, {
@@ -218,7 +217,7 @@ export function CustomersHomeScreen() {
       };
       return (
         <CustomerCard
-          key={`st-${st.id}`}
+          key={`stk-${st.id}`}
           data={cardData}
           onPress={() =>
             navigation.navigate(ROUTES.CustomerDetail, {
@@ -279,11 +278,13 @@ export function CustomersHomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Top App Header with Mediate Logo & MR Role Badge */}
-      <Header
-        title="Customers Directory"
-        subtitle="Doctors, Chemists, Hospitals & Stockists"
-        rightAction={
+      {/* Top App Header with Short Title to prevent truncation */}
+      <ScreenHeader
+        title="Customers"
+        subtitle="Doctors, Chemists & Stockists"
+        variant="navy"
+        onBack={navigation?.canGoBack && navigation.canGoBack() ? () => navigation.goBack() : undefined}
+        rightElement={
           <TouchableOpacity
             style={styles.addButton}
             onPress={() =>
@@ -292,60 +293,68 @@ export function CustomersHomeScreen() {
               })
             }
             activeOpacity={0.8}
+            accessibilityLabel="Add Doctor"
           >
-            <Ionicons name="add" size={16} color="#fff" />
+            <Feather name="plus" size={14} color={colors.surface} />
             <Text style={styles.addButtonText}>Add Doctor</Text>
           </TouchableOpacity>
         }
       />
 
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        {(
-          [
-            { id: "DOCTORS", label: "Doctors", icon: "person" },
-            { id: "CHEMISTS", label: "Chemists", icon: "flask" },
-            { id: "HOSPITALS", label: "Hospitals", icon: "business" },
-            { id: "STOCKISTS", label: "Stockists", icon: "cube" },
-            { id: "NEARBY", label: "Nearby GPS", icon: "navigate" },
-          ] as const
-        ).map((tab) => {
-          const isActive = activeTab === tab.id;
-          return (
-            <TouchableOpacity
-              key={tab.id}
-              style={[styles.tabButton, isActive && styles.tabButtonActive]}
-              onPress={() => setActiveTab(tab.id)}
-            >
-              <Ionicons
-                name={tab.icon as any}
-                size={14}
-                color={isActive ? colors.primary : colors.textSecondary}
-              />
-              <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
-                {tab.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
+      {/* Category Tabs */}
+      <View style={styles.tabsWrap}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.tabsScrollContent}
+        >
+          {(
+            [
+              { id: "DOCTORS" as const, label: "Doctors", icon: "user" as const },
+              { id: "CHEMISTS" as const, label: "Chemists", icon: "shopping-bag" as const },
+              { id: "HOSPITALS" as const, label: "Hospitals", icon: "plus-square" as const },
+              { id: "STOCKISTS" as const, label: "Stockists", icon: "package" as const },
+              { id: "NEARBY" as const, label: "Nearby GPS", icon: "map-pin" as const },
+            ]
+          ).map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <TouchableOpacity
+                key={tab.id}
+                style={[styles.tabButton, isActive && styles.tabButtonActive]}
+                onPress={() => setActiveTab(tab.id)}
+                activeOpacity={0.8}
+              >
+                <Feather
+                  name={tab.icon}
+                  size={14}
+                  color={isActive ? colors.brandBlue : colors.textMuted}
+                />
+                <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
+                  {tab.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
       {/* Search & Territory Filter (for non-nearby tabs) */}
       {activeTab !== "NEARBY" && (
         <View style={styles.filterSection}>
           <View style={styles.searchBar}>
-            <Ionicons name="search" size={16} color={colors.textSecondary} />
+            <Feather name="search" size={16} color={colors.textMuted} />
             <TextInput
               style={styles.searchInput}
               placeholder={`Search ${activeTab.toLowerCase()} by name, phone...`}
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textFaint}
               value={searchQuery}
               onChangeText={setSearchQuery}
               returnKeyType="search"
             />
             {searchQuery.length > 0 && (
-              <TouchableOpacity onPress={() => setSearchQuery("")}>
-                <Ionicons name="close-circle" size={16} color={colors.grey} />
+              <TouchableOpacity onPress={() => setSearchQuery("")} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Feather name="x-circle" size={16} color={colors.textMuted} />
               </TouchableOpacity>
             )}
           </View>
@@ -373,6 +382,7 @@ export function CustomersHomeScreen() {
                     onPress={() =>
                       setSelectedTerritoryId(item.id === 0 ? undefined : item.id)
                     }
+                    activeOpacity={0.75}
                   >
                     <Text
                       style={[
@@ -393,7 +403,7 @@ export function CustomersHomeScreen() {
       {/* List */}
       {isLoading && !isRefreshing ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={colors.primary} />
+          <ActivityIndicator size="large" color={colors.navy} />
           <Text style={styles.loadingText}>Fetching verified directory...</Text>
         </View>
       ) : (
@@ -402,16 +412,19 @@ export function CustomersHomeScreen() {
           keyExtractor={(item: any) => `${activeTab}-${item.id}`}
           renderItem={({ item }) => renderCardItem(item)}
           contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={handleRefresh}
-              tintColor={colors.primary}
+              tintColor={colors.navy}
             />
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Ionicons name="folder-open-outline" size={48} color={colors.grey} />
+              <View style={styles.emptyIconCircle}>
+                <Feather name="folder" size={32} color={colors.brandBlue} />
+              </View>
               <Text style={styles.emptyTitle}>No records found</Text>
               <Text style={styles.emptySubtitle}>
                 {searchQuery
@@ -426,8 +439,9 @@ export function CustomersHomeScreen() {
                       customerType: "DOCTOR",
                     })
                   }
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="person-add" size={16} color={colors.primary} />
+                  <Feather name="user-plus" size={15} color={colors.surface} />
                   <Text style={styles.addDoctorEmptyText}>Add First Doctor</Text>
                 </TouchableOpacity>
               )}
@@ -444,105 +458,83 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.sm,
-    backgroundColor: colors.surface,
-  },
-  title: {
-    ...typography.title,
-    fontSize: 20,
-    color: colors.navy,
-  },
-  subtitle: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 2,
-  },
   addButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
-    backgroundColor: colors.primary,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
+    gap: 6,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: radii.full,
   },
   addButtonText: {
-    ...typography.button,
-    color: "#fff",
+    color: colors.surface,
     fontSize: 12,
+    fontWeight: "700",
   },
-  tabsContainer: {
-    flexDirection: "row",
+  tabsWrap: {
     backgroundColor: colors.surface,
-    paddingHorizontal: spacing.md,
-    paddingBottom: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    paddingVertical: 8,
+  },
+  tabsScrollContent: {
+    paddingHorizontal: spacing.md,
+    gap: 8,
   },
   tabButton: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    gap: 4,
-    paddingVertical: spacing.sm,
-    borderRadius: radii.md,
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: radii.lg,
+    backgroundColor: colors.background,
   },
   tabButtonActive: {
-    backgroundColor: colors.lightPrimary,
+    backgroundColor: colors.bluePastel,
   },
   tabText: {
-    ...typography.caption,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: "600",
-    color: colors.textSecondary,
+    color: colors.textMuted,
   },
   tabTextActive: {
-    color: colors.primary,
+    color: colors.brandBlue,
     fontWeight: "700",
   },
   filterSection: {
     backgroundColor: colors.surface,
+    paddingHorizontal: spacing.md,
     paddingBottom: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    gap: spacing.sm,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.background,
-    borderRadius: radii.md,
-    marginHorizontal: spacing.lg,
-    marginTop: spacing.xs,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
     paddingHorizontal: spacing.md,
-    height: 38,
-    borderWidth: 1,
-    borderColor: colors.border,
+    height: 44,
+    gap: spacing.sm,
   },
   searchInput: {
     flex: 1,
-    marginLeft: spacing.sm,
-    ...typography.body,
-    fontSize: 13,
-    color: colors.text,
+    fontSize: 14,
+    color: colors.textInk,
   },
   territoryList: {
-    marginTop: spacing.xs + 2,
+    marginTop: 2,
   },
   territoryContent: {
-    paddingHorizontal: spacing.lg,
-    gap: spacing.xs,
+    gap: 8,
   },
   territoryPill: {
     backgroundColor: colors.background,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: radii.full,
     borderWidth: 1,
     borderColor: colors.border,
@@ -552,60 +544,68 @@ const styles = StyleSheet.create({
     borderColor: colors.navy,
   },
   territoryPillText: {
-    ...typography.caption,
-    fontSize: 11,
-    color: colors.textSecondary,
+    fontSize: 12,
+    fontWeight: "600",
+    color: colors.textMuted,
   },
   territoryPillTextActive: {
-    color: "#fff",
-    fontWeight: "600",
-  },
-  listContent: {
-    padding: spacing.md,
-    paddingBottom: spacing.xl * 2,
+    color: colors.surface,
+    fontWeight: "700",
   },
   loadingContainer: {
     flex: 1,
-    alignItems: "center",
     justifyContent: "center",
-    gap: spacing.sm,
+    alignItems: "center",
+    gap: 12,
   },
   loadingText: {
-    ...typography.body,
-    color: colors.textSecondary,
+    fontSize: 14,
+    color: colors.textMuted,
+  },
+  listContent: {
+    padding: spacing.md,
+    paddingBottom: 40,
   },
   emptyContainer: {
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: spacing.xl * 2,
+    paddingVertical: 60,
+    paddingHorizontal: spacing.xl,
+  },
+  emptyIconCircle: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: colors.bluePastel,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: spacing.md,
   },
   emptyTitle: {
-    ...typography.title,
-    fontSize: 16,
-    color: colors.navy,
-    marginTop: spacing.md,
+    fontSize: 18,
+    fontWeight: "800",
+    color: colors.textInk,
   },
   emptySubtitle: {
-    ...typography.body,
     fontSize: 13,
-    color: colors.textSecondary,
+    color: colors.textMuted,
     textAlign: "center",
-    marginTop: spacing.xs,
-    paddingHorizontal: spacing.xl,
+    marginTop: 6,
+    lineHeight: 18,
   },
   addDoctorEmptyBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    marginTop: spacing.lg,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    backgroundColor: colors.lightPrimary,
-    borderRadius: radii.md,
+    marginTop: spacing.md,
+    backgroundColor: colors.navy,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: radii.lg,
   },
   addDoctorEmptyText: {
-    ...typography.button,
-    color: colors.primary,
     fontSize: 13,
+    fontWeight: "700",
+    color: colors.surface,
   },
 });

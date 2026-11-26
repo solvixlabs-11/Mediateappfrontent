@@ -16,9 +16,9 @@ import {
   ReportsDashboardDto,
   reportsApi,
 } from "../api/reportsApi";
-import { Header } from "../../../shared/components/Header";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 import { Card } from "../../../shared/components/Card";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { colors, radii, spacing, typography } from "../../../theme";
 
 interface ReportsScreenProps {
   onClose?: () => void;
@@ -104,10 +104,10 @@ export const ReportsScreen: React.FC<ReportsScreenProps> = ({ onClose }) => {
 
   return (
     <View style={styles.container}>
-      <Header
+      <ScreenHeader
         title="Reports & Analytics"
         subtitle="Live field performance & territory coverage"
-        showBack={!!onClose}
+        variant="navy"
         onBack={onClose}
       />
 

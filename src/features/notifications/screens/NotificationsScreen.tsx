@@ -2,9 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  FlatList,
   Modal,
-  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -15,20 +13,18 @@ import {
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { NotificationDto, notificationsApi } from "../api/notificationsApi";
 import { useAuthStore } from "../../auth/store";
 import { useNetwork } from "../../../shared/hooks/useNetwork";
 import { approvalsApi } from "../../approvals/api/approvalsApi";
-import { formatDateIST } from "../../../shared/utils/date";
 import {
   NotificationCard,
   NotificationItemExtended,
-  getNotificationIconMeta,
-  getRelativeTime,
 } from "../components/NotificationCard";
-import { NotificationFilterTabs, FilterType } from "../components/NotificationFilterTabs";
 import { NotificationRejectionModal } from "../components/NotificationRejectionModal";
+import { colors, radii, shadows, spacing, typography } from "../../../theme";
+import { Chip } from "../../../shared/components/Chip";
 
 export interface NotificationsScreenProps {
   visible?: boolean;
@@ -36,25 +32,8 @@ export interface NotificationsScreenProps {
   roleMode?: "MR" | "ADMIN" | "MANAGER";
 }
 
-// Group key helper
-function getDateGroup(dateString: string): "Today" | "Yesterday" | "Earlier" {
-  try {
-    const itemDate = new Date(dateString);
-    const today = new Date();
-    const yesterday = new Date();
-    yesterday.setDate(today.getDate() - 1);
-
-    if (itemDate.toDateString() === today.toDateString()) {
-      return "Today";
-    }
-    if (itemDate.toDateString() === yesterday.toDateString()) {
-      return "Yesterday";
-    }
-    return "Earlier";
-  } catch {
-    return "Earlier";
-  }
-}
+type MainTabType = "Approval" | "Reimbursement" | "SMS";
+type StatusChipType = "Received" | "Applied" | "Resolved";
 
 export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   visible,
@@ -64,52 +43,27 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   const user = useAuthStore((s) => s.user);
   const network = useNetwork();
 
-  const initialIsAdmin =
-    roleMode === "ADMIN" ||
-    roleMode === "MANAGER" ||
-    user?.role === "ADMIN" ||
-    user?.role === "MANAGER";
+  // Tabs & Filters
+  const [activeTab, setActiveTab] = useState<MainTabType>("Approval");
+  const [activeStatusChip, setActiveStatusChip] = useState<StatusChipType>("Received");
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
-  const [activeRoleView, setActiveRoleView] = useState<"MR" | "ADMIN">(
-    initialIsAdmin ? "ADMIN" : "MR"
-  );
-
-  useEffect(() => {
-    if (roleMode) {
-      setActiveRoleView(roleMode === "MR" ? "MR" : "ADMIN");
-    } else if (user?.role) {
-      setActiveRoleView(
-        user.role === "ADMIN" || user.role === "MANAGER" ? "ADMIN" : "MR"
-      );
-    }
-  }, [roleMode, user?.role]);
-
-  const isAdminOrManager = activeRoleView === "ADMIN";
-
-  // State
+  // Notifications State
   const [notifications, setNotifications] = useState<NotificationItemExtended[]>([]);
-  const [activeFilter, setActiveFilter] = useState<FilterType>("ALL");
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
-  const [isMarkingAll, setIsMarkingAll] = useState<boolean>(false);
   const [hasError, setHasError] = useState<boolean>(false);
-  const [hasMore, setHasMore] = useState<boolean>(true);
-  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
 
   // Rejection Bottom Sheet Modal State
   const [rejectionItem, setRejectionItem] = useState<NotificationItemExtended | null>(null);
   const [rejectionReason, setRejectionReason] = useState<string>("");
   const [isSubmittingRejection, setIsSubmittingRejection] = useState<boolean>(false);
 
-  // Load notifications from API
   const loadNotifications = useCallback(async () => {
     try {
       setHasError(false);
       const apiData = await notificationsApi.list({ limit: 50 });
       setNotifications(apiData || []);
-      if (!apiData || apiData.length < 50) {
-        setHasMore(false);
-      }
     } catch (err) {
       console.warn("Failed to load notifications:", err);
       setHasError(true);
@@ -132,18 +86,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     loadNotifications();
   };
 
-  const handleMarkAllRead = async () => {
-    try {
-      setIsMarkingAll(true);
-      await notificationsApi.markAllRead().catch(() => {});
-      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
-    } catch (err) {
-      console.error("Failed to mark all read:", err);
-    } finally {
-      setIsMarkingAll(false);
-    }
-  };
-
   const handleItemPress = async (item: NotificationItemExtended) => {
     if (!item.is_read) {
       try {
@@ -157,16 +99,6 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     }
   };
 
-  const handleDeleteItem = async (id: number) => {
-    try {
-      await notificationsApi.delete(id).catch(() => {});
-      setNotifications((prev) => prev.filter((n) => n.id !== id));
-    } catch (err) {
-      console.error("Failed to delete notification:", err);
-    }
-  };
-
-  // Inline approval handlers for Admin & Manager
   const handleApprove = (item: NotificationItemExtended) => {
     Alert.alert(
       "Confirm Approval",
@@ -248,352 +180,204 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
     }
   };
 
-  // Unread Count
-  const unreadCount = useMemo(
-    () => notifications.filter((n) => !n.is_read).length,
-    [notifications]
-  );
-
-  // Filtered Notifications
+  // Filtered Notifications based on Tab, Status, and Search Query
   const filteredNotifications = useMemo(() => {
     return notifications.filter((item) => {
       const type = (item.notification_type || "").toUpperCase();
       const text = `${item.title} ${item.body}`.toLowerCase();
 
-      switch (activeFilter) {
-        case "UNREAD":
-          return !item.is_read;
-        case "APPROVALS":
-          return type === "APPROVAL" || text.includes("approval") || text.includes("approved") || text.includes("rejected");
-        case "TASKS":
-          return type === "TASK" || text.includes("task") || text.includes("feedback");
-        case "LEAVE":
-          return type === "LEAVE" || text.includes("leave");
-        case "EXPENSE":
-          return type === "EXPENSE" || text.includes("expense") || text.includes("allowance");
-        case "TOUR":
-          return type === "TOUR" || text.includes("tour");
-        case "REMINDERS":
-          return type === "REMINDER" || text.includes("reminder") || text.includes("due");
-        case "SYSTEM":
-          return type === "SYSTEM" || text.includes("system") || text.includes("sync") || text.includes("stock");
-        case "ALL":
-        default:
-          return true;
+      // Tab filtering
+      if (activeTab === "Approval") {
+        if (!type.includes("APPROVAL") && !text.includes("approval") && !text.includes("request") && !text.includes("leave")) {
+          // Allow general notifications if not strictly SMS/Expense
+          if (type.includes("SMS") || type.includes("EXPENSE")) return false;
+        }
+      } else if (activeTab === "Reimbursement") {
+        if (!type.includes("EXPENSE") && !text.includes("expense") && !text.includes("reimbursement")) {
+          return false;
+        }
+      } else if (activeTab === "SMS") {
+        if (!type.includes("SMS") && !text.includes("sms") && !text.includes("message")) {
+          return false;
+        }
       }
-    });
-  }, [notifications, activeFilter]);
 
-  // Grouped by Date (Today, Yesterday, Earlier)
-  const groupedSections = useMemo(() => {
-    const groups: { title: "Today" | "Yesterday" | "Earlier"; data: NotificationItemExtended[] }[] = [
-      { title: "Today", data: [] },
-      { title: "Yesterday", data: [] },
-      { title: "Earlier", data: [] },
-    ];
-
-    filteredNotifications.forEach((item) => {
-      const groupKey = getDateGroup(item.created_at);
-      const target = groups.find((g) => g.title === groupKey);
-      if (target) target.data.push(item);
-    });
-
-    return groups.filter((g) => g.data.length > 0);
-  }, [filteredNotifications]);
-
-  // Filter counts helper
-  const getFilterCount = (filter: FilterType): number => {
-    if (filter === "ALL") return notifications.length;
-    if (filter === "UNREAD") return unreadCount;
-    return notifications.filter((item) => {
-      const type = (item.notification_type || "").toUpperCase();
-      const text = `${item.title} ${item.body}`.toLowerCase();
-      switch (filter) {
-        case "APPROVALS":
-          return type === "APPROVAL" || text.includes("approval") || text.includes("approved") || text.includes("rejected");
-        case "TASKS":
-          return type === "TASK" || text.includes("task");
-        case "LEAVE":
-          return type === "LEAVE" || text.includes("leave");
-        case "EXPENSE":
-          return type === "EXPENSE" || text.includes("expense");
-        case "TOUR":
-          return type === "TOUR" || text.includes("tour");
-        case "REMINDERS":
-          return type === "REMINDER" || text.includes("reminder") || text.includes("due");
-        case "SYSTEM":
-          return type === "SYSTEM" || text.includes("system") || text.includes("sync");
-        default:
-          return true;
+      // Status chip filtering
+      if (activeStatusChip === "Resolved") {
+        if (!item.is_read && item.status_chip !== "Approved" && item.status_chip !== "Rejected") {
+          return false;
+        }
       }
-    }).length;
-  };
+
+      // Search Query
+      if (searchQuery.trim()) {
+        const query = searchQuery.trim().toLowerCase();
+        if (!text.includes(query)) return false;
+      }
+
+      return true;
+    });
+  }, [notifications, activeTab, activeStatusChip, searchQuery]);
+
+  const mainTabs: MainTabType[] = ["Approval", "Reimbursement", "SMS"];
+  const statusChips: StatusChipType[] = ["Received", "Applied", "Resolved"];
 
   const content = (
-    <SafeAreaView style={styles.safeContainer}>
-      <StatusBar style="dark" />
+    <View style={styles.container}>
+      <StatusBar style="light" />
 
-      {/* TOP APP BAR */}
-      <View style={styles.topAppBar}>
-        <View style={styles.topAppBarLeft}>
-          {onClose && (
-            <TouchableOpacity
-              style={styles.backButton}
-              onPress={onClose}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-            >
-              <Ionicons name="arrow-back" size={22} color="#0F172A" />
-            </TouchableOpacity>
-          )}
-          <Text style={styles.screenTitle}>Notifications</Text>
-          {unreadCount > 0 && (
-            <View style={styles.newBadgeChip}>
-              <Text style={styles.newBadgeText}>{unreadCount} new</Text>
-            </View>
-          )}
-        </View>
+      {/* Navy Rounded Header */}
+      <View style={styles.navyHeader}>
+        <SafeAreaView edges={["top"]} style={styles.headerSafe}>
+          <View style={styles.headerTopRow}>
+            {onClose ? (
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={onClose}
+                activeOpacity={0.7}
+                accessibilityLabel="Go back"
+              >
+                <Feather name="chevron-left" size={24} color={colors.surface} />
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.backPlaceholder} />
+            )}
 
-        <TouchableOpacity
-          style={styles.markAllReadBtn}
-          onPress={handleMarkAllRead}
-          disabled={isMarkingAll || unreadCount === 0}
-          activeOpacity={0.7}
-        >
-          {isMarkingAll ? (
-            <ActivityIndicator size="small" color="#0C5D46" />
-          ) : (
-            <Text
-              style={[
-                styles.markAllReadText,
-                unreadCount === 0 && styles.markAllReadDisabled,
-              ]}
-            >
-              Mark all read
-            </Text>
-          )}
-        </TouchableOpacity>
+            <Text style={styles.headerTitle}>Notifications</Text>
+            <View style={styles.backPlaceholder} />
+          </View>
+
+          {/* Top Tabs: Approval / Reimbursement / SMS */}
+          <View style={styles.tabsRow}>
+            {mainTabs.map((tab) => {
+              const isActive = activeTab === tab;
+              return (
+                <TouchableOpacity
+                  key={tab}
+                  style={styles.tabItem}
+                  onPress={() => setActiveTab(tab)}
+                  activeOpacity={0.75}
+                >
+                  <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>
+                    {tab}
+                  </Text>
+                  {isActive ? <View style={styles.tabUnderline} /> : null}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </SafeAreaView>
       </View>
 
-      {/* ROLE SWITCHER SELECTOR (MR / ADMIN-MANAGER VIEW) */}
-      <View style={styles.roleToggleBar}>
-        <TouchableOpacity
-          style={[
-            styles.roleToggleBtn,
-            activeRoleView === "MR" && styles.roleToggleBtnActive,
-          ]}
-          onPress={() => setActiveRoleView("MR")}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name="person"
-            size={13}
-            color={activeRoleView === "MR" ? "#0C5D46" : "#64748B"}
-          />
-          <Text
-            style={[
-              styles.roleToggleBtnText,
-              activeRoleView === "MR" && styles.roleToggleBtnTextActive,
-            ]}
-          >
-            MR View
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.roleToggleBtn,
-            activeRoleView === "ADMIN" && styles.roleToggleBtnActive,
-          ]}
-          onPress={() => setActiveRoleView("ADMIN")}
-          activeOpacity={0.8}
-        >
-          <Ionicons
-            name="shield-checkmark"
-            size={13}
-            color={activeRoleView === "ADMIN" ? "#0C5D46" : "#64748B"}
-          />
-          <Text
-            style={[
-              styles.roleToggleBtnText,
-              activeRoleView === "ADMIN" && styles.roleToggleBtnTextActive,
-            ]}
-          >
-            Admin & Manager View
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* OFFLINE BANNER (IF DISCONNECTED) */}
-      {(!network.isConnected || network.isInternetReachable === false) && (
-        <View style={styles.offlineBanner}>
-          <Ionicons name="cloud-offline" size={16} color="#B45309" />
-          <Text style={styles.offlineBannerText}>
-            You are offline - showing saved notifications
-          </Text>
-        </View>
-      )}
-
-      {/* HORIZONTALLY SCROLLABLE FILTER CHIPS */}
-      <NotificationFilterTabs
-        activeFilter={activeFilter}
-        onSelectFilter={setActiveFilter}
-        unreadCount={unreadCount}
-        getFilterCount={getFilterCount}
-      />
-
-      {/* ADMIN & MANAGER "NEEDS YOUR ACTION" CARD */}
-      {isAdminOrManager && (
-        <View style={styles.needsActionContainer}>
-          <View style={styles.needsActionCard}>
-            <View style={styles.needsActionLeft}>
-              <View style={styles.needsActionIconBox}>
-                <Ionicons name="alert-circle" size={20} color="#D97706" />
-              </View>
-              <View style={styles.needsActionTextCol}>
-                <Text style={styles.needsActionTitle}>
-                  5 approvals pending • 2 MRs not checked in
+      {/* Body Content */}
+      <View style={styles.body}>
+        {/* Status Filter Chips Row */}
+        <View style={styles.chipsRow}>
+          {statusChips.map((chip) => {
+            const isSelected = activeStatusChip === chip;
+            return (
+              <TouchableOpacity
+                key={chip}
+                style={[styles.statusChip, isSelected && styles.statusChipSelected]}
+                onPress={() => setActiveStatusChip(chip)}
+                activeOpacity={0.75}
+              >
+                <Text
+                  style={[
+                    styles.statusChipText,
+                    isSelected && styles.statusChipTextSelected,
+                  ]}
+                >
+                  {chip}
                 </Text>
-                <Text style={styles.needsActionSub}>
-                  Action required before shift close
-                </Text>
-              </View>
-            </View>
-            <TouchableOpacity
-              style={styles.needsActionViewBtn}
-              onPress={() => setActiveFilter("APPROVALS")}
-            >
-              <Text style={styles.needsActionViewBtnText}>View</Text>
-            </TouchableOpacity>
-          </View>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-      )}
 
-      {/* MAIN NOTIFICATIONS LIST OR VARIANTS */}
-      <ScrollView
-        style={styles.scrollList}
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            colors={["#0C5D46"]}
+        {/* Search Field */}
+        <View style={styles.searchBox}>
+          <Feather name="search" size={18} color={colors.textFaint} style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search"
+            placeholderTextColor={colors.textFaint}
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            autoCapitalize="none"
           />
-        }
-      >
-        {/* VARIANT 1: LOADING SKELETON */}
-        {isLoading ? (
-          <View style={styles.skeletonContainer}>
-            {[1, 2, 3, 4, 5].map((key) => (
-              <View key={key} style={styles.skeletonCard}>
-                <View style={styles.skeletonCircle} />
-                <View style={styles.skeletonTextCol}>
-                  <View style={styles.skeletonTitle} />
-                  <View style={styles.skeletonBody} />
-                </View>
-              </View>
-            ))}
-          </View>
-        ) : hasError ? (
-          /* VARIANT 2: ERROR STATE */
-          <View style={styles.errorContainer}>
-            <Ionicons name="cloud-offline-outline" size={54} color="#EF4444" />
-            <Text style={styles.errorTitle}>Unable to load notifications</Text>
-            <Text style={styles.errorSubtitle}>
-              Please check your network connection and try again.
-            </Text>
-            <TouchableOpacity style={styles.retryBtn} onPress={loadNotifications}>
-              <Ionicons name="refresh" size={16} color="#FFFFFF" />
-              <Text style={styles.retryBtnText}>Retry</Text>
+          {searchQuery ? (
+            <TouchableOpacity onPress={() => setSearchQuery("")} activeOpacity={0.7}>
+              <Feather name="x" size={16} color={colors.textFaint} />
             </TouchableOpacity>
-          </View>
-        ) : groupedSections.length === 0 ? (
-          /* VARIANT 3: EMPTY STATE */
-          <View style={styles.emptyContainer}>
-            <View style={styles.emptyIconCircle}>
-              <Ionicons name="checkmark-done" size={44} color="#0C5D46" />
+          ) : null}
+        </View>
+
+        {/* Scrollable Notifications List or Empty State */}
+        <ScrollView
+          style={styles.listScrollView}
+          contentContainerStyle={styles.listScrollContent}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              colors={[colors.navy]}
+              tintColor={colors.navy}
+            />
+          }
+        >
+          {isLoading ? (
+            <View style={styles.loadingBox}>
+              <ActivityIndicator size="large" color={colors.navy} />
             </View>
-            <Text style={styles.emptyTitle}>You are all caught up</Text>
-            <Text style={styles.emptySubtitle}>
-              No notifications found in this category. We'll alert you as soon as updates arrive.
-            </Text>
-          </View>
-        ) : (
-          /* REGULAR GROUPED NOTIFICATION LIST */
-          groupedSections.map((section) => (
-            <View key={section.title} style={styles.sectionBlock}>
-              {/* Sticky Date Header */}
-              <View style={styles.stickyHeader}>
-                <Text style={styles.stickyHeaderText}>{section.title}</Text>
+          ) : hasError ? (
+            <View style={styles.emptyContainer}>
+              <View style={styles.emptyIconCircle}>
+                <Feather name="alert-circle" size={32} color={colors.accentRed} />
               </View>
-
-              {/* Cards */}
-              {section.data.map((item) => (
-                <NotificationCard
-                  key={item.id}
-                  item={item}
-                  isAdminOrManager={isAdminOrManager}
-                  onPress={handleItemPress}
-                  onApprove={handleApprove}
-                  onReject={handleOpenRejectSheet}
-                />
-              ))}
-            </View>
-          ))
-        )}
-
-        {/* SWIPE HINT & PAGINATION FOOTER */}
-        {!isLoading && groupedSections.length > 0 && (
-          <View style={styles.listFooter}>
-            <View style={styles.swipeHintRow}>
-              <Ionicons name="swap-horizontal" size={14} color="#94A3B8" />
-              <Text style={styles.swipeHintText}>
-                Swipe left to delete • Tap card to drill down
+              <Text style={styles.emptyTitle}>Unable to load</Text>
+              <Text style={styles.emptySubtitle}>
+                Please check your network connection and try again.
               </Text>
             </View>
+          ) : filteredNotifications.length === 0 ? (
+            /* Empty State Matching Screenshot 8 exactly */
+            <View style={styles.emptyContainer}>
+              <View style={styles.emptyIconCircle}>
+                <Feather name="bell" size={34} color={colors.navy} />
+              </View>
+              <Text style={styles.emptyTitle}>You are all caught up</Text>
+              <Text style={styles.emptySubtitle}>
+                No approvals waiting for you right now.
+              </Text>
+            </View>
+          ) : (
+            filteredNotifications.map((item) => (
+              <NotificationCard
+                key={item.id}
+                item={item}
+                isAdminOrManager={false}
+                onPress={handleItemPress}
+                onApprove={handleApprove}
+                onReject={handleOpenRejectSheet}
+              />
+            ))
+          )}
+        </ScrollView>
+      </View>
 
-            {hasMore && (
-              <TouchableOpacity
-                style={styles.loadMoreBtn}
-                onPress={async () => {
-                  setIsLoadingMore(true);
-                  try {
-                    const more = await notificationsApi.list({ skip: notifications.length, limit: 50 });
-                    if (more && more.length > 0) {
-                      setNotifications((prev) => [...prev, ...more]);
-                      if (more.length < 50) setHasMore(false);
-                    } else {
-                      setHasMore(false);
-                    }
-                  } catch {
-                    setHasMore(false);
-                  } finally {
-                    setIsLoadingMore(false);
-                  }
-                }}
-                disabled={isLoadingMore}
-              >
-                {isLoadingMore ? (
-                  <ActivityIndicator size="small" color="#0C5D46" />
-                ) : (
-                  <Text style={styles.loadMoreText}>Load earlier notifications</Text>
-                )}
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
-      </ScrollView>
-
-      {/* REJECTION BOTTOM SHEET MODAL */}
+      {/* Rejection Sheet */}
       <NotificationRejectionModal
         visible={!!rejectionItem}
         item={rejectionItem}
+        onClose={() => setRejectionItem(null)}
         reason={rejectionReason}
         onChangeReason={setRejectionReason}
-        onClose={() => setRejectionItem(null)}
         onSubmit={handleSubmitRejection}
         isSubmitting={isSubmittingRejection}
       />
-    </SafeAreaView>
+    </View>
   );
 
   if (visible !== undefined) {
@@ -607,328 +391,170 @@ export const NotificationsScreen: React.FC<NotificationsScreenProps> = ({
   return content;
 };
 
-// Aliased export for compatibility
 export const NotificationsModal = NotificationsScreen;
 
 const styles = StyleSheet.create({
-  safeContainer: {
+  container: {
     flex: 1,
-    backgroundColor: "#F3F7FA",
+    backgroundColor: colors.background,
   },
-  topAppBar: {
-    height: 56,
-    backgroundColor: "#FFFFFF",
+  navyHeader: {
+    backgroundColor: colors.navy,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    paddingHorizontal: spacing.xl,
+    paddingBottom: spacing.sm,
+  },
+  headerSafe: {
+    paddingTop: spacing.xs,
+  },
+  headerTopRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#EDEEF6",
-  },
-  topAppBarLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
+    height: 52,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: radii.md,
+    backgroundColor: colors.translucentWhite,
     alignItems: "center",
     justifyContent: "center",
   },
-  screenTitle: {
-    fontSize: 18,
+  backPlaceholder: {
+    width: 44,
+  },
+  headerTitle: {
+    ...typography.heading,
+    fontSize: 22,
     fontWeight: "800",
-    color: "#0F172A",
-    letterSpacing: -0.2,
+    color: colors.surface,
   },
-  newBadgeChip: {
-    backgroundColor: "#DCFCE7",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
-  },
-  newBadgeText: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: "#0C5D46",
-  },
-  markAllReadBtn: {
-    minHeight: 48,
-    justifyContent: "center",
-    paddingHorizontal: 8,
-  },
-  markAllReadText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#0C5D46",
-  },
-  markAllReadDisabled: {
-    color: "#94A3B8",
-  },
-  roleToggleBar: {
+  tabsRow: {
     flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#E2E8F0",
-    borderRadius: 10,
-    marginHorizontal: 16,
-    marginTop: 8,
-    marginBottom: 6,
-    padding: 3,
-  },
-  roleToggleBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 7,
-    borderRadius: 8,
-    gap: 6,
-  },
-  roleToggleBtnActive: {
-    backgroundColor: "#0C5D46",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  roleToggleBtnText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#475569",
-  },
-  roleToggleBtnTextActive: {
-    color: "#FFFFFF",
-    fontWeight: "700",
-  },
-  offlineBanner: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: "#FEF3C7",
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#FDE68A",
-  },
-  offlineBannerText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#92400E",
-  },
-
-  // NEEDS YOUR ACTION CARD (Admin/Manager)
-  needsActionContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  needsActionCard: {
-    flexDirection: "row",
-    alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#FFFBEB",
-    borderRadius: 12,
-    borderLeftWidth: 4,
-    borderLeftColor: "#F59E0B",
-    borderWidth: 1,
-    borderColor: "#FEF3C7",
-    padding: 12,
+    marginTop: spacing.md,
+    paddingHorizontal: spacing.sm,
   },
-  needsActionLeft: {
-    flexDirection: "row",
+  tabItem: {
+    paddingVertical: spacing.sm,
+    position: "relative",
     alignItems: "center",
-    gap: 10,
-    flex: 1,
-    marginRight: 8,
   },
-  needsActionIconBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "#FEF3C7",
-    alignItems: "center",
-    justifyContent: "center",
+  tabLabel: {
+    ...typography.subheading,
+    fontSize: 15,
+    fontWeight: "600",
+    color: "rgba(255, 255, 255, 0.7)",
   },
-  needsActionTextCol: {
-    flex: 1,
-  },
-  needsActionTitle: {
-    fontSize: 12.5,
+  tabLabelActive: {
+    color: colors.surface,
     fontWeight: "800",
-    color: "#92400E",
   },
-  needsActionSub: {
-    fontSize: 11,
-    color: "#B45309",
-    marginTop: 1,
+  tabUnderline: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 3,
+    backgroundColor: colors.surface,
+    borderRadius: radii.full,
   },
-  needsActionViewBtn: {
-    backgroundColor: "#F59E0B",
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
+  body: {
+    flex: 1,
+    paddingHorizontal: spacing.xl,
+    paddingTop: spacing.lg,
   },
-  needsActionViewBtnText: {
-    fontSize: 11,
+  chipsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  statusChip: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radii.full,
+    backgroundColor: colors.surface,
+    borderWidth: 1.5,
+    borderColor: colors.borderLight,
+  },
+  statusChipSelected: {
+    backgroundColor: colors.navy,
+    borderColor: colors.navy,
+  },
+  statusChipText: {
+    ...typography.caption,
+    fontSize: 13,
+    fontWeight: "600",
+    color: colors.textMuted,
+  },
+  statusChipTextSelected: {
+    color: colors.surface,
     fontWeight: "700",
-    color: "#FFFFFF",
   },
-
-  // SCROLL CONTENT
-  scrollList: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 32,
-  },
-  sectionBlock: {
-    marginTop: 12,
-  },
-  stickyHeader: {
-    paddingVertical: 6,
-    marginBottom: 4,
-  },
-  stickyHeaderText: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: "#64748B",
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-
-  // SKELETON VARIANT
-  skeletonContainer: {
-    marginTop: 12,
-    gap: 8,
-  },
-  skeletonCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#EDEEF6",
-    padding: 14,
+  searchBox: {
+    height: 48,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
+    paddingHorizontal: spacing.lg,
+    marginBottom: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
   },
-  skeletonCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#E2E8F0",
+  searchIcon: {
+    marginRight: spacing.sm,
   },
-  skeletonTextCol: {
+  searchInput: {
     flex: 1,
-    gap: 8,
+    height: "100%",
+    ...typography.bodyMedium,
+    color: colors.textInk,
   },
-  skeletonTitle: {
-    height: 14,
-    width: "75%",
-    borderRadius: 6,
-    backgroundColor: "#E2E8F0",
+  listScrollView: {
+    flex: 1,
   },
-  skeletonBody: {
-    height: 12,
-    width: "90%",
-    borderRadius: 6,
-    backgroundColor: "#F1F5F9",
+  listScrollContent: {
+    paddingBottom: spacing.xxxl,
+    flexGrow: 1,
   },
-
-  // EMPTY STATE VARIANT
-  emptyContainer: {
+  loadingBox: {
+    paddingVertical: spacing.xxxl,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 56,
-    paddingHorizontal: 24,
+  },
+  emptyContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: spacing.xxxl * 1.5,
+    paddingHorizontal: spacing.xl,
   },
   emptyIconCircle: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: "#DCFCE7",
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.bluePastel,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: spacing.xl,
   },
   emptyTitle: {
-    fontSize: 17,
+    ...typography.heading,
+    fontSize: 20,
+    lineHeight: 26,
     fontWeight: "800",
-    color: "#0F172A",
+    color: colors.textInk,
+    textAlign: "center",
     marginBottom: 6,
   },
   emptySubtitle: {
-    fontSize: 13,
-    color: "#64748B",
+    ...typography.body,
+    fontSize: 14,
+    color: colors.textMuted,
     textAlign: "center",
-    lineHeight: 19,
-  },
-
-  // ERROR STATE VARIANT
-  errorContainer: {
-    alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 48,
-    paddingHorizontal: 24,
-  },
-  errorTitle: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#0F172A",
-    marginTop: 12,
-  },
-  errorSubtitle: {
-    fontSize: 13,
-    color: "#64748B",
-    textAlign: "center",
-    marginTop: 4,
-    marginBottom: 16,
-  },
-  retryBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "#0C5D46",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  retryBtnText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#FFFFFF",
-  },
-
-  // LIST FOOTER & PAGINATION
-  listFooter: {
-    marginTop: 16,
-    alignItems: "center",
-    gap: 12,
-  },
-  swipeHintRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-  },
-  swipeHintText: {
-    fontSize: 11,
-    color: "#94A3B8",
-    fontWeight: "500",
-  },
-  loadMoreBtn: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#EDEEF6",
-  },
-  loadMoreText: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#0C5D46",
   },
 });

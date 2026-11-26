@@ -1650,6 +1650,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/approvals/pending-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get pending approvals count for current user
+         * @description Return count of pending approvals scoped to the user.
+         */
+        get: operations["get_pending_count_api_v1_approvals_pending_count_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/approvals/my-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get approval requests submitted by current user
+         * @description Fetch approval requests submitted by the current user.
+         */
+        get: operations["get_my_requests_api_v1_approvals_my_requests_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/approvals/{request_id}": {
         parameters: {
             query?: never;
@@ -1798,6 +1838,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/standard-route-charts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Standard Route Charts
+         * @description Fetch all standard route charts.
+         */
+        get: operations["list_standard_route_charts_api_v1_standard_route_charts_get"];
+        put?: never;
+        /**
+         * Create a Standard Route Chart (Draft or Applied)
+         * @description Create a new standard route chart.
+         */
+        post: operations["create_standard_route_chart_api_v1_standard_route_charts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/expenses": {
         parameters: {
             query?: never;
@@ -1876,6 +1940,26 @@ export interface paths {
          * @description Settle an approved expense claim and mark as PAID with UTR reference.
          */
         post: operations["process_payout_api_v1_expenses__expense_id__payout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/leaves/balance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get current leave balances for rep (alias)
+         * @description Fetch remaining Casual, Sick, and Earned leave balances.
+         */
+        get: operations["get_leave_balances_api_v1_leaves_balance_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3684,6 +3768,14 @@ export interface components {
             decided_at: string;
         };
         /**
+         * ApprovalPendingCountResponse
+         * @description Pending approvals count scoped to current user.
+         */
+        ApprovalPendingCountResponse: {
+            /** Pending Count */
+            pending_count: number;
+        };
+        /**
          * ApprovalRequestResponse
          * @description Full approval request detail including requester information and review history.
          */
@@ -4602,6 +4694,14 @@ export interface components {
             stockist_id?: number | null;
             /** Customer Name */
             customer_name?: string | null;
+            /** Owner Name */
+            owner_name?: string | null;
+            /** City */
+            city?: string | null;
+            /** Area */
+            area?: string | null;
+            /** Address */
+            address?: string | null;
             /** Planned Visit Id */
             planned_visit_id?: number | null;
             /** Visit Type */
@@ -7229,10 +7329,22 @@ export interface components {
             customer_id: number;
             /** Customer Name */
             customer_name?: string | null;
+            /** Owner Name */
+            owner_name?: string | null;
             /** User Id */
             user_id: number;
             /** User Name */
             user_name?: string | null;
+            /** Territory Code */
+            territory_code?: string | null;
+            /** Assigned Emp Name */
+            assigned_emp_name?: string | null;
+            /** Assigned Terr Code */
+            assigned_terr_code?: string | null;
+            /** Assigned Terr Name */
+            assigned_terr_name?: string | null;
+            /** Remarks */
+            remarks?: string | null;
             /** Total Amount */
             total_amount: number;
             /** Status */
@@ -8468,6 +8580,89 @@ export interface components {
             reason?: string | null;
         };
         /**
+         * StandardRouteChartCreateRequest
+         * @description Payload to create a Standard Route Chart (Draft or Applied).
+         */
+        StandardRouteChartCreateRequest: {
+            /** Emp Id */
+            emp_id?: number | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /**
+             * Name
+             * @description Route name
+             */
+            name: string;
+            /** City */
+            city?: string | null;
+            /**
+             * Allowance
+             * @description HEAD QUARTERS, EX-STATION, OUT-STATION
+             * @default HEAD QUARTERS
+             */
+            allowance: string;
+            /**
+             * Mode
+             * @description Bike, Car, Bus, Train, Flight
+             * @default Bike
+             */
+            mode: string;
+            /**
+             * Field Type
+             * @description Field Work, Meeting, Transit, Holiday, Sunday
+             * @default Field Work
+             */
+            field_type: string;
+            /**
+             * Status
+             * @description DRAFT, APPLIED
+             * @default DRAFT
+             */
+            status: string;
+            /** Details */
+            details?: string | null;
+        };
+        /**
+         * StandardRouteChartResponse
+         * @description Standard Route Chart details response.
+         */
+        StandardRouteChartResponse: {
+            /** Id */
+            id: number;
+            /** Emp Id */
+            emp_id?: number | null;
+            /** Emp Name */
+            emp_name?: string | null;
+            /** Territory Id */
+            territory_id?: number | null;
+            /** Territory Name */
+            territory_name?: string | null;
+            /** Name */
+            name: string;
+            /** City */
+            city?: string | null;
+            /** Allowance */
+            allowance: string;
+            /** Mode */
+            mode: string;
+            /** Field Type */
+            field_type: string;
+            /** Status */
+            status: string;
+            /** Details */
+            details?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
+        /**
          * StateCreate
          * @description Payload to create a State.
          */
@@ -9656,6 +9851,34 @@ export interface components {
              * @default []
              */
             actions: string[];
+            /** Description */
+            description?: string | null;
+            /** From Emp Name */
+            from_emp_name?: string | null;
+            /** From Terr Name */
+            from_terr_name?: string | null;
+            /** From Terr Code */
+            from_terr_code?: string | null;
+            /** Year */
+            year?: string | null;
+            /** Date */
+            date?: string | null;
+            /** Month */
+            month?: string | null;
+            /** Resolved By Emp Name */
+            resolved_by_emp_name?: string | null;
+            /** Resolved By Terr Name */
+            resolved_by_terr_name?: string | null;
+            /** Resolved By Terr Code */
+            resolved_by_terr_code?: string | null;
+            /** From Date */
+            from_date?: string | null;
+            /** To Date */
+            to_date?: string | null;
+            /** Leave Type */
+            leave_type?: string | null;
+            /** To Emp Name */
+            to_emp_name?: string | null;
         };
         /**
          * WorkflowSummaryResponse
@@ -12964,6 +13187,46 @@ export interface operations {
             };
         };
     };
+    get_pending_count_api_v1_approvals_pending_count_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalPendingCountResponse"];
+                };
+            };
+        };
+    };
+    get_my_requests_api_v1_approvals_my_requests_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ApprovalRequestResponse"][];
+                };
+            };
+        };
+    };
     get_approval_detail_api_v1_approvals__request_id__get: {
         parameters: {
             query?: never;
@@ -13238,6 +13501,70 @@ export interface operations {
             };
         };
     };
+    list_standard_route_charts_api_v1_standard_route_charts_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StandardRouteChartResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_standard_route_chart_api_v1_standard_route_charts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StandardRouteChartCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StandardRouteChartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     list_expenses_api_v1_expenses_get: {
         parameters: {
             query?: {
@@ -13377,6 +13704,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ExpenseResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_leave_balances_api_v1_leaves_balance_get: {
+        parameters: {
+            query?: {
+                year?: number | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LeaveBalanceResponse"];
                 };
             };
             /** @description Validation Error */

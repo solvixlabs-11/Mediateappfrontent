@@ -17,6 +17,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { territoriesApi, TerritoryDto } from "../../territories/api/territoriesApi";
 import { mastersApi, CityDto, AreaDto } from "../../masters/api/mastersApi";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 export function DeviationScreen() {
   const navigation = useNavigation();
@@ -119,16 +120,12 @@ export function DeviationScreen() {
       <StatusBar style="light" />
 
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Deviation</Text>
-      </View>
+      <ScreenHeader
+        title="Deviation"
+        subtitle="Beat & route deviation approval"
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
 
       {/* Form Content */}
       <ScrollView

@@ -1,12 +1,12 @@
 import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import { Header } from "../../../shared/components/Header";
+import { Feather } from "@expo/vector-icons";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 import { Card } from "../../../shared/components/Card";
 import { ScreenContainer } from "../../../shared/components/ScreenContainer";
 import { StatusChip } from "../../../shared/components/StatusChip";
-import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { colors, radii, spacing, typography, shadows } from "../../../theme";
 
 export interface ComingSoonScreenProps {
   featureName?: string;
@@ -30,16 +30,16 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = (props) => {
 
   return (
     <ScreenContainer>
-      <Header
+      <ScreenHeader
         title="Report Details"
         subtitle={group}
-        showBack={navigation?.canGoBack ? navigation.canGoBack() : true}
-        onBack={() => navigation?.goBack?.()}
+        variant="navy"
+        onBack={navigation?.canGoBack ? () => navigation.goBack() : undefined}
       />
       <View style={styles.container}>
         <Card style={styles.card}>
           <View style={styles.iconCircle}>
-            <Ionicons name="construct-outline" size={36} color={colors.primary} />
+            <Feather name="sliders" size={32} color={colors.brandBlue} />
           </View>
 
           <StatusChip status="Planned" label={`Status: ${phase}`} />
@@ -48,7 +48,7 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = (props) => {
           <Text style={styles.groupText}>Category: {group}</Text>
 
           <View style={styles.reasonBox}>
-            <Ionicons name="information-circle-outline" size={18} color={colors.primary} />
+            <Feather name="info" size={18} color={colors.brandBlue} />
             <Text style={styles.reasonText}>{reason}</Text>
           </View>
 
@@ -61,7 +61,7 @@ export const ComingSoonScreen: React.FC<ComingSoonScreenProps> = (props) => {
             activeOpacity={0.8}
             onPress={() => navigation?.goBack?.()}
           >
-            <Ionicons name="arrow-back" size={18} color="#FFFFFF" />
+            <Feather name="arrow-left" size={16} color={colors.surface} />
             <Text style={styles.backButtonText}>Back to Reports Catalog</Text>
           </TouchableOpacity>
         </Card>
@@ -76,73 +76,81 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: spacing.lg,
+    backgroundColor: colors.background,
   },
   card: {
     width: "100%",
     alignItems: "center",
-    paddingVertical: spacing.xl,
+    paddingVertical: spacing.xxl,
     paddingHorizontal: spacing.lg,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
+    ...shadows.soft,
   },
   iconCircle: {
     width: 68,
     height: 68,
     borderRadius: 34,
-    backgroundColor: "#E6F4F1",
+    backgroundColor: colors.bluePastel,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.md,
   },
   title: {
     ...typography.title,
-    color: colors.navy,
+    fontSize: 20,
+    fontWeight: "800",
+    color: colors.textInk,
     textAlign: "center",
     marginTop: spacing.md,
     marginBottom: 4,
   },
   groupText: {
     ...typography.caption,
-    color: colors.textSecondary,
-    fontWeight: "600",
+    color: colors.textMuted,
+    fontWeight: "700",
     marginBottom: spacing.md,
   },
   reasonBox: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.background,
-    borderRadius: radii.md,
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
     padding: spacing.md,
     marginTop: spacing.sm,
     marginBottom: spacing.md,
-    gap: spacing.xs,
+    gap: spacing.sm,
     width: "100%",
     borderLeftWidth: 3,
-    borderLeftColor: colors.primary,
+    borderLeftColor: colors.brandBlue,
   },
   reasonText: {
     ...typography.body,
     fontSize: 13,
-    color: colors.navy,
+    color: colors.textInk,
     flex: 1,
   },
   subtext: {
     ...typography.caption,
-    color: colors.textSecondary,
+    color: colors.textMuted,
     textAlign: "center",
     lineHeight: 18,
-    marginBottom: spacing.lg,
+    marginBottom: spacing.xl,
   },
   backButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: colors.primary,
-    paddingVertical: 12,
+    backgroundColor: colors.navy,
+    paddingVertical: 14,
     paddingHorizontal: spacing.xl,
-    borderRadius: radii.md,
-    gap: spacing.xs,
+    borderRadius: radii.lg,
+    gap: spacing.sm,
+    ...shadows.soft,
   },
   backButtonText: {
     ...typography.button,
-    color: "#FFFFFF",
+    color: colors.surface,
+    fontWeight: "800",
   },
 });

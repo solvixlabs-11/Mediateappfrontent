@@ -25,6 +25,7 @@ import {
 import { dcrApi } from "../api/dcrApi";
 import { RootStackParamList } from "../../../navigation/types";
 import { colors, radii, spacing, typography } from "../../../shared/theme/tokens";
+import { ScreenHeader } from "../../../shared/components/ScreenHeader";
 
 export function DcrFormScreen() {
   const navigation = useNavigation();
@@ -191,17 +192,12 @@ export function DcrFormScreen() {
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color={colors.navy} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Daily Call Report (DCR)</Text>
-        <View style={{ width: 24 }} />
-      </View>
+      <ScreenHeader
+        title="Daily Call Report (DCR)"
+        subtitle="Record field visit details & samples"
+        variant="navy"
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
         {/* Customer Type Segment */}
