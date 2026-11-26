@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
@@ -14,6 +17,7 @@ import { Feather } from "@expo/vector-icons";
 import { attendanceApi, AttendanceDto } from "../../attendance/api/attendanceApi";
 import { dcrApi } from "../../dcr/api/dcrApi";
 import { getCurrentGeoLocation } from "../../../shared/utils/location";
+import { formatDateTimeIST, parseUtcDate } from "../../../shared/utils/date";
 import { colors, radii, shadows, spacing, typography } from "../../../theme";
 import { PrimaryButton } from "../../../shared/components/PrimaryButton";
 
@@ -21,18 +25,21 @@ export interface BiometricAttendanceModalProps {
   visible: boolean;
   onClose: () => void;
   onAttendanceUpdated?: () => void;
+  onPunchOutSuccess?: () => void;
 }
 
 export function BiometricAttendanceModal({
   visible,
   onClose,
   onAttendanceUpdated,
+  onPunchOutSuccess,
 }: BiometricAttendanceModalProps) {
   const insets = useSafeAreaInsets();
   const [attendance, setAttendance] = useState<AttendanceDto | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [locationName, setLocationName] = useState<string>("Ahmedabad");
+  const [punchOutRemarks, setPunchOutRemarks] = useState<string>("");
 
   // Live calculation states
   const [currentTimeFormatted, setCurrentTimeFormatted] = useState<string>("");
@@ -71,10 +78,13 @@ export function BiometricAttendanceModal({
       setAttendance(todayAtt);
 
       if (todayAtt && todayAtt.check_in_time) {
-        const checkInDate = new Date(todayAtt.check_in_time);
-        setLastPunchInDisplay(formatDateTime(checkInDate));
+        const checkInDate = parseUtcDate(todayAtt.check_in_time) || new Date(todayAtt.check_in_time);
+        setLastPunchInDisplay(formatDateTimeIST(todayAtt.check_in_time));
 
-        const diffMs = Math.max(0, now.getTime() - checkInDate.getTime());
+        const endRef = todayAtt.check_out_time
+          ? parseUtcDate(todayAtt.check_out_time) || now
+          : now;
+        const diffMs = Math.max(0, endRef.getTime() - checkInDate.getTime());
         const hrs = String(Math.floor(diffMs / (1000 * 60 * 60))).padStart(2, "0");
         const mins = String(Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, "0");
         setWorkingTimeFormatted(`${hrs} : ${mins}`);
@@ -158,15 +168,13 @@ export function BiometricAttendanceModal({
         accuracy: loc?.accuracy || 10,
         address: loc?.address || "Ahmedabad, Gujarat",
         mock_location_flag: loc?.mock_location_flag || false,
-        remarks: "MR Daily Attendance Punch Out",
+        remarks: punchOutRemarks.trim() || "MR Daily Attendance Punch Out",
       });
 
-      Alert.alert(
-        "Punch Out Successful",
-        `Today's total working time: ${workingTimeFormatted} (${visitsDoneCount} visits completed).`
-      );
+      setPunchOutRemarks("");
       onAttendanceUpdated?.();
       onClose();
+      onPunchOutSuccess?.();
     } catch (err: any) {
       Alert.alert("Punch Out Failed", err?.response?.data?.detail || err?.message || "Please check connection.");
     } finally {
@@ -179,7 +187,10 @@ export function BiometricAttendanceModal({
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-      <View style={styles.modalBackdrop}>
+      <KeyboardAvoidingView
+        style={styles.modalBackdrop}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
         <TouchableWithoutFeedback onPress={onClose}>
           <View style={styles.dismissOverlay} />
         </TouchableWithoutFeedback>
@@ -226,27 +237,37 @@ export function BiometricAttendanceModal({
               />
             </View>
           ) : isCheckedIn ? (
-            /* Punch Out Confirmation */
+            /* Punch Out Confirmation (MR-Buddy Flow) */
             <View style={styles.contentBox}>
               <View style={styles.redIconTile}>
-                <Feather name="navigation" size={24} color={colors.accentRed} />
+                <Feather name="log-out" size={24} color={colors.accentRed} />
               </View>
 
-              <Text style={styles.sheetTitle}>Punch out now?</Text>
-              <Text style={styles.dateTimeText}>{currentTimeFormatted}</Text>
+              <Text style={styles.sheetTitle}>Punch Out</Text>
+              <Text style={styles.dateTimeText}>Are you sure you want to punch out?</Text>
 
-              <View style={styles.locationPill}>
-                <Feather name="map" size={16} color={colors.brandBlue} />
-                <Text style={styles.locationPillText}>
-                  Location: {locationName} · GPS on
+              <View style={styles.punchSummaryBox}>
+                <Text style={styles.punchSummaryLine}>
+                  Your today working time is <Text style={styles.punchSummaryBold}>{workingTimeFormatted}</Text>
                 </Text>
+                <Text style={styles.punchSummaryLine}>
+                  You have done <Text style={styles.punchSummaryBold}>{visitsDoneCount}</Text> visit{visitsDoneCount === 1 ? "" : "s"} out of {totalPlannedVisitsCount}
+                </Text>
+                {lastPunchInDisplay && (
+                  <Text style={styles.lastPunchText}>
+                    Punched in at: {lastPunchInDisplay}
+                  </Text>
+                )}
               </View>
 
-              {lastPunchInDisplay && (
-                <Text style={styles.lastPunchText}>
-                  Last punch in: {lastPunchInDisplay}
-                </Text>
-              )}
+              <TextInput
+                style={styles.remarksInput}
+                placeholder="Enter remarks (optional)..."
+                placeholderTextColor={colors.textFaint}
+                value={punchOutRemarks}
+                onChangeText={setPunchOutRemarks}
+                maxLength={200}
+              />
 
               <View style={styles.actionRow}>
                 <PrimaryButton
@@ -305,7 +326,7 @@ export function BiometricAttendanceModal({
             </View>
           )}
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -382,7 +403,36 @@ const styles = StyleSheet.create({
   lastPunchText: {
     ...typography.caption,
     color: colors.textFaint,
+    marginTop: 4,
+  },
+  punchSummaryBox: {
+    width: "100%",
+    backgroundColor: colors.inputBackground,
+    borderRadius: radii.lg,
+    padding: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.borderLight,
     marginBottom: spacing.md,
+    gap: 4,
+  },
+  punchSummaryLine: {
+    ...typography.body,
+    fontSize: 13,
+    color: colors.textInk,
+  },
+  punchSummaryBold: {
+    fontWeight: "700",
+    color: colors.navy,
+  },
+  remarksInput: {
+    width: "100%",
+    borderBottomWidth: 1.5,
+    borderBottomColor: colors.accentRed,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: 4,
+    fontSize: 14,
+    color: colors.textInk,
+    marginBottom: spacing.lg,
   },
   summaryText: {
     ...typography.body,

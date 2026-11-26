@@ -127,6 +127,7 @@ export function MrBuddyHomeScreen() {
 
   const handleCardPress = (type: MrBuddyCardType) => {
     const isCheckedIn = !!attendance?.check_in_time && !attendance?.check_out_time;
+    const isCheckedOut = !!attendance?.check_out_time;
 
     const punchRequiredCards: MrBuddyCardType[] = [
       "deviation",
@@ -145,6 +146,11 @@ export function MrBuddyHomeScreen() {
       "credit_note_new",
       "induction",
     ];
+
+    if (isCheckedOut && punchRequiredCards.includes(type)) {
+      Alert.alert("Shift Completed", "You have already punched out for today.");
+      return;
+    }
 
     if (!isCheckedIn && punchRequiredCards.includes(type)) {
       triggerPunchInRequiredToast();
@@ -283,8 +289,12 @@ export function MrBuddyHomeScreen() {
     .toUpperCase() || "MR";
 
   const isCheckedIn = !!attendance?.check_in_time && !attendance?.check_out_time;
+  const isCheckedOut = !!attendance?.check_out_time;
   const punchTimeFormatted = attendance?.check_in_time
     ? formatTimeIST(attendance.check_in_time)
+    : null;
+  const punchOutTimeFormatted = attendance?.check_out_time
+    ? formatTimeIST(attendance.check_out_time)
     : null;
 
   const callsPercentage = callsTarget > 0 ? Math.round((callsDone / callsTarget) * 100) : 0;
@@ -424,40 +434,63 @@ export function MrBuddyHomeScreen() {
             </View>
           </View>
 
-          {/* Slide To Punch Slider Capsule */}
-          <View
-            style={styles.sliderCapsule}
-            onLayout={(e) => {
-              const capsuleW = e.nativeEvent.layout.width;
-              if (capsuleW > 0) {
-                setSliderWidth(Math.max(120, capsuleW - 54));
-              }
-            }}
-          >
-            <Animated.View
-              style={[
-                styles.sliderKnob,
-                { transform: [{ translateX: slideAnim }] },
-              ]}
-              {...panResponder.panHandlers}
-            >
-              <View style={styles.knobInner} pointerEvents="none">
-                <Feather name="chevron-right" size={22} color={colors.surface} />
+          {/* Slide To Punch Slider Capsule (replaced by clean summary strip once punched out) */}
+          {isCheckedOut ? (
+            <View style={styles.shiftDoneCapsule}>
+              <View style={styles.shiftDoneLeft}>
+                <View style={styles.shiftDoneBadge}>
+                  <Feather name="check" size={14} color="#064E3B" />
+                </View>
+                <Text style={styles.shiftDoneTitle}>Day Done</Text>
               </View>
-            </Animated.View>
 
-            <TouchableOpacity
-              style={styles.sliderTextTouch}
-              onPress={() => setIsAttendanceModalOpen(true)}
-              activeOpacity={0.8}
+              <View style={styles.shiftDoneTimes}>
+                <View style={styles.shiftTimeItem}>
+                  <Text style={styles.shiftTimeLabel}>IN</Text>
+                  <Text style={styles.shiftTimeValue}>{punchTimeFormatted || "--:--"}</Text>
+                </View>
+                <View style={styles.shiftTimeDivider} />
+                <View style={styles.shiftTimeItem}>
+                  <Text style={styles.shiftTimeLabel}>OUT</Text>
+                  <Text style={styles.shiftTimeValue}>{punchOutTimeFormatted || "--:--"}</Text>
+                </View>
+              </View>
+            </View>
+          ) : (
+            <View
+              style={styles.sliderCapsule}
+              onLayout={(e) => {
+                const capsuleW = e.nativeEvent.layout.width;
+                if (capsuleW > 0) {
+                  setSliderWidth(Math.max(120, capsuleW - 54));
+                }
+              }}
             >
-              <Text style={styles.sliderText} numberOfLines={1}>
-                {isCheckedIn
-                  ? `${punchTimeFormatted ? `In at ${punchTimeFormatted}` : "Shift active"} · Slide to Punch Out`
-                  : "Slide to punch in"}
-              </Text>
-            </TouchableOpacity>
-          </View>
+              <Animated.View
+                style={[
+                  styles.sliderKnob,
+                  { transform: [{ translateX: slideAnim }] },
+                ]}
+                {...panResponder.panHandlers}
+              >
+                <View style={styles.knobInner} pointerEvents="none">
+                  <Feather name="chevron-right" size={22} color={colors.surface} />
+                </View>
+              </Animated.View>
+
+              <TouchableOpacity
+                style={styles.sliderTextTouch}
+                onPress={() => setIsAttendanceModalOpen(true)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.sliderText} numberOfLines={1}>
+                  {isCheckedIn
+                    ? `${punchTimeFormatted ? `In at ${punchTimeFormatted}` : "Shift active"} · Slide to Punch Out`
+                    : "Slide to punch in"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
 
         {/* Quick Add Chips (Horizontal Scroll) */}
@@ -813,6 +846,7 @@ export function MrBuddyHomeScreen() {
         visible={isAttendanceModalOpen}
         onClose={() => setIsAttendanceModalOpen(false)}
         onAttendanceUpdated={loadAttendanceAndStats}
+        onPunchOutSuccess={() => navigation.navigate(ROUTES.ExpenseAdd as any)}
       />
 
       {/* Change Territory Modal */}
@@ -1023,6 +1057,59 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: 5,
     position: "relative",
+  },
+  shiftDoneCapsule: {
+    height: 54,
+    borderRadius: 27,
+    backgroundColor: "rgba(16, 185, 129, 0.14)",
+    borderWidth: 1,
+    borderColor: "rgba(74, 222, 128, 0.32)",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 14,
+  },
+  shiftDoneLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  shiftDoneBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: "#4ADE80",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shiftDoneTitle: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#ECFDF5",
+  },
+  shiftDoneTimes: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  shiftTimeItem: {
+    alignItems: "flex-end",
+  },
+  shiftTimeLabel: {
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 0.6,
+    color: "#86EFAC",
+  },
+  shiftTimeValue: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#FFFFFF",
+  },
+  shiftTimeDivider: {
+    width: 1,
+    height: 22,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   sliderKnob: {
     width: 44,
